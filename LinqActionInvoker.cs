@@ -15,7 +15,6 @@ namespace Xania.AspNet.Simulator
 
             var globalFilters = new GlobalFilterCollection();
             // FilterConfig.RegisterGlobalFilters(globalFilters);
-            FilterAttributeFilterProvider c = null;
 
             var filters =
                 FilterProviders.Providers.GetFilters(controllerContext, actionDescriptor)
