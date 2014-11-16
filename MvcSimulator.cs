@@ -17,28 +17,35 @@ namespace Xania.AspNet.Simulator
         public MvcSimulator()
         {
             User = new GenericPrincipal(new GenericIdentity(String.Empty), new string[] {});
+            DependencyResolverFactory = new DefaultDependencyResolverFactory();
         }
+
+        public IDependencyResolverFactory DependencyResolverFactory { get; set; }
 
         public IPrincipal User { get; set; }
 
-        public virtual IMvcRequest CreateRequest<TController>(Expression<Func<TController, object>> actionExpression, TController controller = null)
+        public virtual IMvcRequest CreateRequest<TController>(Expression<Func<TController, object>> actionExpression)
             where TController : ControllerBase
         {
-            //// 1. action descriptor
-            //var actionDescriptor = CreateActionDescriptor(actionExpression);
-
-            // 2. request context
+            // 1. request context
             var requestContext = AspNetUtility.CreateRequestContext<TController>(GetActionName(actionExpression), User, new MemoryStream());
 
-            // 3. resolver
-            var resolver = InitDependencyResolver(requestContext.HttpContext);
+            // 2. register the resolver
+            var resolver = DependencyResolverFactory.Create(requestContext.HttpContext);
 
-            // 4. controller
-            controller = controller ?? resolver.GetService<TController>();
-            controller.ControllerContext = new ControllerContext(requestContext, controller);
+            // 3. create controller
+            var controller = CreateController<TController>(resolver, requestContext);
 
-            // 5. combine
+            // 4. combine
             return CreateMvcRequest(controller.ControllerContext, actionExpression);
+        }
+
+        private T CreateController<T>(IDependencyResolver resolver, RequestContext requestContext)
+            where T: ControllerBase
+        {
+            var controller = (T)resolver.GetService(typeof(T));
+            controller.ControllerContext = new ControllerContext(requestContext, controller);
+            return controller;
         }
 
         private static LinqRequest<TController> CreateMvcRequest<TController>(ControllerContext controllerContext, Expression<Func<TController, object>> actionExpression)

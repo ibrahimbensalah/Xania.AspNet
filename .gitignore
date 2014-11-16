@@ -3,3 +3,5 @@ bin
 obj
 packages
 *.suo
+nupack.cmd
+*.nupkg
