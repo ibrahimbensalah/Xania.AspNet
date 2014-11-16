@@ -6,46 +6,56 @@ using System.Web.Mvc;
 
 namespace Xania.AspNet.Simulator
 {
-    public class LinqActionInvoker : ControllerActionInvoker
+    public class LinqActionInvoker<TController> : ControllerActionInvoker
+        where TController : ControllerBase
     {
-        public virtual ActionResult InvokeAction<TController>(ControllerContext controllerContext, Expression<Func<TController, object>> actionExpression)
-            where TController : ControllerBase 
+        private readonly ControllerContext _controllerContext;
+        private readonly LinqActionDescriptor<TController> _actionDescriptor;
+        private readonly FilterInfo _filterInfo;
+
+        public LinqActionInvoker(ControllerContext controllerContext,
+            Expression<Func<TController, object>> actionExpression)
         {
-            var actionDescriptor = CreateActionDescriptor(actionExpression);
+            _controllerContext = controllerContext;
+            _actionDescriptor = new LinqActionDescriptor<TController>(actionExpression);
+            _filterInfo = GetFilterInfo();
+        }
 
-            var globalFilters = new GlobalFilterCollection();
-            // FilterConfig.RegisterGlobalFilters(globalFilters);
+        private ActionResult AuthorizeAction()
+        {
+            var authorizationContext = InvokeAuthorizationFilters(_controllerContext,
+                _filterInfo.AuthorizationFilters, _actionDescriptor);
 
-            var filters =
-                FilterProviders.Providers.GetFilters(controllerContext, actionDescriptor)
-                    .Concat(globalFilters);
-            var filterInfo = new FilterInfo(filters); // GetFilters(controller.ControllerContext, actionDescriptor);
-
-            var authorizationContext = InvokeAuthorizationFilters(controllerContext,
-                filterInfo.AuthorizationFilters, actionDescriptor);
-
-            if (authorizationContext.Result != null)
+            var authorizationResult = authorizationContext.Result;
+            if (authorizationResult != null)
             {
-                InvokeAuthenticationFiltersChallenge(
-                    controllerContext, filterInfo.AuthenticationFilters, actionDescriptor,
-                    authorizationContext.Result);
-                return authorizationContext.Result;
+                InvokeAuthenticationFiltersChallenge(_controllerContext, _filterInfo.AuthenticationFilters, _actionDescriptor, authorizationResult);
             }
 
+            return authorizationResult;
+        }
+
+        public virtual ActionResult InvokeAction()
+        {
+            return AuthorizeAction() ?? InvokeActionMethodWithFilters();
+        }
+
+        private ActionResult InvokeActionMethodWithFilters()
+        {
             var dummyParameters = new Dictionary<string, object>();
-            var actionExecutedContext = InvokeActionMethodWithFilters(controllerContext,
-                filterInfo.ActionFilters,
-                actionDescriptor, dummyParameters);
+            var actionExecutedContext = InvokeActionMethodWithFilters(_controllerContext,
+                _filterInfo.ActionFilters, _actionDescriptor, dummyParameters);
+
             if (actionExecutedContext == null)
                 throw new Exception("InvokeActionMethodWithFilters returned null");
 
             return actionExecutedContext.Result;
         }
 
-        private static LinqActionDescriptor<TController> CreateActionDescriptor<TController>(Expression<Func<TController, object>> actionExpression)
-            where TController : ControllerBase
+        private FilterInfo GetFilterInfo()
         {
-            return new LinqActionDescriptor<TController>(actionExpression);
+            var filters = FilterProviders.Providers.GetFilters(_controllerContext, _actionDescriptor);
+            return new FilterInfo(filters);
         }
     }
 }

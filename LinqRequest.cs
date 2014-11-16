@@ -29,8 +29,8 @@ namespace Xania.AspNet.Simulator
 
 		public virtual ActionResult Execute()
 		{
-			var invoker = new LinqActionInvoker();
-            return invoker.InvokeAction(_controllerContext, _actionExpression);
+            var invoker = new LinqActionInvoker<TController>(_controllerContext, _actionExpression);
+            return invoker.InvokeAction();
 		}
 	}
 }

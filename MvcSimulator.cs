@@ -138,12 +138,12 @@ namespace Xania.AspNet.Simulator
             return contextMock.Object;
         }
 
-        public static ControllerContext CreateControllerContext(RouteData routeData, ControllerBase controller)
-        {
-            return new ControllerContext(new HttpContextWrapper(CreateHttpContext("~/")), routeData, controller);
-        }
+        //private static ControllerContext CreateControllerContext(RouteData routeData, ControllerBase controller)
+        //{
+        //    return new ControllerContext(new HttpContextWrapper(CreateHttpContext("~/")), routeData, controller);
+        //}
 
-        public static HttpContext CreateHttpContext(string url, Stream outputStream = null)
+        private static HttpContext CreateHttpContext(string url, Stream outputStream = null)
         {
             var uri = new Uri("http://localhost/" + url.Substring(2));
 
