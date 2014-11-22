@@ -55,12 +55,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AspNetUtility.cs" />
     <Compile Include="IDependencyResolverFactory.cs" />
+    <Compile Include="IMvcRequest.cs" />
+    <Compile Include="IMvcResult.cs" />
     <Compile Include="LinqActionDescriptor.cs" />
-    <Compile Include="LinqActionInvoker.cs" />
-    <Compile Include="LinqRequest.cs" />
+    <Compile Include="MvcActionInvoker.cs" />
+    <Compile Include="MvcRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="MvcSimulator.cs" />
+    <Compile Include="SimulatorExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

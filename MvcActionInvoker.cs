@@ -1,23 +1,19 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
 using System.Web.Mvc;
 
 namespace Xania.AspNet.Simulator
 {
-    public class LinqActionInvoker<TController> : ControllerActionInvoker
-        where TController : ControllerBase
+    internal class MvcActionInvoker : ControllerActionInvoker
     {
         private readonly ControllerContext _controllerContext;
-        private readonly LinqActionDescriptor<TController> _actionDescriptor;
+        private readonly ActionDescriptor _actionDescriptor;
         private readonly FilterInfo _filterInfo;
 
-        public LinqActionInvoker(ControllerContext controllerContext,
-            Expression<Func<TController, object>> actionExpression)
+        public MvcActionInvoker(ControllerContext controllerContext, ActionDescriptor actionDescriptor)
         {
             _controllerContext = controllerContext;
-            _actionDescriptor = new LinqActionDescriptor<TController>(actionExpression);
+            _actionDescriptor = actionDescriptor;
             _filterInfo = GetFilterInfo();
         }
 

@@ -6,7 +6,7 @@ using System.Web.Mvc;
 
 namespace Xania.AspNet.Simulator
 {
-    public class LinqActionDescriptor<TController> : ActionDescriptor
+    internal class LinqActionDescriptor<TController> : ActionDescriptor
         where TController: ControllerBase
     {
         private readonly Func<TController, object> _actionExpression;
@@ -35,6 +35,7 @@ namespace Xania.AspNet.Simulator
                 throw new InvalidOperationException("Cannot invoke action on controller, expected controller of type " +
                     typeof(TController) + ", but was " + controllerContext.Controller.GetType());
 
+            controller.ControllerContext = controllerContext;
             return _actionExpression(controller);
         }
 
