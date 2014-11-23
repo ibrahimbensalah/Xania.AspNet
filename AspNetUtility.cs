@@ -7,7 +7,6 @@ using System.Linq.Expressions;
 using System.Security.Principal;
 using System.Web;
 using System.Web.Caching;
-using System.Web.Mvc;
 using System.Web.Routing;
 using Moq;
 
@@ -15,17 +14,9 @@ namespace Xania.AspNet.Simulator
 {
     public class AspNetUtility
     {
-        internal static RequestContext CreateRequestContext<TController>(string actionName, IPrincipal user, Stream outputStream)
-        {
-            var controllerDescriptor = new ReflectedControllerDescriptor(typeof(TController));
-            var controllerName = controllerDescriptor.ControllerName;
-
-            return CreateRequestContext(actionName, controllerName, user, outputStream);
-        }
-
         internal static RequestContext CreateRequestContext(string actionName, string controllerName, IPrincipal user, Stream outputStream)
         {
-            var httpContext = GetContext(CreateHttpContext("~/controller/action", outputStream), user);
+            var httpContext = GetContext(CreateHttpContext(String.Format("~/{0}/{1}", controllerName, actionName), outputStream), user);
             var routeData = new RouteData { Values = { { "controller", controllerName }, { "action", actionName } } };
 
             return new RequestContext(httpContext, routeData);
@@ -62,6 +53,7 @@ namespace Xania.AspNet.Simulator
             var mock = new Mock<HttpResponseBase>();
             mock.Setup(wrapper => wrapper.StatusCode).Returns(response.StatusCode);
             mock.Setup(wrapper => wrapper.Output).Returns(response.Output);
+            mock.Setup(wrapper => wrapper.Cache).Returns(new HttpCachePolicyWrapper(response.Cache));
 
             return mock.Object;
         }
