@@ -22,6 +22,11 @@ namespace Xania.AspNet.Simulator
             return new RequestContext(httpContext, routeData);
         }
 
+        internal static HttpContextBase GetContext(String url, IPrincipal user)
+        {
+            return GetContext(CreateHttpContext(url), user);
+        }
+
         internal static HttpContextBase GetContext(HttpContext httpContext, IPrincipal user)
         {
             var session = new Mock<HttpSessionStateBase>();
@@ -82,7 +87,7 @@ namespace Xania.AspNet.Simulator
 
         internal static HttpContext CreateHttpContext(string url, Stream outputStream = null)
         {
-            var uri = new Uri("http://localhost/" + url.Substring(2));
+            var uri = new Uri("http://localhost" + url.Substring(1));
 
             var request = new HttpRequest("", uri.ToString(), uri.Query)
             {

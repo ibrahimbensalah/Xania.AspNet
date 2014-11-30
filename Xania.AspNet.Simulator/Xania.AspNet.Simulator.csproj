@@ -56,6 +56,7 @@
     <Compile Include="LinqActionDescriptor.cs" />
     <Compile Include="MvcActionInvoker.cs" />
     <Compile Include="ControllerAction.cs" />
+    <Compile Include="MvcApplication.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SimulatorExtensions.cs" />
   </ItemGroup>

@@ -9,8 +9,8 @@ namespace Xania.AspNet.Simulator
     public class ControllerAction
     {
         private IPrincipal _user;
-        private readonly ControllerBase _controller;
-        private readonly ActionDescriptor _actionDescriptor;
+        public ControllerBase Controller { get; private set; }
+        public ActionDescriptor ActionDescriptor { get; private set; }
 
         public ControllerAction(ControllerBase controller, ActionDescriptor actionDescriptor)
         {
@@ -20,8 +20,8 @@ namespace Xania.AspNet.Simulator
             if (actionDescriptor == null) 
                 throw new ArgumentNullException("actionDescriptor");
 
-            _controller = controller;
-            _actionDescriptor = actionDescriptor;
+            Controller = controller;
+            ActionDescriptor = actionDescriptor;
         }
 
         public void Authenticate(IPrincipal user)
@@ -34,14 +34,14 @@ namespace Xania.AspNet.Simulator
 
         public ControllerActionResult Execute()
         {
-            var controllerDescriptor = new ReflectedControllerDescriptor(_controller.GetType());
+            var controllerDescriptor = new ReflectedControllerDescriptor(Controller.GetType());
             var controllerName = controllerDescriptor.ControllerName;
 
-            var requestContext = AspNetUtility.CreateRequestContext(_actionDescriptor.ActionName, controllerName, _user ?? AnonymousUser, new MemoryStream());
+            var requestContext = AspNetUtility.CreateRequestContext(ActionDescriptor.ActionName, controllerName, _user ?? AnonymousUser, new MemoryStream());
 
-            var controllerContext = new ControllerContext(requestContext, _controller);
+            var controllerContext = new ControllerContext(requestContext, Controller);
 
-            var invoker = new MvcActionInvoker(controllerContext, _actionDescriptor);
+            var invoker = new MvcActionInvoker(controllerContext, ActionDescriptor);
 
             return new ControllerActionResult
             {
