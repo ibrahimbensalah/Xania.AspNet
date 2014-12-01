@@ -17,7 +17,7 @@ namespace Xania.AspNet.Simulator.Tests
         }
 
         [Test]
-        public void UrlRequestMappingTest()
+        public void ActionFromUrlTest()
         {
             // arrange
             var controllerAction = _app.Action("~/");
@@ -28,14 +28,14 @@ namespace Xania.AspNet.Simulator.Tests
             // assert
             Assert.IsInstanceOf<HomeController>(controllerAction.Controller);
             Assert.IsInstanceOf<ContentResult>(result.ActionResult);
-            Assert.AreEqual("Hello Url Request!", result.ViewBag.Message);
+            Assert.AreEqual("Hello Mvc Application!", result.ViewBag.Message);
         }
 
         class HomeController : Controller
         {
             public ActionResult Index()
             {
-                ViewBag.Message = "Hello Url Request!";
+                ViewBag.Message = "Hello Mvc Application!";
                 return Content("index");
             }
         }
