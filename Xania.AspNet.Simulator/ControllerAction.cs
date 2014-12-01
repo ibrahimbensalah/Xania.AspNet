@@ -40,6 +40,7 @@ namespace Xania.AspNet.Simulator
             var requestContext = AspNetUtility.CreateRequestContext(ActionDescriptor.ActionName, controllerName, _user ?? AnonymousUser, new MemoryStream());
 
             var controllerContext = new ControllerContext(requestContext, Controller);
+            Controller.ControllerContext = controllerContext;
 
             var invoker = new MvcActionInvoker(controllerContext, ActionDescriptor);
 

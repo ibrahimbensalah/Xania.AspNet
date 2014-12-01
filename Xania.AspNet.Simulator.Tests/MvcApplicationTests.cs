@@ -1,5 +1,5 @@
-﻿using System.Web.Mvc;
-using System.Web.Routing;
+﻿using System;
+using System.Web.Mvc;
 using NUnit.Framework;
 
 namespace Xania.AspNet.Simulator.Tests
@@ -31,12 +31,45 @@ namespace Xania.AspNet.Simulator.Tests
             Assert.AreEqual("Hello Mvc Application!", result.ViewBag.Message);
         }
 
+        [Test]
+        public void AuthorizedActionFromUrlTest()
+        {
+            // arrange
+            var controllerAction = _app.Action("~/home/private");
+
+            // act
+            var result = controllerAction.Authenticate("Ibrahim", null).Execute();
+
+            // assert
+            Assert.IsInstanceOf<EmptyResult>(result.ActionResult);
+            Assert.AreEqual("Hello Ibrahim", result.ViewBag.Message);
+        }
+
+        [Test]
+        public void UnAuthorizedActionFromUrlTest()
+        {
+            // arrange
+            var controllerAction = _app.Action("~/home/private");
+
+            // act
+            var result = controllerAction.Execute();
+
+            // assert
+            Assert.IsInstanceOf<HttpUnauthorizedResult>(result.ActionResult);
+        }
+
         class HomeController : Controller
         {
             public ActionResult Index()
             {
                 ViewBag.Message = "Hello Mvc Application!";
                 return Content("index");
+            }
+
+            [Authorize]
+            public void Private()
+            {
+                ViewBag.Message = "Hello " + User.Identity.Name;
             }
         }
     }
