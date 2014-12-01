@@ -1,5 +1,4 @@
-﻿using System;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
 using NUnit.Framework;
 
 namespace Xania.AspNet.Simulator.Tests
@@ -58,6 +57,29 @@ namespace Xania.AspNet.Simulator.Tests
             Assert.IsInstanceOf<HttpUnauthorizedResult>(result.ActionResult);
         }
 
+        [Test]
+        public void PostActionTest()
+        {
+            // arrange
+            var controllerAction = _app.Action("~/home/update", "POST");
+
+            // act
+            var result = controllerAction.Execute();
+
+            // assert
+            Assert.AreEqual("Update action is executed!", result.ViewBag.Message);
+        }
+
+        [Test]
+        public void UnmatchedPostActionTest()
+        {
+            // arrange
+            var controllerAction = _app.Action("~/home/update");
+
+            // assert
+            Assert.IsNull(controllerAction);
+        }
+
         class HomeController : Controller
         {
             public ActionResult Index()
@@ -70,6 +92,12 @@ namespace Xania.AspNet.Simulator.Tests
             public void Private()
             {
                 ViewBag.Message = "Hello " + User.Identity.Name;
+            }
+
+            [HttpPost]
+            public void Update()
+            {
+                ViewBag.Message = "Update action is executed!";
             }
         }
     }

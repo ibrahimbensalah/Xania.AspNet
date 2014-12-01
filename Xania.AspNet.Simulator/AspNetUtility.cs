@@ -2,11 +2,15 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.IO;
 using System.Linq.Expressions;
+using System.Net;
+using System.Reflection;
 using System.Security.Principal;
 using System.Web;
 using System.Web.Caching;
+using System.Web.Hosting;
 using System.Web.Routing;
 using Moq;
 
@@ -16,15 +20,15 @@ namespace Xania.AspNet.Simulator
     {
         internal static RequestContext CreateRequestContext(string actionName, string controllerName, IPrincipal user, Stream outputStream)
         {
-            var httpContext = GetContext(CreateHttpContext(String.Format("~/{0}/{1}", controllerName, actionName), outputStream), user);
+            var httpContext = GetContext(CreateHttpContext(String.Format("~/{0}/{1}", controllerName, actionName), "GET", outputStream), user);
             var routeData = new RouteData { Values = { { "controller", controllerName }, { "action", actionName } } };
 
             return new RequestContext(httpContext, routeData);
         }
 
-        internal static HttpContextBase GetContext(String url, IPrincipal user)
+        internal static HttpContextBase GetContext(String url, string method, IPrincipal user)
         {
-            return GetContext(CreateHttpContext(url), user);
+            return GetContext(CreateHttpContext(url, method), user);
         }
 
         internal static HttpContextBase GetContext(HttpContext httpContext, IPrincipal user)
@@ -65,6 +69,8 @@ namespace Xania.AspNet.Simulator
 
         private static HttpRequestBase Wrap(HttpRequest request)
         {
+            Debug.Assert(request.Headers != null, "request.Headers != null");
+
             var mock = new Mock<HttpRequestBase>();
             mock.Setup(wrapper => wrapper.Url).Returns(request.Url);
             mock.Setup(wrapper => wrapper.HttpMethod).Returns(request.HttpMethod);
@@ -76,6 +82,7 @@ namespace Xania.AspNet.Simulator
             mock.Setup(wrapper => wrapper.ContentType).Returns(request.ContentType);
             mock.Setup(wrapper => wrapper.QueryString).Returns(request.QueryString);
             mock.Setup(wrapper => wrapper.Files).Returns(new Mock<HttpFileCollectionBase>().Object);
+            mock.Setup(wrapper => wrapper.Headers).Returns(request.Headers);
 
             return mock.Object;
         }
@@ -85,7 +92,7 @@ namespace Xania.AspNet.Simulator
         //    return new ControllerContext(new HttpContextWrapper(CreateHttpContext("~/")), routeData, controller);
         //}
 
-        internal static HttpContext CreateHttpContext(string url, Stream outputStream = null)
+        internal static HttpContext CreateHttpContext(string url, string method = "GET", Stream outputStream = null)
         {
             var uri = new Uri("http://localhost" + url.Substring(1));
 
@@ -96,6 +103,11 @@ namespace Xania.AspNet.Simulator
                     Capabilities = new Dictionary<string, string>()
                 }
             };
+
+            var field = typeof(HttpRequest).GetField("_httpMethod", BindingFlags.Instance | BindingFlags.NonPublic);
+            Debug.Assert(field != null, "field != null");
+
+            field.SetValue(request, method);
 
             var writer = new StreamWriter(outputStream ?? new MemoryStream());
             var response = new HttpResponse(writer);

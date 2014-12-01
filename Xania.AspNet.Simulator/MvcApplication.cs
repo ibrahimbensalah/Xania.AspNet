@@ -35,9 +35,9 @@ namespace Xania.AspNet.Simulator
             throw new KeyNotFoundException(controllerName);
         }
 
-        public ControllerAction Action(string url)
+        public ControllerAction Action(string url, string method = "GET")
         {
-            var context = AspNetUtility.GetContext(url, null);
+            var context = AspNetUtility.GetContext(url, method, null);
             var routeData = _routes.GetRouteData(context);
 
             if (routeData == null)
@@ -47,6 +47,9 @@ namespace Xania.AspNet.Simulator
             var controller = CreateController(controllerName);
             var controllerDescriptor = new ReflectedControllerDescriptor(controller.GetType());
             var actionDescriptor = controllerDescriptor.FindAction(new ControllerContext(context, routeData, controller), routeData.GetRequiredString("action"));
+
+            if (actionDescriptor == null)
+                return null;
 
             return new ControllerAction(controller, actionDescriptor);
         }
