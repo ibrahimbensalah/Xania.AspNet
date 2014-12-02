@@ -1,4 +1,5 @@
-﻿using System.Web.Mvc;
+﻿using System;
+using System.Web.Mvc;
 using NUnit.Framework;
 
 namespace Xania.AspNet.Simulator.Tests
@@ -45,6 +46,19 @@ namespace Xania.AspNet.Simulator.Tests
             // assert
             Assert.IsInstanceOf<ViewResult>(result.ActionResult);
         }
+
+        [Test]
+        public void PostActionIsNotAllowedWithGetTest()
+        {
+            // arrange 
+            var controller = new TestController();
+
+            // act 
+            var controllerAction = controller.Action(c => c.Update());
+
+            // assert
+            Assert.Catch<InvalidOperationException>(() => controllerAction.Execute());
+        }
     }
 
     public class TestController : Controller
@@ -59,6 +73,11 @@ namespace Xania.AspNet.Simulator.Tests
         public ActionResult UserProfile()
         {
             return View();
+        }
+
+        [HttpPost]
+        public void Update()
+        {
         }
     }
 }

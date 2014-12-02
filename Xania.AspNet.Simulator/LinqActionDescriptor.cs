@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Web.Mvc;
 
 namespace Xania.AspNet.Simulator
@@ -9,22 +10,22 @@ namespace Xania.AspNet.Simulator
     internal class LinqActionDescriptor<TController> : ActionDescriptor
         where TController: ControllerBase
     {
-        private readonly Func<TController, object> _actionExpression;
-
+        private readonly Func<TController, object> _actionDelegate;
         private readonly string _actionName;
-        private readonly IEnumerable<FilterAttribute> _filterAttributes;
+        private readonly IEnumerable<FilterAttribute> _filters;
+        private readonly ICollection<ActionSelector> _selectors;
 
-        public LinqActionDescriptor(Expression<Func<TController, object>> actionExpression)
+        public LinqActionDescriptor(Func<TController, object> actionDelegate, MethodInfo method)
         {
-            _actionExpression = actionExpression.Compile();
+            _actionDelegate = actionDelegate;
+            _actionName = method.Name;
 
-            var methodCallExpression = actionExpression.Body as MethodCallExpression;
-            if (methodCallExpression == null)
-                throw new ArgumentException("actionExpression is not a method call expression like: ctrl => ctrl.DoAction(...)");
-
-            _actionName = methodCallExpression.Method.Name;
-
-            _filterAttributes = methodCallExpression.Method.GetCustomAttributes(true).OfType<FilterAttribute>();
+            var attributes = method.GetCustomAttributes().ToArray();
+         
+            _filters = attributes.OfType<FilterAttribute>();
+            _selectors =
+                attributes.OfType<ActionMethodSelectorAttribute>()
+                    .Select(ams => new ActionSelector((context) => ams.IsValidForRequest(context, method))).ToList();
         }
 
         public override object Execute(ControllerContext controllerContext, IDictionary<string, object> parameters)
@@ -36,7 +37,7 @@ namespace Xania.AspNet.Simulator
                     typeof(TController) + ", but was " + controllerContext.Controller.GetType());
 
             controller.ControllerContext = controllerContext;
-            return _actionExpression(controller);
+            return _actionDelegate(controller);
         }
 
         public override ParameterDescriptor[] GetParameters()
@@ -56,7 +57,12 @@ namespace Xania.AspNet.Simulator
 
         public override IEnumerable<FilterAttribute> GetFilterAttributes(bool useCache)
         {
-            return _filterAttributes;
+            return _filters ?? Enumerable.Empty<FilterAttribute>();
+        }
+
+        public override ICollection<ActionSelector> GetSelectors()
+        {
+            return _selectors ?? new ActionSelector[]{};
         }
     }
 }

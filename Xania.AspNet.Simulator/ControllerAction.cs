@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Security.Principal;
 using System.Web.Mvc;
@@ -8,12 +9,14 @@ namespace Xania.AspNet.Simulator
 {
     public class ControllerAction
     {
+        private readonly string _httpMethod;
         private IPrincipal _user;
         public ControllerBase Controller { get; private set; }
         public ActionDescriptor ActionDescriptor { get; private set; }
 
-        public ControllerAction(ControllerBase controller, ActionDescriptor actionDescriptor)
+        public ControllerAction(ControllerBase controller, ActionDescriptor actionDescriptor, string httpMethod = "GET")
         {
+            _httpMethod = httpMethod;
             if (controller == null)
                 throw new ArgumentNullException("controller");
 
@@ -37,10 +40,15 @@ namespace Xania.AspNet.Simulator
             var controllerDescriptor = new ReflectedControllerDescriptor(Controller.GetType());
             var controllerName = controllerDescriptor.ControllerName;
 
-            var requestContext = AspNetUtility.CreateRequestContext(ActionDescriptor.ActionName, controllerName, _user ?? AnonymousUser);
+            var requestContext = AspNetUtility.CreateRequestContext(ActionDescriptor.ActionName, controllerName, _httpMethod, _user ?? AnonymousUser);
 
             var controllerContext = new ControllerContext(requestContext, Controller);
             Controller.ControllerContext = controllerContext;
+
+            if (ActionDescriptor.GetSelectors().Any(selector => !selector.Invoke(controllerContext)))
+            {
+                throw new InvalidOperationException(String.Format("Http method '{0}' is not allowed", _httpMethod));
+            }
 
             var invoker = new MvcActionInvoker(controllerContext, ActionDescriptor);
 

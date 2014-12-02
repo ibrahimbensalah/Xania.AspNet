@@ -51,7 +51,7 @@ namespace Xania.AspNet.Simulator
             if (actionDescriptor == null)
                 return null;
 
-            return new ControllerAction(controller, actionDescriptor);
+            return new ControllerAction(controller, actionDescriptor, method);
         }
 
         public MvcApplication RegisterRoutes(Action<RouteCollection> configAction)

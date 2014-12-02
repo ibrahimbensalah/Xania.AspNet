@@ -18,10 +18,9 @@ namespace Xania.AspNet.Simulator
 {
     public class AspNetUtility
     {
-        internal static RequestContext CreateRequestContext(string actionName, string controllerName, IPrincipal user)
+        internal static RequestContext CreateRequestContext(string actionName, string controllerName, string httpMethod, IPrincipal user)
         {
-            var httpContext = GetContext(String.Format("~/{0}/{1}", controllerName, actionName), "GET", user);
-            // var httpContext = GetContext(CreateHttpContext(, "GET", outputStream), user);
+            var httpContext = GetContext(String.Format("~/{0}/{1}", controllerName, actionName), httpMethod, user);
             var routeData = new RouteData { Values = { { "controller", controllerName }, { "action", actionName } } };
 
             return new RequestContext(httpContext, routeData);

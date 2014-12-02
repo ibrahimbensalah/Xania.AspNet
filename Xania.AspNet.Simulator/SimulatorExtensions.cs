@@ -24,7 +24,23 @@ namespace Xania.AspNet.Simulator
             Expression<Func<TController, object>> actionExpression)
             where TController : ControllerBase
         {
-            return new ControllerAction(controller, new LinqActionDescriptor<TController>(actionExpression));
+            var methodCallExpression = (MethodCallExpression)actionExpression.Body;
+            var actionDelegate = actionExpression.Compile();
+            return new ControllerAction(controller, new LinqActionDescriptor<TController>(actionDelegate, methodCallExpression.Method));
+        }
+
+        public static ControllerAction Action<TController>(this TController controller,
+            Expression<Action<TController>> actionExpression, String httpMethod = "GET")
+            where TController : ControllerBase
+        {
+            var methodCallExpression = (MethodCallExpression)actionExpression.Body;
+            Func<TController, object> actionDelegate = c =>
+            {
+                actionExpression.Compile()(c);
+                return null;
+            };
+
+            return new ControllerAction(controller, new LinqActionDescriptor<TController>(actionDelegate, methodCallExpression.Method), httpMethod);
         }
 
         public static ControllerActionResult Execute<TController>(this TController controller,
@@ -55,12 +71,15 @@ namespace Xania.AspNet.Simulator
             return RegisterControllers(application, null, assemblies);
         }
 
-        public static MvcApplication RegisterControllers(this MvcApplication application, IDependencyResolver dependencyResolver, params Assembly[] assemblies)
+        public static MvcApplication RegisterControllers(this MvcApplication application,
+            IDependencyResolver dependencyResolver, params Assembly[] assemblies)
         {
             const string controllerPostFix = "Controller";
-            var controllerTypes = 
+            var controllerTypes =
                 from t in ScanTypes(assemblies)
-                where typeof(ControllerBase).IsAssignableFrom(t) && t.Name.EndsWith(controllerPostFix, StringComparison.Ordinal)
+                where
+                    typeof (ControllerBase).IsAssignableFrom(t) &&
+                    t.Name.EndsWith(controllerPostFix, StringComparison.Ordinal)
                 select t;
 
             foreach (var type in controllerTypes)
@@ -70,7 +89,7 @@ namespace Xania.AspNet.Simulator
                     ? Activator.CreateInstance(type)
                     : dependencyResolver.GetService(type);
 
-                application.RegisterController(name, (ControllerBase)instance);
+                application.RegisterController(name, (ControllerBase) instance);
             }
 
             return application;
@@ -83,7 +102,7 @@ namespace Xania.AspNet.Simulator
                     t.IsClass &&
                     !t.IsAbstract &&
                     !t.IsGenericTypeDefinition &&
-                    !typeof(Delegate).IsAssignableFrom(t));
+                    !typeof (Delegate).IsAssignableFrom(t));
         }
     }
 }
