@@ -18,9 +18,10 @@ namespace Xania.AspNet.Simulator
 {
     public class AspNetUtility
     {
-        internal static RequestContext CreateRequestContext(string actionName, string controllerName, IPrincipal user, Stream outputStream)
+        internal static RequestContext CreateRequestContext(string actionName, string controllerName, IPrincipal user)
         {
-            var httpContext = GetContext(CreateHttpContext(String.Format("~/{0}/{1}", controllerName, actionName), "GET", outputStream), user);
+            var httpContext = GetContext(String.Format("~/{0}/{1}", controllerName, actionName), "GET", user);
+            // var httpContext = GetContext(CreateHttpContext(, "GET", outputStream), user);
             var routeData = new RouteData { Values = { { "controller", controllerName }, { "action", actionName } } };
 
             return new RequestContext(httpContext, routeData);
@@ -28,7 +29,10 @@ namespace Xania.AspNet.Simulator
 
         internal static HttpContextBase GetContext(String url, string method, IPrincipal user)
         {
-            return GetContext(CreateHttpContext(url, method), user);
+            // var worker = new MvcWorkerRequest(url.Substring(1), method, user);
+            var worker = new MvcWorkerRequest(url, method, user);
+            var httpContext = new HttpContext(worker);
+            return GetContext(httpContext, user);
         }
 
         internal static HttpContextBase GetContext(HttpContext httpContext, IPrincipal user)
@@ -85,46 +89,6 @@ namespace Xania.AspNet.Simulator
             mock.Setup(wrapper => wrapper.Headers).Returns(request.Headers);
 
             return mock.Object;
-        }
-
-        //private static ControllerContext CreateControllerContext(RouteData routeData, ControllerBase controller)
-        //{
-        //    return new ControllerContext(new HttpContextWrapper(CreateHttpContext("~/")), routeData, controller);
-        //}
-
-        internal static HttpContext CreateHttpContext(string url, string method = "GET", Stream outputStream = null)
-        {
-            var uri = new Uri("http://localhost" + url.Substring(1));
-
-            var request = new HttpRequest("", uri.ToString(), uri.Query)
-            {
-                Browser = new HttpBrowserCapabilities()
-                {
-                    Capabilities = new Dictionary<string, string>()
-                }
-            };
-
-            var field = typeof(HttpRequest).GetField("_httpMethod", BindingFlags.Instance | BindingFlags.NonPublic);
-            Debug.Assert(field != null, "field != null");
-
-            field.SetValue(request, method);
-
-            var writer = new StreamWriter(outputStream ?? new MemoryStream());
-            var response = new HttpResponse(writer);
-            HttpContext.Current = new HttpContext(request, response)
-            {
-            };
-
-            return HttpContext.Current;
-        }
-
-        internal static string GetActionName<TController>(Expression<Func<TController, object>> actionExpression)
-        {
-            var methodCallExpression = actionExpression.Body as MethodCallExpression;
-            if (methodCallExpression == null)
-                throw new ArgumentException("actionExpression is not a method call expression like: ctrl => ctrl.DoAction(...)");
-
-            return methodCallExpression.Method.Name;
         }
     }
 }

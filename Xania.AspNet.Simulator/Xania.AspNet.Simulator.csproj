@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AspNetUtility.cs" />
+    <Compile Include="MvcVirtualPathProvider.cs" />
     <Compile Include="MvcWorkerRequest.cs" />
     <Compile Include="IMvcResult.cs" />
     <Compile Include="LinqActionDescriptor.cs" />

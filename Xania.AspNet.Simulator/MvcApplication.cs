@@ -15,7 +15,7 @@ namespace Xania.AspNet.Simulator
         public MvcApplication()
         {
             _controllerMap = new Dictionary<String, ControllerBase>();
-            _routes = new RouteCollection();
+            _routes = new RouteCollection(new MvcVirtualPathProvider());
         }
 
         public void RegisterController(string name, ControllerBase controller)
