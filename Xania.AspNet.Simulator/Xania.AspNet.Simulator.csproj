@@ -52,10 +52,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AspNetUtility.cs" />
+    <Compile Include="LinqActionDescriptor.cs" />
+    <Compile Include="LinqParameterDescriptor.cs" />
     <Compile Include="MvcVirtualPathProvider.cs" />
     <Compile Include="MvcWorkerRequest.cs" />
     <Compile Include="IMvcResult.cs" />
-    <Compile Include="LinqActionDescriptor.cs" />
     <Compile Include="MvcActionInvoker.cs" />
     <Compile Include="ControllerAction.cs" />
     <Compile Include="MvcApplication.cs" />

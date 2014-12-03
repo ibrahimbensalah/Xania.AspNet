@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -7,62 +8,28 @@ using System.Web.Mvc;
 
 namespace Xania.AspNet.Simulator
 {
-    internal class LinqActionDescriptor<TController> : ActionDescriptor
-        where TController: ControllerBase
+    internal class LinqActionDescriptor : ReflectedActionDescriptor
     {
-        private readonly Func<TController, object> _actionDelegate;
-        private readonly string _actionName;
-        private readonly IEnumerable<FilterAttribute> _filters;
-        private readonly ICollection<ActionSelector> _selectors;
+        private readonly MethodCallExpression _methodCallExpression;
 
-        public LinqActionDescriptor(Func<TController, object> actionDelegate, MethodInfo method)
+        public LinqActionDescriptor(MethodCallExpression methodCallExpression, ReflectedControllerDescriptor controllerDescriptor)
+            : base(methodCallExpression.Method, methodCallExpression.Method.Name, controllerDescriptor)
         {
-            _actionDelegate = actionDelegate;
-            _actionName = method.Name;
-
-            var attributes = method.GetCustomAttributes().ToArray();
-         
-            _filters = attributes.OfType<FilterAttribute>();
-            _selectors =
-                attributes.OfType<ActionMethodSelectorAttribute>()
-                    .Select(ams => new ActionSelector((context) => ams.IsValidForRequest(context, method))).ToList();
-        }
-
-        public override object Execute(ControllerContext controllerContext, IDictionary<string, object> parameters)
-        {
-            var controller = controllerContext.Controller as TController;
-
-            if (controller == null)
-                throw new InvalidOperationException("Cannot invoke action on controller, expected controller of type " +
-                    typeof(TController) + ", but was " + controllerContext.Controller.GetType());
-
-            controller.ControllerContext = controllerContext;
-            return _actionDelegate(controller);
+            _methodCallExpression = methodCallExpression;
         }
 
         public override ParameterDescriptor[] GetParameters()
         {
-            return new ParameterDescriptor[0];
+            return Wrap().ToArray();
         }
 
-        public override string ActionName
+        private IEnumerable<ParameterDescriptor> Wrap() 
         {
-            get { return _actionName; }
-        }
-
-        public override ControllerDescriptor ControllerDescriptor
-        {
-            get { return new ReflectedControllerDescriptor(typeof(TController)); }
-        }
-
-        public override IEnumerable<FilterAttribute> GetFilterAttributes(bool useCache)
-        {
-            return _filters ?? Enumerable.Empty<FilterAttribute>();
-        }
-
-        public override ICollection<ActionSelector> GetSelectors()
-        {
-            return _selectors ?? new ActionSelector[]{};
+            var parameters = base.GetParameters();
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                yield return new LinqParameterDescriptor(parameters[i], _methodCallExpression.Arguments[i]);
+            }
         }
     }
 }

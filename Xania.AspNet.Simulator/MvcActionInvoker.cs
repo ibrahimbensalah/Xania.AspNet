@@ -38,9 +38,9 @@ namespace Xania.AspNet.Simulator
 
         private ActionResult InvokeActionMethodWithFilters()
         {
-            var dummyParameters = new Dictionary<string, object>();
+            var parameters = GetParameterValues(_controllerContext, _actionDescriptor);
             var actionExecutedContext = InvokeActionMethodWithFilters(_controllerContext,
-                _filterInfo.ActionFilters, _actionDescriptor, dummyParameters);
+                _filterInfo.ActionFilters, _actionDescriptor, parameters);
 
             if (actionExecutedContext == null)
                 throw new Exception("InvokeActionMethodWithFilters returned null");
@@ -53,5 +53,7 @@ namespace Xania.AspNet.Simulator
             var filters = FilterProviders.Providers.GetFilters(_controllerContext, _actionDescriptor);
             return new FilterInfo(filters);
         }
+
+        
     }
 }

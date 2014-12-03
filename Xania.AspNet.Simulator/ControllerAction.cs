@@ -1,5 +1,5 @@
 ﻿using System;
-using System.IO;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Security.Principal;
@@ -7,12 +7,23 @@ using System.Web.Mvc;
 
 namespace Xania.AspNet.Simulator
 {
-    public class ControllerAction
+    public interface IControllerAction
+    {
+        ControllerBase Controller { get; }
+
+        void Authenticate(IPrincipal user);
+
+        ControllerActionResult Execute();
+    }
+
+    public class ControllerAction: IControllerAction
     {
         private readonly string _httpMethod;
         private IPrincipal _user;
         public ControllerBase Controller { get; private set; }
         public ActionDescriptor ActionDescriptor { get; private set; }
+
+        public IValueProvider ValueProvider { get; set; }
 
         public ControllerAction(ControllerBase controller, ActionDescriptor actionDescriptor, string httpMethod = "GET")
         {
@@ -44,6 +55,11 @@ namespace Xania.AspNet.Simulator
 
             var controllerContext = new ControllerContext(requestContext, Controller);
             Controller.ControllerContext = controllerContext;
+            // Use empty value provider by default to prevent use of ASP.NET MVC default value providers
+            // Its not the purpose of this simulator framework to validate the ASP.NET MVC default value 
+            // providers. Either a value provider is not need in case model values are predefined or a 
+            // custom implementation is provided.
+            Controller.ValueProvider = ValueProvider ?? new ValueProviderCollection();
 
             if (ActionDescriptor.GetSelectors().Any(selector => !selector.Invoke(controllerContext)))
             {

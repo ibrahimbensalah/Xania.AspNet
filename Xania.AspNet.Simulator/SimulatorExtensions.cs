@@ -1,18 +1,16 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Security.Principal;
 using System.Web.Mvc;
-using System.Web.Routing;
 
 namespace Xania.AspNet.Simulator
 {
     public static class SimulatorExtensions
     {
-        public static ControllerAction Authenticate(this ControllerAction controllerAction, string userName,
+        public static IControllerAction Authenticate(this IControllerAction controllerAction, string userName,
             string[] roles, string identityType = "simulator")
         {
             var user = new GenericPrincipal(new GenericIdentity(userName, identityType), roles ?? new string[] {});
@@ -20,27 +18,27 @@ namespace Xania.AspNet.Simulator
             return controllerAction;
         }
 
-        public static ControllerAction Action<TController>(this TController controller,
-            Expression<Func<TController, object>> actionExpression)
+        public static IControllerAction Action<TController>(this TController controller,
+            Expression<Func<TController, object>> actionExpression, String httpMethod = "GET")
             where TController : ControllerBase
         {
             var methodCallExpression = (MethodCallExpression)actionExpression.Body;
-            var actionDelegate = actionExpression.Compile();
-            return new ControllerAction(controller, new LinqActionDescriptor<TController>(actionDelegate, methodCallExpression.Method));
+            
+            var actionDescriptor = new ReflectedActionDescriptor(methodCallExpression.Method, methodCallExpression.Method.Name,
+                new ReflectedControllerDescriptor(typeof(TController)));
+
+            return new ControllerAction(controller, actionDescriptor, httpMethod);
         }
 
-        public static ControllerAction Action<TController>(this TController controller,
+        public static IControllerAction Action<TController>(this TController controller,
             Expression<Action<TController>> actionExpression, String httpMethod = "GET")
             where TController : ControllerBase
         {
             var methodCallExpression = (MethodCallExpression)actionExpression.Body;
-            Func<TController, object> actionDelegate = c =>
-            {
-                actionExpression.Compile()(c);
-                return null;
-            };
 
-            return new ControllerAction(controller, new LinqActionDescriptor<TController>(actionDelegate, methodCallExpression.Method), httpMethod);
+            var actionDescriptor = new LinqActionDescriptor(methodCallExpression, new ReflectedControllerDescriptor(typeof (TController)));
+
+            return new ControllerAction(controller, actionDescriptor, httpMethod);
         }
 
         public static ControllerActionResult Execute<TController>(this TController controller,

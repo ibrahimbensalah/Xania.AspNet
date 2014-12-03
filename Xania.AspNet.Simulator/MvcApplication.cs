@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 
@@ -35,7 +34,7 @@ namespace Xania.AspNet.Simulator
             throw new KeyNotFoundException(controllerName);
         }
 
-        public ControllerAction Action(string url, string method = "GET")
+        public IControllerAction Action(string url, string method = "GET")
         {
             var context = AspNetUtility.GetContext(url, method, null);
             var routeData = _routes.GetRouteData(context);
