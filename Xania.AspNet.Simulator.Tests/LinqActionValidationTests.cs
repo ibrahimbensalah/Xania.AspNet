@@ -14,7 +14,7 @@ namespace Xania.AspNet.Simulator.Tests
         {
             // arrange
             var model = new ChangePasswordModel { NewPassword = newPassword, ConfirmPassword = confirmPassword };
-            var controllerAction = new AccountController().Action(c => c.ChangePassword(model, null));
+            var controllerAction = new AccountController().Action(c => c.ChangePassword(model));
 
             // act
             var result = controllerAction.Execute();
@@ -26,7 +26,7 @@ namespace Xania.AspNet.Simulator.Tests
 
         private class AccountController : Controller
         {
-            public ActionResult ChangePassword(ChangePasswordModel model, ChangePasswordModel model2)
+            public ActionResult ChangePassword(ChangePasswordModel model)
             {
                 if (model == null) throw new ArgumentNullException("model");
 
