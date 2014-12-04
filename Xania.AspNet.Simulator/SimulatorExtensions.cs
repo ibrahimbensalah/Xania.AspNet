@@ -22,23 +22,14 @@ namespace Xania.AspNet.Simulator
             Expression<Func<TController, object>> actionExpression, String httpMethod = "GET")
             where TController : ControllerBase
         {
-            var methodCallExpression = (MethodCallExpression)actionExpression.Body;
-            
-            var actionDescriptor = new ReflectedActionDescriptor(methodCallExpression.Method, methodCallExpression.Method.Name,
-                new ReflectedControllerDescriptor(typeof(TController)));
-
-            return new ControllerAction(controller, actionDescriptor, httpMethod);
+            return new ControllerAction(controller, LinqActionDescriptor.Create(actionExpression), httpMethod);
         }
 
         public static IControllerAction Action<TController>(this TController controller,
             Expression<Action<TController>> actionExpression, String httpMethod = "GET")
             where TController : ControllerBase
         {
-            var methodCallExpression = (MethodCallExpression)actionExpression.Body;
-
-            var actionDescriptor = new LinqActionDescriptor(methodCallExpression, new ReflectedControllerDescriptor(typeof (TController)));
-
-            return new ControllerAction(controller, actionDescriptor, httpMethod);
+            return new ControllerAction(controller, LinqActionDescriptor.Create(actionExpression), httpMethod);
         }
 
         public static ControllerActionResult Execute<TController>(this TController controller,

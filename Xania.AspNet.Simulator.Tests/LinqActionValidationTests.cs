@@ -7,50 +7,35 @@ namespace Xania.AspNet.Simulator.Tests
 {
     public class LinqActionValidationTests
     {
-        [Test]
-        public void InvalidModelTest()
+        [TestCase(null, null, false, false)]
+        [TestCase("pass1", "pass1", true, true)]
+        [TestCase("pass1", "pass2", true, false)]
+        public void ModelStateTest(string newPassword, string confirmPassword, bool newPasswordValid, bool confirmPasswordValid)
         {
             // arrange
-            var controllerAction = new AccountController().Action(c => c.ChangePassword(new ChangePasswordModel()));
-
-            // act
-            var result = controllerAction.Execute();
-            
-            // assert
-            Assert.IsFalse(result.ModelState.IsValid);
-        }
-
-        [Test]
-        public void ValidModelTest()
-        {
-            // arrange
-            var controllerAction = new AccountController().Action(c => c.ChangePassword(new ChangePasswordModel
-            {
-                Email = "ibrahim@simulator.com",
-                NewPassword = "password",
-                ConfirmPassword = "password"
-            }));
+            var model = new ChangePasswordModel { NewPassword = newPassword, ConfirmPassword = confirmPassword };
+            var controllerAction = new AccountController().Action(c => c.ChangePassword(model, null));
 
             // act
             var result = controllerAction.Execute();
 
             // assert
-            Assert.IsTrue(result.ModelState.IsValid);
+            Assert.AreEqual(newPasswordValid, result.ModelState.IsValidField("model.NewPassword"));
+            Assert.AreEqual(confirmPasswordValid, result.ModelState.IsValidField("model.ConfirmPassword"));
         }
 
-        private class AccountController: Controller
+        private class AccountController : Controller
         {
-            public void ChangePassword(ChangePasswordModel model)
+            public ActionResult ChangePassword(ChangePasswordModel model, ChangePasswordModel model2)
             {
                 if (model == null) throw new ArgumentNullException("model");
+
+                return null;
             }
         }
 
         private class ChangePasswordModel
         {
-            [Required]
-            public String Email { get; set; }
-
             [Required]
             public String NewPassword { get; set; }
 
