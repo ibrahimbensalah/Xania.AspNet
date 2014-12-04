@@ -14,6 +14,8 @@ namespace Xania.AspNet.Simulator
         void Authenticate(IPrincipal user);
 
         ControllerActionResult Execute();
+
+        FilterProviderCollection FilterProviders { get; }
     }
 
     public class ControllerAction: IControllerAction
@@ -24,6 +26,8 @@ namespace Xania.AspNet.Simulator
         public ActionDescriptor ActionDescriptor { get; private set; }
 
         public IValueProvider ValueProvider { get; set; }
+
+        public FilterProviderCollection FilterProviders { get; private set; }
 
         public ControllerAction(ControllerBase controller, ActionDescriptor actionDescriptor, string httpMethod = "GET")
         {
@@ -36,6 +40,7 @@ namespace Xania.AspNet.Simulator
 
             Controller = controller;
             ActionDescriptor = actionDescriptor;
+            FilterProviders = new FilterProviderCollection(System.Web.Mvc.FilterProviders.Providers);
         }
 
         public void Authenticate(IPrincipal user)
@@ -66,7 +71,9 @@ namespace Xania.AspNet.Simulator
                 throw new InvalidOperationException(String.Format("Http method '{0}' is not allowed", _httpMethod));
             }
 
-            var invoker = new MvcActionInvoker(controllerContext, ActionDescriptor);
+            var filters = FilterProviders.GetFilters(controllerContext, ActionDescriptor);
+
+            var invoker = new MvcActionInvoker(controllerContext, ActionDescriptor, filters);
 
             return new ControllerActionResult
             {

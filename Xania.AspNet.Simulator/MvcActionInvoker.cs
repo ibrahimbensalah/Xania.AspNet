@@ -10,11 +10,11 @@ namespace Xania.AspNet.Simulator
         private readonly ActionDescriptor _actionDescriptor;
         private readonly FilterInfo _filterInfo;
 
-        public MvcActionInvoker(ControllerContext controllerContext, ActionDescriptor actionDescriptor)
+        public MvcActionInvoker(ControllerContext controllerContext, ActionDescriptor actionDescriptor, IEnumerable<Filter> filters)
         {
             _controllerContext = controllerContext;
             _actionDescriptor = actionDescriptor;
-            _filterInfo = GetFilterInfo();
+            _filterInfo = new FilterInfo(filters);
         }
 
         private ActionResult AuthorizeAction()
@@ -47,13 +47,6 @@ namespace Xania.AspNet.Simulator
 
             return actionExecutedContext.Result;
         }
-
-        private FilterInfo GetFilterInfo()
-        {
-            var filters = FilterProviders.Providers.GetFilters(_controllerContext, _actionDescriptor);
-            return new FilterInfo(filters);
-        }
-
         
     }
 }
