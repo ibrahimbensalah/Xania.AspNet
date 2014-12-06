@@ -1,4 +1,5 @@
-﻿using System.Web.Mvc;
+﻿using System.Web;
+using System.Web.Mvc;
 
 namespace Xania.AspNet.Simulator
 {
@@ -15,6 +16,11 @@ namespace Xania.AspNet.Simulator
         public ModelStateDictionary ModelState
         {
             get { return ControllerContext.Controller.ViewData.ModelState; }
+        }
+
+        public HttpResponseBase Response
+        {
+            get { return ControllerContext.HttpContext.Response; }
         }
     }
 }

@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Web.Mvc;
+using System.Web.Security;
 using NUnit.Framework;
 
 namespace Xania.AspNet.Simulator.Tests
 {
-    public class MvcRequestTests
+    public class ControllerActionTests
     {
 
         [Test]
@@ -78,6 +79,12 @@ namespace Xania.AspNet.Simulator.Tests
         [HttpPost]
         public void Update()
         {
+        }
+
+        [HttpPost]
+        public void Login(string userName)
+        {
+            FormsAuthentication.SetAuthCookie(userName, true);
         }
     }
 }

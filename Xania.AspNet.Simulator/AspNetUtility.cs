@@ -1,16 +1,10 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
-using System.IO;
-using System.Linq.Expressions;
-using System.Net;
-using System.Reflection;
 using System.Security.Principal;
 using System.Web;
 using System.Web.Caching;
-using System.Web.Hosting;
 using System.Web.Routing;
 using Moq;
 
@@ -28,7 +22,6 @@ namespace Xania.AspNet.Simulator
 
         internal static HttpContextBase GetContext(String url, string method, IPrincipal user)
         {
-            // var worker = new MvcWorkerRequest(url.Substring(1), method, user);
             var worker = new MvcWorkerRequest(url, method, user);
             var httpContext = new HttpContext(worker);
             return GetContext(httpContext, user);
@@ -44,8 +37,8 @@ namespace Xania.AspNet.Simulator
             // mock HttpResponse
             var responseBase = Wrap(httpContext.Response);
 
-            return Wrap(requestBase, responseBase, session.Object, httpContext.Cache, user);
             // mock HttpContext
+            return Wrap(requestBase, responseBase, session.Object, httpContext.Cache, user);
         }
 
         private static HttpContextBase Wrap(HttpRequestBase requestBase, HttpResponseBase responseBase, HttpSessionStateBase session, Cache cache, IPrincipal user)
@@ -66,6 +59,7 @@ namespace Xania.AspNet.Simulator
             mock.Setup(wrapper => wrapper.StatusCode).Returns(response.StatusCode);
             mock.Setup(wrapper => wrapper.Output).Returns(response.Output);
             mock.Setup(wrapper => wrapper.Cache).Returns(new HttpCachePolicyWrapper(response.Cache));
+            mock.Setup(wrapper => wrapper.Cookies).Returns(response.Cookies);
 
             return mock.Object;
         }
@@ -86,6 +80,7 @@ namespace Xania.AspNet.Simulator
             mock.Setup(wrapper => wrapper.QueryString).Returns(request.QueryString);
             mock.Setup(wrapper => wrapper.Files).Returns(new Mock<HttpFileCollectionBase>().Object);
             mock.Setup(wrapper => wrapper.Headers).Returns(request.Headers);
+            mock.Setup(wrapper => wrapper.Cookies).Returns(request.Cookies);
 
             return mock.Object;
         }

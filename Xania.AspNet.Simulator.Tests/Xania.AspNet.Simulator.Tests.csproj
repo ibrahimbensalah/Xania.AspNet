@@ -68,7 +68,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="LinqActionValidationTests.cs" />
-    <Compile Include="MvcRequestTests.cs" />
+    <Compile Include="ControllerActionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MvcApplicationTests.cs" />
   </ItemGroup>

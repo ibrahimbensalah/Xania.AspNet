@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Security.Principal;
 using System.Web.Mvc;
 
@@ -57,7 +55,7 @@ namespace Xania.AspNet.Simulator
             var controllerName = controllerDescriptor.ControllerName;
 
             var requestContext = AspNetUtility.CreateRequestContext(ActionDescriptor.ActionName, controllerName, _httpMethod, _user ?? AnonymousUser);
-
+            
             var controllerContext = new ControllerContext(requestContext, Controller);
             Controller.ControllerContext = controllerContext;
             // Use empty value provider by default to prevent use of ASP.NET MVC default value providers
