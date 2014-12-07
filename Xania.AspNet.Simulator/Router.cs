@@ -6,15 +6,15 @@ using System.Web.Routing;
 
 namespace Xania.AspNet.Simulator
 {
-    public class MvcApplication
+    public class Router
     {
         private readonly Dictionary<string, ControllerBase> _controllerMap;
-        private readonly RouteCollection _routes;
+        public RouteCollection Routes { get; private set; }
 
-        public MvcApplication()
+        public Router()
         {
             _controllerMap = new Dictionary<String, ControllerBase>();
-            _routes = new RouteCollection(new MvcVirtualPathProvider());
+            Routes = new RouteCollection(new ActionRouterPathProvider());
         }
 
         public void RegisterController(string name, ControllerBase controller)
@@ -34,10 +34,10 @@ namespace Xania.AspNet.Simulator
             throw new KeyNotFoundException(controllerName);
         }
 
-        public IControllerAction Action(string url, string method = "GET")
+        public IAction Action(string url, string method = "GET")
         {
             var context = AspNetUtility.GetContext(url, method, null);
-            var routeData = _routes.GetRouteData(context);
+            var routeData = Routes.GetRouteData(context);
 
             if (routeData == null)
                 return null;
@@ -53,15 +53,9 @@ namespace Xania.AspNet.Simulator
             return new ControllerAction(controller, actionDescriptor, method);
         }
 
-        public MvcApplication RegisterRoutes(Action<RouteCollection> configAction)
+        public Router RegisterDefaultRoutes()
         {
-            configAction(_routes);
-            return this;
-        }
-
-        public MvcApplication RegisterDefaultRoutes()
-        {
-            _routes.MapRoute(
+            Routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",
                 defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }

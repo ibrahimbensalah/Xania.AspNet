@@ -5,7 +5,7 @@ using NUnit.Framework;
 
 namespace Xania.AspNet.Simulator.Tests
 {
-    public class ControllerActionTests
+    public class LinqActionTests
     {
 
         [Test]

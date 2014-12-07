@@ -52,13 +52,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AspNetUtility.cs" />
+    <Compile Include="IAction.cs" />
     <Compile Include="LinqActionDescriptor.cs" />
-    <Compile Include="MvcVirtualPathProvider.cs" />
+    <Compile Include="ActionRouterPathProvider.cs" />
     <Compile Include="MvcWorkerRequest.cs" />
-    <Compile Include="IMvcResult.cs" />
-    <Compile Include="MvcActionInvoker.cs" />
+    <Compile Include="ControllerActionResult.cs" />
+    <Compile Include="SimpleActionInvoker.cs" />
     <Compile Include="ControllerAction.cs" />
-    <Compile Include="MvcApplication.cs" />
+    <Compile Include="Router.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SimulatorExtensions.cs" />
   </ItemGroup>

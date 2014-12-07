@@ -68,9 +68,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="LinqActionValidationTests.cs" />
-    <Compile Include="ControllerActionTests.cs" />
+    <Compile Include="LinqActionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="MvcApplicationTests.cs" />
+    <Compile Include="RouterTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">

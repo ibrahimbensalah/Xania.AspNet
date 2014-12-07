@@ -5,18 +5,7 @@ using System.Web.Mvc;
 
 namespace Xania.AspNet.Simulator
 {
-    public interface IControllerAction
-    {
-        ControllerBase Controller { get; }
-
-        void Authenticate(IPrincipal user);
-
-        ControllerActionResult Execute();
-
-        FilterProviderCollection FilterProviders { get; }
-    }
-
-    public class ControllerAction: IControllerAction
+    internal class ControllerAction: IAction
     {
         private readonly string _httpMethod;
         private IPrincipal _user;
@@ -71,7 +60,7 @@ namespace Xania.AspNet.Simulator
 
             var filters = FilterProviders.GetFilters(controllerContext, ActionDescriptor);
 
-            var invoker = new MvcActionInvoker(controllerContext, ActionDescriptor, filters);
+            var invoker = new SimpleActionInvoker(controllerContext, ActionDescriptor, filters);
 
             return new ControllerActionResult
             {

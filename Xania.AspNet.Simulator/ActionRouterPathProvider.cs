@@ -2,7 +2,7 @@
 
 namespace Xania.AspNet.Simulator
 {
-    internal class MvcVirtualPathProvider : VirtualPathProvider
+    internal class ActionRouterPathProvider : VirtualPathProvider
     {
         public override bool FileExists(string virtualPath)
         {

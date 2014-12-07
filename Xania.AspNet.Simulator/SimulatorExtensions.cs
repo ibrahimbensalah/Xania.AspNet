@@ -5,27 +5,28 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Security.Principal;
 using System.Web.Mvc;
+using System.Web.Routing;
 
 namespace Xania.AspNet.Simulator
 {
     public static class SimulatorExtensions
     {
-        public static IControllerAction Authenticate(this IControllerAction controllerAction, string userName,
+        public static IAction Authenticate(this IAction action, string userName,
             string[] roles, string identityType = "simulator")
         {
             var user = new GenericPrincipal(new GenericIdentity(userName, identityType), roles ?? new string[] {});
-            controllerAction.Authenticate(user);
-            return controllerAction;
+            action.Authenticate(user);
+            return action;
         }
 
-        public static IControllerAction Action<TController>(this TController controller,
+        public static IAction Action<TController>(this TController controller,
             Expression<Func<TController, object>> actionExpression, String httpMethod = "GET")
             where TController : ControllerBase
         {
             return new ControllerAction(controller, LinqActionDescriptor.Create(actionExpression), httpMethod);
         }
 
-        public static IControllerAction Action<TController>(this TController controller,
+        public static IAction Action<TController>(this TController controller,
             Expression<Action<TController>> actionExpression, String httpMethod = "GET")
             where TController : ControllerBase
         {
@@ -55,12 +56,12 @@ namespace Xania.AspNet.Simulator
             return resolver.GetService<TController>().Execute(actionExpression);
         }
 
-        public static MvcApplication RegisterControllers(this MvcApplication application, params Assembly[] assemblies)
+        public static Router RegisterControllers(this Router application, params Assembly[] assemblies)
         {
             return RegisterControllers(application, null, assemblies);
         }
 
-        public static MvcApplication RegisterControllers(this MvcApplication application,
+        public static Router RegisterControllers(this Router application,
             IDependencyResolver dependencyResolver, params Assembly[] assemblies)
         {
             const string controllerPostFix = "Controller";
@@ -92,6 +93,12 @@ namespace Xania.AspNet.Simulator
                     !t.IsAbstract &&
                     !t.IsGenericTypeDefinition &&
                     !typeof (Delegate).IsAssignableFrom(t));
+        }
+
+        public static Router RegisterRoutes(this Router router, Action<RouteCollection> configAction)
+        {
+            configAction(router.Routes);
+            return router;
         }
     }
 }

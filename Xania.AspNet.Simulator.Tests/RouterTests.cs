@@ -3,23 +3,23 @@ using NUnit.Framework;
 
 namespace Xania.AspNet.Simulator.Tests
 {
-    public class MvcApplicationTests
+    public class RouterTests
     {
-        private MvcApplication _app;
+        private Router _router;
 
         [SetUp]
-        public void SetupApplication()
+        public void SetupRouter()
         {
-            _app = new MvcApplication()
+            _router = new Router()
                 .RegisterDefaultRoutes()
-                .RegisterControllers(typeof(MvcApplicationTests).Assembly);
+                .RegisterControllers(typeof(RouterTests).Assembly);
         }
 
         [Test]
         public void ActionFromUrlTest()
         {
             // arrange
-            var controllerAction = _app.Action("~/");
+            var controllerAction = _router.Action("~/");
 
             // act
             var result = controllerAction.Execute();
@@ -34,7 +34,7 @@ namespace Xania.AspNet.Simulator.Tests
         public void AuthorizedActionFromUrlTest()
         {
             // arrange
-            var controllerAction = _app.Action("~/home/private");
+            var controllerAction = _router.Action("~/home/private");
 
             // act
             var result = controllerAction.Authenticate("Ibrahim", null).Execute();
@@ -48,7 +48,7 @@ namespace Xania.AspNet.Simulator.Tests
         public void UnAuthorizedActionFromUrlTest()
         {
             // arrange
-            var controllerAction = _app.Action("~/home/private");
+            var controllerAction = _router.Action("~/home/private");
 
             // act
             var result = controllerAction.Execute();
@@ -61,7 +61,7 @@ namespace Xania.AspNet.Simulator.Tests
         public void PostActionTest()
         {
             // arrange
-            var controllerAction = _app.Action("~/home/update", "POST");
+            var controllerAction = _router.Action("~/home/update", "POST");
 
             // act
             var result = controllerAction.Execute();
@@ -74,7 +74,7 @@ namespace Xania.AspNet.Simulator.Tests
         public void UnmatchedPostActionTest()
         {
             // arrange
-            var controllerAction = _app.Action("~/home/update");
+            var controllerAction = _router.Action("~/home/update");
 
             // assert
             Assert.IsNull(controllerAction);
