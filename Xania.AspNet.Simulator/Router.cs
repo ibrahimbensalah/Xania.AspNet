@@ -36,7 +36,7 @@ namespace Xania.AspNet.Simulator
             throw new KeyNotFoundException(controllerName);
         }
 
-        public IAction Action(string url, string method = "GET", string data = null)
+        public IAction Action(string url, string method = "GET", IDictionary<string, object> data = null)
         {
             if (url.StartsWith("~"))
                 url = url.Substring(1);
@@ -55,7 +55,10 @@ namespace Xania.AspNet.Simulator
             if (actionDescriptor == null)
                 return null;
 
-            return new ControllerAction(controller, actionDescriptor, method);
+            return new ControllerAction(controller, actionDescriptor, method)
+            {
+                ValueProvider = new DictionaryValueProvider<object>(data, CultureInfo.CurrentCulture)
+            };
         }
 
         public Router RegisterDefaultRoutes()
@@ -67,6 +70,27 @@ namespace Xania.AspNet.Simulator
             );
 
             return this;
+        }
+    }
+
+    public class MvcValueProvider : IValueProvider
+    {
+        private readonly IDictionary<string, string> _data;
+
+        public MvcValueProvider(IDictionary<string, string> data)
+        {
+            _data = data;
+        }
+
+        public bool ContainsPrefix(string prefix)
+        {
+            return _data.ContainsKey(prefix);
+        }
+
+        public ValueProviderResult GetValue(string key)
+        {
+            var value = _data[key];
+            return new ValueProviderResult(value, value, CultureInfo.CurrentCulture);
         }
     }
 }

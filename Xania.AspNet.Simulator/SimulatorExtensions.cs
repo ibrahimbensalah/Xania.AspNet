@@ -114,5 +114,10 @@ namespace Xania.AspNet.Simulator
             configAction(router.Routes);
             return router;
         }
+
+        public static IDictionary<string, object> ToDictionary(this object values)
+        {
+            return new RouteValueDictionary(values);
+        } 
     }
 }

@@ -26,7 +26,7 @@ namespace Xania.AspNet.Simulator.Tests
         public void RequiredModelTest()
         {
             // arrange
-            var action = _router.Action("/test/index", "POST", data: "Name=my+name");
+            var action = _router.Action("/test/index", "POST", new { name = "my name" }.ToDictionary());
 
             // act
             var result = action.Execute();
@@ -34,6 +34,8 @@ namespace Xania.AspNet.Simulator.Tests
 
             // assert
             Assert.IsTrue(result.ModelState.IsValidField("Name"));
+            Assert.IsFalse(result.ModelState.IsValidField("Email"));
+            
             Assert.AreEqual("my name", model.Name);
         }
 
@@ -44,11 +46,17 @@ namespace Xania.AspNet.Simulator.Tests
                 return View(model);
             }
         }
-
+        
+        // ReSharper disable once ClassNeverInstantiated.Local
         private class MyModel
         {
             [Required]
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public String Name { get; set; }
+
+            [Required]
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
+            public String Email { get; set; }
         }
     }
 }
