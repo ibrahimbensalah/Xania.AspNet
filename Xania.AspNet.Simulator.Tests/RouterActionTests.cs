@@ -12,7 +12,7 @@ namespace Xania.AspNet.Simulator.Tests
         {
             _router = new Router()
                 .RegisterDefaultRoutes()
-                .RegisterControllers(typeof(RouterActionTests).Assembly);
+                .RegisterController("home", new HomeController());
         }
 
         [Test]

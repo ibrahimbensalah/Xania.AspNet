@@ -38,6 +38,9 @@ namespace Xania.AspNet.Simulator
 
         public IAction Action(string url, string method = "GET", string data = null)
         {
+            if (url.StartsWith("~"))
+                url = url.Substring(1);
+
             var context = AspNetUtility.GetContext(url, method, null);
             var routeData = Routes.GetRouteData(context);
 

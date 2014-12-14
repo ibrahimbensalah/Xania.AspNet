@@ -12,15 +12,15 @@ namespace Xania.AspNet.Simulator
         private readonly string _url;
         private readonly string _httpMethod;
 
-        public MvcWorkerRequest(string url, string httpMethod)
+        public MvcWorkerRequest(string route, string httpMethod)
         {
-            _url = url;
+            _url = route;
             _httpMethod = httpMethod;
         }
 
         public override string GetUriPath()
         {
-            return "/";
+            return _url;
         }
 
         public override string GetQueryString()
@@ -30,7 +30,7 @@ namespace Xania.AspNet.Simulator
 
         public override string GetRawUrl()
         {
-            return String.Format("http://localhost:80{0}", _url);
+            return GetUriPath();
         }
 
         public override string GetHttpVerbName()
@@ -55,7 +55,7 @@ namespace Xania.AspNet.Simulator
 
         public override string GetLocalAddress()
         {
-            return "http://localhost";
+            return "127.0.0.1";
         }
 
         public override int GetLocalPort()

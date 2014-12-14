@@ -22,7 +22,7 @@ namespace Xania.AspNet.Simulator
 
         internal static HttpContextBase GetContext(String url, string method, IPrincipal user)
         {
-            var worker = new MvcWorkerRequest("/", method);
+            var worker = new MvcWorkerRequest(url, method);
             var httpContext = new HttpContext(worker);
             var x = httpContext.Request.RawUrl;
             return GetContext(httpContext, user);
