@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace Xania.AspNet.Simulator.Tests
 {
-    public class RouterTests
+    public class RouterActionTests
     {
         private Router _router;
 
@@ -12,7 +12,7 @@ namespace Xania.AspNet.Simulator.Tests
         {
             _router = new Router()
                 .RegisterDefaultRoutes()
-                .RegisterControllers(typeof(RouterTests).Assembly);
+                .RegisterControllers(typeof(RouterActionTests).Assembly);
         }
 
         [Test]
@@ -62,10 +62,8 @@ namespace Xania.AspNet.Simulator.Tests
         {
             // arrange
             var controllerAction = _router.Action("~/home/update", "POST");
-
             // act
             var result = controllerAction.Execute();
-
             // assert
             Assert.AreEqual("Update action is executed!", result.ViewBag.Message);
         }

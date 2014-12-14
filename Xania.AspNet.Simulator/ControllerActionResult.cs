@@ -13,6 +13,11 @@ namespace Xania.AspNet.Simulator
             get { return ControllerContext.Controller.ViewBag; }
         }
 
+        public ViewDataDictionary ViewData
+        {
+            get { return ControllerContext.Controller.ViewData; }
+        }
+
         public ModelStateDictionary ModelState
         {
             get { return ControllerContext.Controller.ViewData.ModelState; }

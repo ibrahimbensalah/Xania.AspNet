@@ -70,7 +70,8 @@
     <Compile Include="LinqActionValidationTests.cs" />
     <Compile Include="LinqActionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RouterTests.cs" />
+    <Compile Include="RouterActionTests.cs" />
+    <Compile Include="RouterModelBinderTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">

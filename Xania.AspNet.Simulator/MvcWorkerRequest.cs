@@ -3,24 +3,104 @@ using System.IO;
 using System.Security.Principal;
 using System.Web;
 using System.Web.Hosting;
+using System.Web.Mvc;
 
 namespace Xania.AspNet.Simulator
 {
-    internal class MvcWorkerRequest: SimpleWorkerRequest
+    internal class MvcWorkerRequest : HttpWorkerRequest
     {
+        private readonly string _url;
         private readonly string _httpMethod;
-        private readonly IPrincipal _user;
 
-        public MvcWorkerRequest(string url, string httpMethod, IPrincipal user)
-            : base("", @"/simulator", url.Substring(1), String.Empty, new StreamWriter(new MemoryStream()))
+        public MvcWorkerRequest(string url, string httpMethod)
         {
+            _url = url;
             _httpMethod = httpMethod;
-            _user = user;
+        }
+
+        public override string GetUriPath()
+        {
+            return "/";
+        }
+
+        public override string GetQueryString()
+        {
+            return String.Empty;
+        }
+
+        public override string GetRawUrl()
+        {
+            return String.Format("http://localhost:80{0}", _url);
         }
 
         public override string GetHttpVerbName()
         {
             return _httpMethod;
+        }
+
+        public override string GetHttpVersion()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string GetRemoteAddress()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int GetRemotePort()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string GetLocalAddress()
+        {
+            return "http://localhost";
+        }
+
+        public override int GetLocalPort()
+        {
+            return 80;
+        }
+
+        public override void SendStatus(int statusCode, string statusDescription)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void SendKnownResponseHeader(int index, string value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void SendUnknownResponseHeader(string name, string value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void SendResponseFromMemory(byte[] data, int length)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void SendResponseFromFile(string filename, long offset, long length)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void SendResponseFromFile(IntPtr handle, long offset, long length)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void FlushResponse(bool finalFlush)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void EndOfRequest()
+        {
+            throw new NotImplementedException();
         }
     }
 }

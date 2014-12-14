@@ -17,12 +17,14 @@ namespace Xania.AspNet.Simulator
             Routes = new RouteCollection(new ActionRouterPathProvider());
         }
 
-        public void RegisterController(string name, ControllerBase controller)
+        public Router RegisterController(string name, ControllerBase controller)
         {
             if (name == null)
                 throw new ArgumentNullException("name");
 
             _controllerMap.Add(name.ToLower(CultureInfo.InvariantCulture), controller);
+
+            return this;
         }
 
         protected internal virtual ControllerBase CreateController(string controllerName)
@@ -34,7 +36,7 @@ namespace Xania.AspNet.Simulator
             throw new KeyNotFoundException(controllerName);
         }
 
-        public IAction Action(string url, string method = "GET")
+        public IAction Action(string url, string method = "GET", string data = null)
         {
             var context = AspNetUtility.GetContext(url, method, null);
             var routeData = Routes.GetRouteData(context);

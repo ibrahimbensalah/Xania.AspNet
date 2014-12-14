@@ -19,6 +19,20 @@ namespace Xania.AspNet.Simulator
             return action;
         }
 
+        public static IAction PostAction<TController>(this TController controller,
+            Expression<Func<TController, object>> actionExpression)
+            where TController : ControllerBase
+        {
+            return Action(controller, actionExpression, "POST");
+        }
+
+        public static IAction GetAction<TController>(this TController controller,
+            Expression<Func<TController, object>> actionExpression)
+            where TController : ControllerBase
+        {
+            return Action(controller, actionExpression, "GET");
+        }
+
         public static IAction Action<TController>(this TController controller,
             Expression<Func<TController, object>> actionExpression, String httpMethod = "GET")
             where TController : ControllerBase

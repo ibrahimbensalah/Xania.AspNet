@@ -14,7 +14,7 @@ namespace Xania.AspNet.Simulator
     {
         internal static RequestContext CreateRequestContext(string actionName, string controllerName, string httpMethod, IPrincipal user)
         {
-            var httpContext = GetContext(String.Format("~/{0}/{1}", controllerName, actionName), httpMethod, user);
+            var httpContext = GetContext(String.Format("/{0}/{1}", controllerName, actionName), httpMethod, user);
             var routeData = new RouteData { Values = { { "controller", controllerName }, { "action", actionName } } };
 
             return new RequestContext(httpContext, routeData);
@@ -22,8 +22,9 @@ namespace Xania.AspNet.Simulator
 
         internal static HttpContextBase GetContext(String url, string method, IPrincipal user)
         {
-            var worker = new MvcWorkerRequest(url, method, user);
+            var worker = new MvcWorkerRequest("/", method);
             var httpContext = new HttpContext(worker);
+            var x = httpContext.Request.RawUrl;
             return GetContext(httpContext, user);
         }
 
