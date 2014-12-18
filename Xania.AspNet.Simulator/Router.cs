@@ -53,11 +53,7 @@ namespace Xania.AspNet.Simulator
                 return null;
 
             requestRequest.Controller = controller;
-            var data = requestRequest.Data;
-            return new ControllerAction(actionDescriptor, requestRequest)
-            {
-                ValueProvider = data == null ? null : new DictionaryValueProvider<object>(data, CultureInfo.CurrentCulture)
-            };
+            return new ControllerAction(actionDescriptor, requestRequest);
         }
 
         public virtual Router RegisterDefaultRoutes()

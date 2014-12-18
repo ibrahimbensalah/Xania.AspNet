@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Security.Principal;
+using System.Web.Mvc;
 
 namespace Xania.AspNet.Simulator
 {
@@ -24,8 +26,5 @@ namespace Xania.AspNet.Simulator
         public string UriPath { get; set; }
         
         public string HttpVersion { get; set; }
-
-        public IDictionary<string, object> Data { get; set; }
-
     }
 }

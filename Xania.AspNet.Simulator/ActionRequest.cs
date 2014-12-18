@@ -8,11 +8,11 @@ namespace Xania.AspNet.Simulator
     {
         public IPrincipal User { get; set; }
 
-        public IValueProvider ValueProvider { get; set; }
+        public virtual IValueProvider ValueProvider { get; set; }
 
         public ControllerBase Controller { get; set; }
 
-        public ControllerContext CreateContext(ActionDescriptor ActionDescriptor, IValueProvider ValueProvider)
+        public ControllerContext CreateContext(ActionDescriptor ActionDescriptor)
         {
             var controllerDescriptor = ActionDescriptor.ControllerDescriptor;
             var controllerName = controllerDescriptor.ControllerName;

@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace Xania.AspNet.Simulator
 {
@@ -37,7 +39,8 @@ namespace Xania.AspNet.Simulator
             where TActionRequest : RawActionRequest
         {
             {
-                actionRequest.Data = values.ToDictionary();
+                actionRequest.ValueProvider = new DictionaryValueProvider<object>(values.ToDictionary(),
+                    CultureInfo.CurrentCulture);
                 return actionRequest;
             }
         }

@@ -11,8 +11,6 @@ namespace Xania.AspNet.Simulator
 
         public ActionDescriptor ActionDescriptor { get; private set; }
 
-        public IValueProvider ValueProvider { get; set; }
-
         public FilterProviderCollection FilterProviders { get; private set; }
 
         public ControllerAction(ActionDescriptor actionDescriptor, IActionRequest actionRequest)
@@ -28,7 +26,7 @@ namespace Xania.AspNet.Simulator
 
         public ControllerActionResult Execute()
         {
-            var controllerContext = _actionRequest.CreateContext(ActionDescriptor, ValueProvider);
+            var controllerContext = _actionRequest.CreateContext(ActionDescriptor);
 
             if (ActionDescriptor.GetSelectors().Any(selector => !selector.Invoke(controllerContext)))
             {
