@@ -9,33 +9,27 @@ namespace Xania.AspNet.Simulator
     {
         private readonly IActionRequest _actionRequest;
 
-        public ActionDescriptor ActionDescriptor { get; private set; }
-
         public FilterProviderCollection FilterProviders { get; private set; }
 
-        public ControllerAction(ActionDescriptor actionDescriptor, IActionRequest actionRequest)
+        public ControllerAction(IActionRequest actionRequest)
         {
             _actionRequest = actionRequest;
-
-            if (actionDescriptor == null) 
-                throw new ArgumentNullException("actionDescriptor");
-
-            ActionDescriptor = actionDescriptor;
             FilterProviders = new FilterProviderCollection(System.Web.Mvc.FilterProviders.Providers);
         }
 
         public ControllerActionResult Execute()
         {
-            var controllerContext = _actionRequest.CreateContext(ActionDescriptor);
+            var controllerContext = _actionRequest.CreateContext();
+            var actionDescriptor = _actionRequest.ActionDescriptor;
 
-            if (ActionDescriptor.GetSelectors().Any(selector => !selector.Invoke(controllerContext)))
+            if (actionDescriptor.GetSelectors().Any(selector => !selector.Invoke(controllerContext)))
             {
                 throw new InvalidOperationException(String.Format("Http method '{0}' is not allowed", _actionRequest.HttpMethod));
             }
 
-            var filters = FilterProviders.GetFilters(controllerContext, ActionDescriptor);
+            var filters = FilterProviders.GetFilters(controllerContext, actionDescriptor);
 
-            var invoker = new SimpleActionInvoker(controllerContext, ActionDescriptor, filters);
+            var invoker = new SimpleActionInvoker(controllerContext, actionDescriptor, filters);
 
             return new ControllerActionResult
             {

@@ -45,15 +45,18 @@ namespace Xania.AspNet.Simulator
             if (configure != null)
                 configure(actionInfo);
 
-            return new ControllerAction(LinqActionDescriptor.Create(actionExpression), actionInfo);
+            actionInfo.ActionDescriptor = LinqActionDescriptor.Create(actionExpression);
+
+            return new ControllerAction(actionInfo);
         }
 
         public static IAction Action<TController>(this TController controller,
             Expression<Action<TController>> actionExpression, String httpMethod = "GET")
             where TController : ControllerBase
         {
-            return new ControllerAction(LinqActionDescriptor.Create(actionExpression), new RawActionRequest
+            return new ControllerAction(new RawActionRequest
             {
+                ActionDescriptor = LinqActionDescriptor.Create(actionExpression),
                 HttpMethod = httpMethod,
                 Controller = controller
             });

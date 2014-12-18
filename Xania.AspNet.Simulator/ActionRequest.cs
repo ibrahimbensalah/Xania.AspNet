@@ -12,7 +12,9 @@ namespace Xania.AspNet.Simulator
 
         public ControllerBase Controller { get; set; }
 
-        public ControllerContext CreateContext(ActionDescriptor ActionDescriptor)
+        public ActionDescriptor ActionDescriptor { get; set; }
+
+        public ControllerContext CreateContext()
         {
             var controllerDescriptor = ActionDescriptor.ControllerDescriptor;
             var controllerName = controllerDescriptor.ControllerName;
