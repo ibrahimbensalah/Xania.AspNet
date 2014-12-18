@@ -52,8 +52,9 @@ namespace Xania.AspNet.Simulator
             if (actionDescriptor == null)
                 return null;
 
+            requestRequest.Controller = controller;
             var data = requestRequest.Data;
-            return new ControllerAction(controller, actionDescriptor, requestRequest)
+            return new ControllerAction(actionDescriptor, requestRequest)
             {
                 ValueProvider = data == null ? null : new DictionaryValueProvider<object>(data, CultureInfo.CurrentCulture)
             };

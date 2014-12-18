@@ -9,31 +9,26 @@ namespace Xania.AspNet.Simulator
     {
         private readonly IActionRequest _actionRequest;
 
-        private IPrincipal _user;
-        public ControllerBase Controller { get; private set; }
         public ActionDescriptor ActionDescriptor { get; private set; }
 
         public IValueProvider ValueProvider { get; set; }
 
         public FilterProviderCollection FilterProviders { get; private set; }
 
-        public ControllerAction(ControllerBase controller, ActionDescriptor actionDescriptor, IActionRequest actionRequest)
+        public ControllerAction(ActionDescriptor actionDescriptor, IActionRequest actionRequest)
         {
             _actionRequest = actionRequest;
-            if (controller == null)
-                throw new ArgumentNullException("controller");
 
             if (actionDescriptor == null) 
                 throw new ArgumentNullException("actionDescriptor");
 
-            Controller = controller;
             ActionDescriptor = actionDescriptor;
             FilterProviders = new FilterProviderCollection(System.Web.Mvc.FilterProviders.Providers);
         }
 
         public ControllerActionResult Execute()
         {
-            var controllerContext = _actionRequest.CreateContext(Controller, ActionDescriptor, ValueProvider);
+            var controllerContext = _actionRequest.CreateContext(ActionDescriptor, ValueProvider);
 
             if (ActionDescriptor.GetSelectors().Any(selector => !selector.Invoke(controllerContext)))
             {

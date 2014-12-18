@@ -8,7 +8,7 @@ namespace Xania.AspNet.Simulator
         string HttpMethod { get; set; }
         IPrincipal User { get; set; }
 
-        ControllerContext CreateContext(ControllerBase controller, ActionDescriptor actionDescriptor,
+        ControllerContext CreateContext(ActionDescriptor actionDescriptor,
             IValueProvider valueProvider);
     }
 }

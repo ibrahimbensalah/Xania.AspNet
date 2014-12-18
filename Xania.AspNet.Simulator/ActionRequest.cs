@@ -10,7 +10,9 @@ namespace Xania.AspNet.Simulator
 
         public IValueProvider ValueProvider { get; set; }
 
-        public ControllerContext CreateContext(ControllerBase Controller, ActionDescriptor ActionDescriptor, IValueProvider ValueProvider)
+        public ControllerBase Controller { get; set; }
+
+        public ControllerContext CreateContext(ActionDescriptor ActionDescriptor, IValueProvider ValueProvider)
         {
             var controllerDescriptor = ActionDescriptor.ControllerDescriptor;
             var controllerName = controllerDescriptor.ControllerName;
