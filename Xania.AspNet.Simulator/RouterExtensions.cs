@@ -9,11 +9,11 @@ namespace Xania.AspNet.Simulator
 {
     public static class RouterExtensions
     {
-        public static IAction Action(this Router router, string url, Action<HttpRequestInfo.Builder> configure = null)
+        public static IAction Action(this Router router, string url, Action<RawActionRequest> configure = null)
         {
-            var requestInfo = new HttpRequestInfo(url, "GET");
+            var requestInfo = new RawActionRequest(url, "GET");
             if (configure != null)
-                configure(new HttpRequestInfo.Builder(requestInfo));
+                configure(requestInfo);
 
             return router.Action(requestInfo);
         }

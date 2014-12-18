@@ -21,7 +21,7 @@ namespace Xania.AspNet.Simulator
             return new RequestContext(httpContext, routeData);
         }
 
-        public static HttpRequestInfo Parse(String raw)
+        public static RawActionRequest Parse(String raw)
         {
             var lines = raw.Split('\n');
             var first = lines.First();
@@ -32,7 +32,7 @@ namespace Xania.AspNet.Simulator
 
             var httpVersion = parts[2];
 
-            return new HttpRequestInfo
+            return new RawActionRequest
             {
                 UriPath = uriPath,
                 HttpMethod = httpMethod,
@@ -42,11 +42,11 @@ namespace Xania.AspNet.Simulator
 
         internal static HttpContextBase GetContext(string url, string method, IPrincipal user)
         {
-            return GetContext(new HttpRequestInfo(url, method), user);
+            return GetContext(new RawActionRequest(url, method), user);
         }
-        internal static HttpContextBase GetContext(HttpRequestInfo requestInfo, IPrincipal user)
+        internal static HttpContextBase GetContext(RawActionRequest requestRequest, IPrincipal user)
         {
-            var worker = new SimpleWorkerRequest(requestInfo);
+            var worker = new SimpleWorkerRequest(requestRequest);
             var httpContext = new HttpContext(worker);
             return GetContext(httpContext, user);
         }

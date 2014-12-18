@@ -6,16 +6,16 @@ namespace Xania.AspNet.Simulator
 {
     public class SimpleWorkerRequest : HttpWorkerRequest
     {
-        private readonly HttpRequestInfo _requestInfo;
+        private readonly RawActionRequest _requestRequest;
 
-        public SimpleWorkerRequest(HttpRequestInfo requestInfo, string httpVersion = null)
+        public SimpleWorkerRequest(RawActionRequest requestRequest, string httpVersion = null)
         {
-            _requestInfo = requestInfo;
+            _requestRequest = requestRequest;
         }
 
         public override string GetUriPath()
         {
-            return _requestInfo.UriPath;
+            return _requestRequest.UriPath;
         }
 
         public override string GetQueryString()
@@ -30,12 +30,12 @@ namespace Xania.AspNet.Simulator
 
         public override string GetHttpVerbName()
         {
-            return _requestInfo.HttpMethod;
+            return _requestRequest.HttpMethod;
         }
 
         public override string GetHttpVersion()
         {
-            return _requestInfo.HttpVersion ?? "HTTP/1.1";
+            return _requestRequest.HttpVersion ?? "HTTP/1.1";
         }
 
         public override string GetRemoteAddress()

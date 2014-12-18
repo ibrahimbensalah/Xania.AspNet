@@ -34,25 +34,21 @@ namespace Xania.AspNet.Simulator
         }
 
         public static IAction Action<TController>(this TController controller,
-            Expression<Func<TController, object>> actionExpression, Action<ActionInfo.Builder> configure = null)
+            Expression<Func<TController, object>> actionExpression, Action<ActionRequest> configure = null)
             where TController : ControllerBase
         {
-            var actionInfo = new ActionInfo();
+            var actionInfo = new ActionRequest();
             if (configure != null)
-                configure(new ActionInfo.Builder(actionInfo));
+                configure(actionInfo);
 
-            var controllerAction = new ControllerAction(controller, LinqActionDescriptor.Create(actionExpression), actionInfo.HttpMethod);
-            if (actionInfo.User != null)
-                controllerAction.Authenticate(actionInfo.User);
-
-            return controllerAction;
+            return new ControllerAction(controller, LinqActionDescriptor.Create(actionExpression), actionInfo);
         }
 
         public static IAction Action<TController>(this TController controller,
             Expression<Action<TController>> actionExpression, String httpMethod = "GET")
             where TController : ControllerBase
         {
-            return new ControllerAction(controller, LinqActionDescriptor.Create(actionExpression), httpMethod);
+            return new ControllerAction(controller, LinqActionDescriptor.Create(actionExpression), new RawActionRequest{ HttpMethod = httpMethod });
         }
 
         public static ControllerActionResult Execute<TController>(this TController controller,

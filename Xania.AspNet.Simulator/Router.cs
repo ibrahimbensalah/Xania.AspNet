@@ -36,9 +36,9 @@ namespace Xania.AspNet.Simulator
             throw new KeyNotFoundException(controllerName);
         }
 
-        public virtual IAction Action(HttpRequestInfo requestInfo)
+        public virtual IAction Action(RawActionRequest requestRequest)
         {
-            var context = AspNetUtility.GetContext(requestInfo, null);
+            var context = AspNetUtility.GetContext(requestRequest, null);
             var routeData = Routes.GetRouteData(context);
 
             if (routeData == null)
@@ -52,8 +52,8 @@ namespace Xania.AspNet.Simulator
             if (actionDescriptor == null)
                 return null;
 
-            var data = requestInfo.Data;
-            return new ControllerAction(controller, actionDescriptor, requestInfo.HttpMethod)
+            var data = requestRequest.Data;
+            return new ControllerAction(controller, actionDescriptor, requestRequest)
             {
                 ValueProvider = data == null ? null : new DictionaryValueProvider<object>(data, CultureInfo.CurrentCulture)
             };

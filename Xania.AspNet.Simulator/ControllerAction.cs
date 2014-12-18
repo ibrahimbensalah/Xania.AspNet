@@ -7,7 +7,8 @@ namespace Xania.AspNet.Simulator
 {
     internal class ControllerAction: IAction
     {
-        private readonly string _httpMethod;
+        private readonly IActionRequest _actionRequest;
+
         private IPrincipal _user;
         public ControllerBase Controller { get; private set; }
         public ActionDescriptor ActionDescriptor { get; private set; }
@@ -16,9 +17,9 @@ namespace Xania.AspNet.Simulator
 
         public FilterProviderCollection FilterProviders { get; private set; }
 
-        public ControllerAction(ControllerBase controller, ActionDescriptor actionDescriptor, string httpMethod = "GET")
+        public ControllerAction(ControllerBase controller, ActionDescriptor actionDescriptor, IActionRequest actionRequest)
         {
-            _httpMethod = httpMethod;
+            _actionRequest = actionRequest;
             if (controller == null)
                 throw new ArgumentNullException("controller");
 
@@ -30,20 +31,13 @@ namespace Xania.AspNet.Simulator
             FilterProviders = new FilterProviderCollection(System.Web.Mvc.FilterProviders.Providers);
         }
 
-        public void Authenticate(IPrincipal user)
-        {
-            if (user == null) 
-                throw new ArgumentNullException("user");
-
-            _user = user;
-        }
-
         public ControllerActionResult Execute()
         {
             var controllerDescriptor = ActionDescriptor.ControllerDescriptor;
             var controllerName = controllerDescriptor.ControllerName;
 
-            var requestContext = AspNetUtility.CreateRequestContext(ActionDescriptor.ActionName, controllerName, _httpMethod, _user ?? AnonymousUser);
+            var requestContext = AspNetUtility.CreateRequestContext(ActionDescriptor.ActionName, controllerName, 
+                _actionRequest.HttpMethod, _actionRequest.User ?? AnonymousUser);
             
             var controllerContext = new ControllerContext(requestContext, Controller);
             Controller.ControllerContext = controllerContext;
@@ -55,7 +49,7 @@ namespace Xania.AspNet.Simulator
 
             if (ActionDescriptor.GetSelectors().Any(selector => !selector.Invoke(controllerContext)))
             {
-                throw new InvalidOperationException(String.Format("Http method '{0}' is not allowed", _httpMethod));
+                throw new InvalidOperationException(String.Format("Http method '{0}' is not allowed", _actionRequest.HttpMethod));
             }
 
             var filters = FilterProviders.GetFilters(controllerContext, ActionDescriptor);
