@@ -11,33 +11,41 @@ namespace Xania.AspNet.Simulator
 {
     public static class SimulatorExtensions
     {
-        public static IAction Authenticate(this IAction action, string userName,
-            string[] roles, string identityType = "simulator")
-        {
-            var user = new GenericPrincipal(new GenericIdentity(userName, identityType), roles ?? new string[] {});
-            action.Authenticate(user);
-            return action;
-        }
+        //public static IAction Authenticate(this IAction action, string userName,
+        //    string[] roles, string identityType = "simulator")
+        //{
+        //    var user = new GenericPrincipal(new GenericIdentity(userName, identityType), roles ?? new string[] {});
+        //    action.Authenticate(user);
+        //    return action;
+        //}
 
         public static IAction PostAction<TController>(this TController controller,
             Expression<Func<TController, object>> actionExpression)
             where TController : ControllerBase
         {
-            return Action(controller, actionExpression, "POST");
+            return Action(controller, actionExpression, cfg => cfg.Post());
         }
 
         public static IAction GetAction<TController>(this TController controller,
             Expression<Func<TController, object>> actionExpression)
             where TController : ControllerBase
         {
-            return Action(controller, actionExpression, "GET");
+            return Action(controller, actionExpression, cfg => cfg.Get());
         }
 
         public static IAction Action<TController>(this TController controller,
-            Expression<Func<TController, object>> actionExpression, String httpMethod = "GET")
+            Expression<Func<TController, object>> actionExpression, Action<ActionInfo.Builder> configure = null)
             where TController : ControllerBase
         {
-            return new ControllerAction(controller, LinqActionDescriptor.Create(actionExpression), httpMethod);
+            var actionInfo = new ActionInfo();
+            if (configure != null)
+                configure(new ActionInfo.Builder(actionInfo));
+
+            var controllerAction = new ControllerAction(controller, LinqActionDescriptor.Create(actionExpression), actionInfo.HttpMethod);
+            if (actionInfo.User != null)
+                controllerAction.Authenticate(actionInfo.User);
+
+            return controllerAction;
         }
 
         public static IAction Action<TController>(this TController controller,

@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Runtime.Serialization.Formatters;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Mvc;
 using NUnit.Framework;
 
@@ -26,7 +21,7 @@ namespace Xania.AspNet.Simulator.Tests
         public void RequiredModelTest()
         {
             // arrange
-            var action = _router.Action("/test/index", "POST", new { name = "my name" }.ToDictionary());
+            var action = _router.Action("/test/index", cfg => cfg.Post().Data(new {name = "my name"}));
 
             // act
             var result = action.Execute();

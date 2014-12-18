@@ -34,10 +34,10 @@ namespace Xania.AspNet.Simulator.Tests
         public void AuthorizedActionFromUrlTest()
         {
             // arrange
-            var controllerAction = _router.Action("~/home/private");
+            var controllerAction = _router.Action("~/home/private", cfg => cfg.User("Ibrahim", null));
 
             // act
-            var result = controllerAction.Authenticate("Ibrahim", null).Execute();
+            var result = controllerAction.Execute();
 
             // assert
             Assert.IsInstanceOf<EmptyResult>(result.ActionResult);
@@ -61,7 +61,7 @@ namespace Xania.AspNet.Simulator.Tests
         public void PostActionTest()
         {
             // arrange
-            var controllerAction = _router.Action("~/home/update", "POST");
+            var controllerAction = _router.Action("~/home/update", cfg => cfg.Post());
             // act
             var result = controllerAction.Execute();
             // assert

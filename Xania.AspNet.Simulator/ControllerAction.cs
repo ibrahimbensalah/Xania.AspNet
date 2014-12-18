@@ -40,7 +40,7 @@ namespace Xania.AspNet.Simulator
 
         public ControllerActionResult Execute()
         {
-            var controllerDescriptor = new ReflectedControllerDescriptor(Controller.GetType());
+            var controllerDescriptor = ActionDescriptor.ControllerDescriptor;
             var controllerName = controllerDescriptor.ControllerName;
 
             var requestContext = AspNetUtility.CreateRequestContext(ActionDescriptor.ActionName, controllerName, _httpMethod, _user ?? AnonymousUser);

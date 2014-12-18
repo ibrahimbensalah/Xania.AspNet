@@ -7,8 +7,6 @@ namespace Xania.AspNet.Simulator
     {
         ControllerBase Controller { get; }
 
-        void Authenticate(IPrincipal user);
-
         ControllerActionResult Execute();
 
         FilterProviderCollection FilterProviders { get; }

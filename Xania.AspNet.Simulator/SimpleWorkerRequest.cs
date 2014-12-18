@@ -1,26 +1,21 @@
 ﻿using System;
-using System.IO;
-using System.Security.Principal;
+using System.Linq;
 using System.Web;
-using System.Web.Hosting;
-using System.Web.Mvc;
 
 namespace Xania.AspNet.Simulator
 {
-    internal class MvcWorkerRequest : HttpWorkerRequest
+    public class SimpleWorkerRequest : HttpWorkerRequest
     {
-        private readonly string _url;
-        private readonly string _httpMethod;
+        private readonly HttpRequestInfo _requestInfo;
 
-        public MvcWorkerRequest(string route, string httpMethod)
+        public SimpleWorkerRequest(HttpRequestInfo requestInfo, string httpVersion = null)
         {
-            _url = route;
-            _httpMethod = httpMethod;
+            _requestInfo = requestInfo;
         }
 
         public override string GetUriPath()
         {
-            return _url;
+            return _requestInfo.UriPath;
         }
 
         public override string GetQueryString()
@@ -35,12 +30,12 @@ namespace Xania.AspNet.Simulator
 
         public override string GetHttpVerbName()
         {
-            return _httpMethod;
+            return _requestInfo.HttpMethod;
         }
 
         public override string GetHttpVersion()
         {
-            throw new NotImplementedException();
+            return _requestInfo.HttpVersion ?? "HTTP/1.1";
         }
 
         public override string GetRemoteAddress()
@@ -102,5 +97,6 @@ namespace Xania.AspNet.Simulator
         {
             throw new NotImplementedException();
         }
+
     }
 }

@@ -17,7 +17,7 @@ namespace Xania.AspNet.Simulator
             Routes = new RouteCollection(new ActionRouterPathProvider());
         }
 
-        public Router RegisterController(string name, ControllerBase controller)
+        public virtual Router RegisterController(string name, ControllerBase controller)
         {
             if (name == null)
                 throw new ArgumentNullException("name");
@@ -36,12 +36,9 @@ namespace Xania.AspNet.Simulator
             throw new KeyNotFoundException(controllerName);
         }
 
-        public IAction Action(string url, string method = "GET", IDictionary<string, object> data = null)
+        public virtual IAction Action(HttpRequestInfo requestInfo)
         {
-            if (url.StartsWith("~"))
-                url = url.Substring(1);
-
-            var context = AspNetUtility.GetContext(url, method, null);
+            var context = AspNetUtility.GetContext(requestInfo, null);
             var routeData = Routes.GetRouteData(context);
 
             if (routeData == null)
@@ -55,13 +52,14 @@ namespace Xania.AspNet.Simulator
             if (actionDescriptor == null)
                 return null;
 
-            return new ControllerAction(controller, actionDescriptor, method)
+            var data = requestInfo.Data;
+            return new ControllerAction(controller, actionDescriptor, requestInfo.HttpMethod)
             {
-                ValueProvider = new DictionaryValueProvider<object>(data, CultureInfo.CurrentCulture)
+                ValueProvider = data == null ? null : new DictionaryValueProvider<object>(data, CultureInfo.CurrentCulture)
             };
         }
 
-        public Router RegisterDefaultRoutes()
+        public virtual Router RegisterDefaultRoutes()
         {
             Routes.MapRoute(
                 name: "Default",
@@ -70,27 +68,6 @@ namespace Xania.AspNet.Simulator
             );
 
             return this;
-        }
-    }
-
-    public class MvcValueProvider : IValueProvider
-    {
-        private readonly IDictionary<string, string> _data;
-
-        public MvcValueProvider(IDictionary<string, string> data)
-        {
-            _data = data;
-        }
-
-        public bool ContainsPrefix(string prefix)
-        {
-            return _data.ContainsKey(prefix);
-        }
-
-        public ValueProviderResult GetValue(string key)
-        {
-            var value = _data[key];
-            return new ValueProviderResult(value, value, CultureInfo.CurrentCulture);
         }
     }
 }

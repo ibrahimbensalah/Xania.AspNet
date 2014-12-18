@@ -52,11 +52,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ActionInfo.cs" />
     <Compile Include="AspNetUtility.cs" />
+    <Compile Include="HttpRequestInfo.cs" />
     <Compile Include="IAction.cs" />
     <Compile Include="LinqActionDescriptor.cs" />
     <Compile Include="ActionRouterPathProvider.cs" />
-    <Compile Include="MvcWorkerRequest.cs" />
+    <Compile Include="RouterExtensions.cs" />
+    <Compile Include="SimpleWorkerRequest.cs" />
     <Compile Include="ControllerActionResult.cs" />
     <Compile Include="SimpleActionInvoker.cs" />
     <Compile Include="ControllerAction.cs" />

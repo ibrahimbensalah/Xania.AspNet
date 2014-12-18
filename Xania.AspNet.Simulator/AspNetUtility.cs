@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Specialized;
 using System.Diagnostics;
+using System.Linq;
 using System.Security.Principal;
 using System.Web;
 using System.Web.Caching;
@@ -20,11 +21,33 @@ namespace Xania.AspNet.Simulator
             return new RequestContext(httpContext, routeData);
         }
 
-        internal static HttpContextBase GetContext(String url, string method, IPrincipal user)
+        public static HttpRequestInfo Parse(String raw)
         {
-            var worker = new MvcWorkerRequest(url, method);
+            var lines = raw.Split('\n');
+            var first = lines.First();
+
+            var parts = first.Split(' ');
+            var httpMethod = parts[0];
+            var uriPath = parts[1];
+
+            var httpVersion = parts[2];
+
+            return new HttpRequestInfo
+            {
+                UriPath = uriPath,
+                HttpMethod = httpMethod,
+                HttpVersion = httpVersion
+            };
+        }
+
+        internal static HttpContextBase GetContext(string url, string method, IPrincipal user)
+        {
+            return GetContext(new HttpRequestInfo(url, method), user);
+        }
+        internal static HttpContextBase GetContext(HttpRequestInfo requestInfo, IPrincipal user)
+        {
+            var worker = new SimpleWorkerRequest(requestInfo);
             var httpContext = new HttpContext(worker);
-            var x = httpContext.Request.RawUrl;
             return GetContext(httpContext, user);
         }
 

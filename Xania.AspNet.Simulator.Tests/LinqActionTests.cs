@@ -39,10 +39,10 @@ namespace Xania.AspNet.Simulator.Tests
         public void AuthorizedActionTest()
         {
             // arrange 
-            var controller = new TestController();
+            var action = new TestController().Action(c => c.UserProfile(), cfg => cfg.User("user", null));
 
             // act 
-            var result = controller.Action(c => c.UserProfile()).Authenticate("user", null).Execute();
+            var result = action.Execute();
 
             // assert
             Assert.IsInstanceOf<ViewResult>(result.ActionResult);
