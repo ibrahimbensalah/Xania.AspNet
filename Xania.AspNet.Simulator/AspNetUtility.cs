@@ -21,30 +21,12 @@ namespace Xania.AspNet.Simulator
             return new RequestContext(httpContext, routeData);
         }
 
-        public static RawActionRequest Parse(String raw)
-        {
-            var lines = raw.Split('\n');
-            var first = lines.First();
-
-            var parts = first.Split(' ');
-            var httpMethod = parts[0];
-            var uriPath = parts[1];
-
-            var httpVersion = parts[2];
-
-            return new RawActionRequest
-            {
-                UriPath = uriPath,
-                HttpMethod = httpMethod,
-                HttpVersion = httpVersion
-            };
-        }
-
         internal static HttpContextBase GetContext(string url, string method, IPrincipal user)
         {
-            return GetContext(new RawActionRequest(url, method), user);
+            return GetContext(new ActionRequest(url, method), user);
         }
-        internal static HttpContextBase GetContext(RawActionRequest requestRequest, IPrincipal user)
+
+        internal static HttpContextBase GetContext(ActionRequest requestRequest, IPrincipal user)
         {
             var worker = new SimpleWorkerRequest(requestRequest);
             var httpContext = new HttpContext(worker);

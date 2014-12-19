@@ -36,7 +36,7 @@ namespace Xania.AspNet.Simulator
             throw new KeyNotFoundException(controllerName);
         }
 
-        public virtual IAction Action(RawActionRequest actionRequest)
+        public virtual IAction Action(ActionRequest actionRequest)
         {
             var context = AspNetUtility.GetContext(actionRequest, null);
             var routeData = Routes.GetRouteData(context);

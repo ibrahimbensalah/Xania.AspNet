@@ -54,7 +54,7 @@ namespace Xania.AspNet.Simulator
             Expression<Action<TController>> actionExpression, String httpMethod = "GET")
             where TController : ControllerBase
         {
-            return new ControllerAction(new RawActionRequest
+            return new ControllerAction(new ActionRequest
             {
                 ActionDescriptor = LinqActionDescriptor.Create(actionExpression),
                 HttpMethod = httpMethod,

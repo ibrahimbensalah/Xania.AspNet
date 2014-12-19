@@ -6,9 +6,9 @@ namespace Xania.AspNet.Simulator
 {
     public class SimpleWorkerRequest : HttpWorkerRequest
     {
-        private readonly RawActionRequest _requestRequest;
+        private readonly ActionRequest _requestRequest;
 
-        public SimpleWorkerRequest(RawActionRequest requestRequest, string httpVersion = null)
+        public SimpleWorkerRequest(ActionRequest requestRequest, string httpVersion = null)
         {
             _requestRequest = requestRequest;
         }
@@ -17,7 +17,7 @@ namespace Xania.AspNet.Simulator
         {
             return _requestRequest.UriPath;
         }
-
+        
         public override string GetQueryString()
         {
             return String.Empty;

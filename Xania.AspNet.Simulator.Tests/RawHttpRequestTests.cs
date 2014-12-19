@@ -11,7 +11,7 @@ namespace Xania.AspNet.Simulator.Tests
         [TestCase("OPTIONS /home/ HTTPVERSION", "OPTIONS", "/home/", "HTTPVERSION")]
         public void RequestLineTest(string requestLine, string httpMethod, string uriPath, string httpVersion)
         {
-            var requestInfo = AspNetUtility.Parse(requestLine);
+            var requestInfo = ActionRequest.Parse(requestLine);
             Assert.AreEqual(httpMethod, requestInfo.HttpMethod);
             Assert.AreEqual(uriPath, requestInfo.UriPath);
             Assert.AreEqual(httpVersion, requestInfo.HttpVersion);

@@ -36,7 +36,7 @@ namespace Xania.AspNet.Simulator
         }
 
         public static TActionRequest Data<TActionRequest>(this TActionRequest actionRequest, object values)
-            where TActionRequest : RawActionRequest
+            where TActionRequest : ActionRequest
         {
             {
                 actionRequest.ValueProvider = new DictionaryValueProvider<object>(values.ToDictionary(),

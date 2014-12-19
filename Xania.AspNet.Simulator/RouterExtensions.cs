@@ -9,9 +9,9 @@ namespace Xania.AspNet.Simulator
 {
     public static class RouterExtensions
     {
-        public static IAction Action(this Router router, string url, Action<RawActionRequest> configure = null)
+        public static IAction Action(this Router router, string url, Action<ActionRequest> configure = null)
         {
-            var requestInfo = new RawActionRequest(url, "GET");
+            var requestInfo = new ActionRequest(url, "GET");
             if (configure != null)
                 configure(requestInfo);
 
@@ -20,7 +20,7 @@ namespace Xania.AspNet.Simulator
 
         public static IAction ParseAction(this Router router, string rawHttpRequest)
         {
-            var requestInfo = AspNetUtility.Parse(rawHttpRequest);
+            var requestInfo = ActionRequest.Parse(rawHttpRequest);
             return router.Action(requestInfo);
         }
     }
