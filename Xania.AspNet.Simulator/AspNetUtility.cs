@@ -23,9 +23,10 @@ namespace Xania.AspNet.Simulator
 
         internal static HttpContextBase GetContext(string url, string method, IPrincipal user)
         {
-            return GetContext(new UrlActionRequest(url, method)
+            return GetContext(new UrlActionRequest(url)
             {
-                User = user
+                User = user,
+                HttpMethod = method
             });
         }
 

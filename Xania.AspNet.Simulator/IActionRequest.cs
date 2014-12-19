@@ -10,12 +10,8 @@ namespace Xania.AspNet.Simulator
 
         IPrincipal User { get; set; }
 
-        ActionDescriptor ActionDescriptor { get; }
-
         FilterProviderCollection FilterProviders { get; }
 
         IValueProvider ValueProvider { get; }
-
-        IAction Action();
     }
 }

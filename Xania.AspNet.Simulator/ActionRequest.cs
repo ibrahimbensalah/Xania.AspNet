@@ -7,7 +7,7 @@ namespace Xania.AspNet.Simulator
 {
     public abstract class ActionRequest : IActionRequest
     {
-        public ActionRequest()
+        protected ActionRequest()
         {
             FilterProviders = new FilterProviderCollection(System.Web.Mvc.FilterProviders.Providers);
         }
@@ -18,19 +18,13 @@ namespace Xania.AspNet.Simulator
 
         public IValueProvider ValueProvider { get; set; }
 
-        public ControllerBase Controller { get; set; }
-
-        public ActionDescriptor ActionDescriptor { get; set; }
-
         public string HttpMethod { get; set; }
 
         public string UriPath { get; set; }
 
         public string HttpVersion { get; set; }
 
-        public abstract IAction Action();
-
-        public static ActionRequest Parse(String raw)
+        public static UrlActionRequest Parse(String raw)
         {
             var lines = raw.Split('\n');
             var first = lines.First();
@@ -41,16 +35,36 @@ namespace Xania.AspNet.Simulator
 
             var httpVersion = parts[2];
 
-            return new UrlActionRequest(uriPath, httpMethod)
+            return new UrlActionRequest(uriPath)
             {
-                HttpVersion = httpVersion
+                HttpVersion = httpVersion,
+                HttpMethod = httpMethod
             };
         }
     }
 
     public class LinqActionRequest : ActionRequest
     {
-        public override IAction Action()
+        private readonly ControllerBase _controller;
+        private readonly ActionDescriptor _actionDescriptor;
+
+        public LinqActionRequest(ControllerBase controller, ActionDescriptor actionDescriptor)
+        {
+            _controller = controller;
+            _actionDescriptor = actionDescriptor;
+        }
+
+        public ControllerBase Controller
+        {
+            get { return _controller; }
+        }
+
+        public ActionDescriptor ActionDescriptor
+        {
+            get { return _actionDescriptor; }
+        }
+
+        public IAction Action()
         {
             return new ControllerAction(this, Controller, ActionDescriptor);
         }

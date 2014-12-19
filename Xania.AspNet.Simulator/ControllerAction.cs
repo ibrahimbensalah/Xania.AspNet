@@ -22,14 +22,13 @@ namespace Xania.AspNet.Simulator
         public ControllerActionResult Execute()
         {
             var controllerContext = CreateContext();
-            var actionDescriptor = _actionRequest.ActionDescriptor;
-            if (actionDescriptor.GetSelectors().Any(selector => !selector.Invoke(controllerContext)))
+            if (_actionDescriptor.GetSelectors().Any(selector => !selector.Invoke(controllerContext)))
             {
                 throw new InvalidOperationException(String.Format("Http method '{0}' is not allowed", _actionRequest.HttpMethod));
             }
 
-            var filters = _actionRequest.FilterProviders.GetFilters(controllerContext, actionDescriptor);
-            var invoker = new SimpleActionInvoker(controllerContext, actionDescriptor, filters);
+            var filters = _actionRequest.FilterProviders.GetFilters(controllerContext, _actionDescriptor);
+            var invoker = new SimpleActionInvoker(controllerContext, _actionDescriptor, filters);
             return new ControllerActionResult
             {
                 ControllerContext = controllerContext,

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Web.Mvc;
 using System.Web.Routing;
 
@@ -36,7 +37,7 @@ namespace Xania.AspNet.Simulator
             throw new KeyNotFoundException(controllerName);
         }
 
-        public virtual IAction Action(ActionRequest actionRequest)
+        public virtual IAction Action(UrlActionRequest actionRequest)
         {
             var context = AspNetUtility.GetContext(actionRequest);
             var routeData = Routes.GetRouteData(context);
@@ -52,10 +53,7 @@ namespace Xania.AspNet.Simulator
             if (actionDescriptor == null)
                 return null;
 
-            actionRequest.Controller = controller;
-            actionRequest.ActionDescriptor = actionDescriptor;
-
-            return actionRequest.Action();
+            return new ControllerAction(actionRequest, controller, actionDescriptor);
         }
 
         public virtual Router RegisterDefaultRoutes()

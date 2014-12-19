@@ -11,7 +11,7 @@ namespace Xania.AspNet.Simulator
     {
         public static IAction Action(this Router router, string url, Action<ActionRequest> configure = null)
         {
-            var requestInfo = new UrlActionRequest(url, "GET");
+            var requestInfo = new UrlActionRequest(url);
             if (configure != null)
                 configure(requestInfo);
 
@@ -22,24 +22,6 @@ namespace Xania.AspNet.Simulator
         {
             var requestInfo = ActionRequest.Parse(rawHttpRequest);
             return router.Action(requestInfo);
-        }
-    }
-
-    public class UrlActionRequest : ActionRequest
-    {
-        public UrlActionRequest(string url, string method)
-        {
-            if (url.StartsWith("~"))
-                url = url.Substring(1);
-
-            UriPath = url;
-            HttpMethod = method;
-            HttpVersion = "HTTP/1.1";
-        }
-
-        public override IAction Action()
-        {
-            return new ControllerAction(this, Controller, ActionDescriptor);
         }
     }
 }
