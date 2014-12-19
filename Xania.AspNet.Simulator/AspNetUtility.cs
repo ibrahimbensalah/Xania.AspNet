@@ -23,14 +23,17 @@ namespace Xania.AspNet.Simulator
 
         internal static HttpContextBase GetContext(string url, string method, IPrincipal user)
         {
-            return GetContext(new ActionRequest(url, method), user);
+            return GetContext(new ActionRequest(url, method)
+            {
+                User = user
+            });
         }
 
-        internal static HttpContextBase GetContext(ActionRequest requestRequest, IPrincipal user)
+        internal static HttpContextBase GetContext(ActionRequest actionRequest)
         {
-            var worker = new SimpleWorkerRequest(requestRequest);
+            var worker = new ActionRequestWrapper(actionRequest);
             var httpContext = new HttpContext(worker);
-            return GetContext(httpContext, user);
+            return GetContext(httpContext, actionRequest.User);
         }
 
         internal static HttpContextBase GetContext(HttpContext httpContext, IPrincipal user)

@@ -38,7 +38,7 @@ namespace Xania.AspNet.Simulator
 
         public virtual IAction Action(ActionRequest actionRequest)
         {
-            var context = AspNetUtility.GetContext(actionRequest, null);
+            var context = AspNetUtility.GetContext(actionRequest);
             var routeData = Routes.GetRouteData(context);
 
             if (routeData == null)

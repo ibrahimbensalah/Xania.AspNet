@@ -4,11 +4,11 @@ using System.Web;
 
 namespace Xania.AspNet.Simulator
 {
-    public class SimpleWorkerRequest : HttpWorkerRequest
+    public class ActionRequestWrapper : HttpWorkerRequest
     {
         private readonly ActionRequest _requestRequest;
 
-        public SimpleWorkerRequest(ActionRequest requestRequest, string httpVersion = null)
+        public ActionRequestWrapper(ActionRequest requestRequest)
         {
             _requestRequest = requestRequest;
         }

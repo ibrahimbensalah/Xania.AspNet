@@ -61,7 +61,7 @@
     <Compile Include="LinqActionDescriptor.cs" />
     <Compile Include="ActionRouterPathProvider.cs" />
     <Compile Include="RouterExtensions.cs" />
-    <Compile Include="SimpleWorkerRequest.cs" />
+    <Compile Include="ActionRequestWrapper.cs" />
     <Compile Include="ControllerActionResult.cs" />
     <Compile Include="SimpleActionInvoker.cs" />
     <Compile Include="ControllerAction.cs" />
