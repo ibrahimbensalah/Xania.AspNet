@@ -5,21 +5,14 @@ using System.Web.Mvc;
 
 namespace Xania.AspNet.Simulator
 {
-    public class ActionRequest : IActionRequest
+    public abstract class ActionRequest : IActionRequest
     {
         public ActionRequest()
         {
+            FilterProviders = new FilterProviderCollection(System.Web.Mvc.FilterProviders.Providers);
         }
 
-        public ActionRequest(string url, string method)
-        {
-            if (url.StartsWith("~"))
-                url = url.Substring(1);
-
-            UriPath = url;
-            HttpMethod = method;
-            HttpVersion = "HTTP/1.1";
-        }
+        public FilterProviderCollection FilterProviders { get; private set; }
 
         public IPrincipal User { get; set; }
 
@@ -35,28 +28,8 @@ namespace Xania.AspNet.Simulator
 
         public string HttpVersion { get; set; }
 
-        public virtual ControllerContext CreateContext()
-        {
-            var controllerDescriptor = ActionDescriptor.ControllerDescriptor;
-            var controllerName = controllerDescriptor.ControllerName;
+        public abstract IAction Action();
 
-            var requestContext = AspNetUtility.CreateRequestContext(ActionDescriptor.ActionName, controllerName,
-               HttpMethod, User ?? CreateAnonymousUser());
-
-            var controllerContext = new ControllerContext(requestContext, Controller);
-            Controller.ControllerContext = controllerContext;
-            // Use empty value provider by default to prevent use of ASP.NET MVC default value providers
-            // Its not the purpose of this simulator framework to validate the ASP.NET MVC default value 
-            // providers. Either a value provider is not need in case model values are predefined or a 
-            // custom implementation is provided.
-            Controller.ValueProvider = ValueProvider ?? new ValueProviderCollection();
-            return controllerContext;
-        }
-
-        protected virtual IPrincipal CreateAnonymousUser()
-        {
-            return new GenericPrincipal(new GenericIdentity(String.Empty), new string[] { });
-        }
         public static ActionRequest Parse(String raw)
         {
             var lines = raw.Split('\n');
@@ -68,12 +41,18 @@ namespace Xania.AspNet.Simulator
 
             var httpVersion = parts[2];
 
-            return new ActionRequest
+            return new UrlActionRequest(uriPath, httpMethod)
             {
-                UriPath = uriPath,
-                HttpMethod = httpMethod,
                 HttpVersion = httpVersion
             };
+        }
+    }
+
+    public class LinqActionRequest : ActionRequest
+    {
+        public override IAction Action()
+        {
+            return new ControllerAction(this, Controller, ActionDescriptor);
         }
     }
 }

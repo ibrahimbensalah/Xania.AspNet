@@ -39,7 +39,7 @@ namespace Xania.AspNet.Simulator.Tests
         public void AuthorizedActionTest()
         {
             // arrange 
-            var action = new TestController().Action(c => c.UserProfile(), cfg => cfg.User("user", null));
+            var action = new TestController().Action(c => c.UserProfile(), request => request.Authenticate("user", null));
 
             // act 
             var result = action.Execute();

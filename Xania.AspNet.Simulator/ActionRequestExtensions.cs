@@ -26,7 +26,7 @@ namespace Xania.AspNet.Simulator
             return actionRequest;
         }
 
-        public static TActionRequest User<TActionRequest>(this TActionRequest actionRequest, string userName,
+        public static TActionRequest Authenticate<TActionRequest>(this TActionRequest actionRequest, string userName,
             string[] roles, string identityType = "Simulator")
             where TActionRequest : IActionRequest
         {

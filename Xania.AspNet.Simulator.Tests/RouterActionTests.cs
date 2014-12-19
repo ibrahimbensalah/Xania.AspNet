@@ -34,7 +34,7 @@ namespace Xania.AspNet.Simulator.Tests
         public void AuthorizedActionFromUrlTest()
         {
             // arrange
-            var controllerAction = _router.Action("~/home/private", cfg => cfg.User("Ibrahim", null));
+            var controllerAction = _router.Action("~/home/private", cfg => cfg.Authenticate("Ibrahim", null));
 
             // act
             var result = controllerAction.Execute();

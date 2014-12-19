@@ -6,7 +6,5 @@ namespace Xania.AspNet.Simulator
     public interface IAction
     {
         ControllerActionResult Execute();
-
-        FilterProviderCollection FilterProviders { get; }
     }
 }

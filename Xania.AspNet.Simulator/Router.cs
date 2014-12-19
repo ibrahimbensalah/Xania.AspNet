@@ -54,7 +54,8 @@ namespace Xania.AspNet.Simulator
 
             actionRequest.Controller = controller;
             actionRequest.ActionDescriptor = actionDescriptor;
-            return new ControllerAction(actionRequest);
+
+            return actionRequest.Action();
         }
 
         public virtual Router RegisterDefaultRoutes()

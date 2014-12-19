@@ -37,29 +37,28 @@ namespace Xania.AspNet.Simulator
             Expression<Func<TController, object>> actionExpression, Action<ActionRequest> configure = null)
             where TController : ControllerBase
         {
-            var actionInfo = new ActionRequest()
+            var actionInfo = new LinqActionRequest
             {
-                Controller = controller
+                Controller = controller,
+                ActionDescriptor = LinqActionDescriptor.Create(actionExpression)
             };
 
             if (configure != null)
                 configure(actionInfo);
 
-            actionInfo.ActionDescriptor = LinqActionDescriptor.Create(actionExpression);
-
-            return new ControllerAction(actionInfo);
+            return actionInfo.Action();
         }
 
         public static IAction Action<TController>(this TController controller,
             Expression<Action<TController>> actionExpression, String httpMethod = "GET")
             where TController : ControllerBase
         {
-            return new ControllerAction(new ActionRequest
+            return new LinqActionRequest
             {
                 ActionDescriptor = LinqActionDescriptor.Create(actionExpression),
                 HttpMethod = httpMethod,
                 Controller = controller
-            });
+            }.Action();
         }
 
         public static ControllerActionResult Execute<TController>(this TController controller,
