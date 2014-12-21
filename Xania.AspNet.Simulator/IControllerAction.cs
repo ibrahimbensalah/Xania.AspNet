@@ -3,7 +3,7 @@ using System.Web.Mvc;
 
 namespace Xania.AspNet.Simulator
 {
-    public interface IAction
+    public interface IControllerAction
     {
         ControllerActionResult Execute();
     }

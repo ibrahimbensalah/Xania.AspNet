@@ -1,16 +1,13 @@
-﻿using System;
-using System.Linq;
-using System.Security.Principal;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
 
 namespace Xania.AspNet.Simulator
 {
-    public class ControllerAction : ActionRequest, IAction
+    public class DirectControllerAction : ActionRequest, IControllerAction
     {
         private readonly ControllerBase _controller;
         private readonly ActionDescriptor _actionDescriptor;
 
-        public ControllerAction(ControllerBase controller, ActionDescriptor actionDescriptor)
+        public DirectControllerAction(ControllerBase controller, ActionDescriptor actionDescriptor)
         {
             _controller = controller;
             _actionDescriptor = actionDescriptor;

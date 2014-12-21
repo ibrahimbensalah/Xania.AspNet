@@ -4,20 +4,18 @@ using System.Web.Routing;
 
 namespace Xania.AspNet.Simulator
 {
-    public class RouterAction : IAction
+    public class RouterAction : ActionRequest, IControllerAction
     {
-        private readonly ActionRequest _actionRequest;
         private readonly Router _router;
 
-        public RouterAction(ActionRequest actionRequest, Router router)
+        public RouterAction(Router router)
         {
-            _actionRequest = actionRequest;
             _router = router;
         }
 
         public ControllerActionResult Execute()
         {
-            var context = AspNetUtility.GetContext(_actionRequest);
+            var context = AspNetUtility.GetContext(this);
             RouteData routeData = _router.Routes.GetRouteData(context);
 
             if (routeData == null)
@@ -31,9 +29,9 @@ namespace Xania.AspNet.Simulator
             if (actionDescriptor == null)
                 return null;
 
-            var controllerContext = _actionRequest.CreateContext(_actionRequest, controller, actionDescriptor);
+            var controllerContext = CreateContext(this, controller, actionDescriptor);
 
-            return _actionRequest.Execute(controllerContext, actionDescriptor);
+            return Execute(controllerContext, actionDescriptor);
         }
     }
 }

@@ -4,20 +4,17 @@ namespace Xania.AspNet.Simulator
 {
     public static class RouterExtensions
     {
-        public static IAction Action(this Router router, string url, Action<ActionRequest> configure = null)
+        public static RouterAction Action(this Router router, string url)
         {
-            var actionRequest = new ActionRequest() { UriPath = url };
-
-            if (configure != null)
-                configure(actionRequest);
-
-            return new RouterAction(actionRequest, router);
+            return new RouterAction(router) { UriPath = url };
         }
 
-        public static IAction ParseAction(this Router router, string rawHttpRequest)
+        public static IControllerAction ParseAction(this Router router, string rawHttpRequest)
         {
-            var requestInfo = ActionRequest.Parse(rawHttpRequest);
-            return new RouterAction(requestInfo, router);
+            var action = new RouterAction(router);
+            action.Raw(rawHttpRequest);
+
+            return action;
         }
     }
 }

@@ -19,37 +19,34 @@ namespace Xania.AspNet.Simulator
         //    return action;
         //}
 
-        public static ControllerAction PostAction<TController>(this TController controller,
+        public static DirectControllerAction PostAction<TController>(this TController controller,
             Expression<Func<TController, object>> actionExpression)
             where TController : ControllerBase
         {
-            return Action(controller, actionExpression, cfg => cfg.Post());
+            return Action(controller, actionExpression).Post();
         }
 
-        public static ControllerAction GetAction<TController>(this TController controller,
+        public static DirectControllerAction GetAction<TController>(this TController controller,
             Expression<Func<TController, object>> actionExpression)
             where TController : ControllerBase
         {
-            return Action(controller, actionExpression, cfg => cfg.Get());
+            return Action(controller, actionExpression).Get();
         }
 
-        public static ControllerAction Action<TController>(this TController controller,
-            Expression<Func<TController, object>> actionExpression, Action<ActionRequest> configure = null)
+        public static DirectControllerAction Action<TController>(this TController controller,
+            Expression<Func<TController, object>> actionExpression)
             where TController : ControllerBase
         {
-            var actionInfo = new ControllerAction(controller, LinqActionDescriptor.Create(actionExpression));
-
-            if (configure != null)
-                configure(actionInfo);
+            var actionInfo = new DirectControllerAction(controller, LinqActionDescriptor.Create(actionExpression));
 
             return actionInfo;
         }
 
-        public static ControllerAction Action<TController>(this TController controller,
+        public static DirectControllerAction Action<TController>(this TController controller,
             Expression<Action<TController>> actionExpression, String httpMethod = "GET")
             where TController : ControllerBase
         {
-            return new ControllerAction(controller, LinqActionDescriptor.Create(actionExpression))
+            return new DirectControllerAction(controller, LinqActionDescriptor.Create(actionExpression))
             {
                 HttpMethod = httpMethod
             };

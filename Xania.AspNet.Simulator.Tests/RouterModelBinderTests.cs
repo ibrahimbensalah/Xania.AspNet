@@ -21,7 +21,7 @@ namespace Xania.AspNet.Simulator.Tests
         public void RequiredModelTest()
         {
             // arrange
-            var action = _router.Action("/test/index", cfg => cfg.Post().Data(new {name = "my name"}));
+            var action = _router.Action("/test/index").Post().Data(new {name = "my name"});
 
             // act
             var result = action.Execute();

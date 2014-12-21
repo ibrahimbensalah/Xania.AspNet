@@ -22,20 +22,20 @@ namespace Xania.AspNet.Simulator
 
         public string UriPath { get; set; }
 
-        public static ActionRequest Parse(String raw)
+        public void Raw(string raw)
         {
             var lines = raw.Split('\n');
             var first = lines.First();
 
             var parts = first.Split(' ');
-            var httpMethod = parts[0];
-            var uriPath = parts[1];
-
-            return new ActionRequest
-            {
-                UriPath = uriPath,
-                HttpMethod = httpMethod
-            };
+            HttpMethod = parts[0];
+            UriPath = parts[1];
+        }
+        public static ActionRequest Parse(String raw)
+        {
+            var actionRequest = new ActionRequest();
+            actionRequest.Raw(raw);
+            return actionRequest;
         }
 
         public ControllerActionResult Execute(ControllerContext controllerContext, ActionDescriptor actionDescriptor)
