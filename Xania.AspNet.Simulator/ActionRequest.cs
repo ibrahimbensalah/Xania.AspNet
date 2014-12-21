@@ -5,9 +5,9 @@ using System.Web.Mvc;
 
 namespace Xania.AspNet.Simulator
 {
-    public abstract class ActionRequest : IActionRequest
+    public class ActionRequest : IActionRequest
     {
-        protected ActionRequest()
+        public ActionRequest()
         {
             FilterProviders = new FilterProviderCollection(System.Web.Mvc.FilterProviders.Providers);
         }
@@ -22,9 +22,7 @@ namespace Xania.AspNet.Simulator
 
         public string UriPath { get; set; }
 
-        public string HttpVersion { get; set; }
-
-        public static UrlActionRequest Parse(String raw)
+        public static ActionRequest Parse(String raw)
         {
             var lines = raw.Split('\n');
             var first = lines.First();
@@ -33,40 +31,51 @@ namespace Xania.AspNet.Simulator
             var httpMethod = parts[0];
             var uriPath = parts[1];
 
-            var httpVersion = parts[2];
-
-            return new UrlActionRequest(uriPath)
+            return new ActionRequest
             {
-                HttpVersion = httpVersion,
+                UriPath = uriPath,
                 HttpMethod = httpMethod
             };
         }
-    }
 
-    public class LinqActionRequest : ActionRequest
-    {
-        private readonly ControllerBase _controller;
-        private readonly ActionDescriptor _actionDescriptor;
-
-        public LinqActionRequest(ControllerBase controller, ActionDescriptor actionDescriptor)
+        public ControllerActionResult Execute(ControllerContext controllerContext, ActionDescriptor actionDescriptor)
         {
-            _controller = controller;
-            _actionDescriptor = actionDescriptor;
+            var filters = FilterProviders.GetFilters(controllerContext, actionDescriptor);
+            var invoker = new SimpleActionInvoker(controllerContext, actionDescriptor, filters);
+            return new ControllerActionResult
+            {
+                ControllerContext = controllerContext,
+                ActionResult = invoker.InvokeAction()
+            };
         }
 
-        public ControllerBase Controller
+        public virtual IPrincipal CreateAnonymousUser()
         {
-            get { return _controller; }
+            return new GenericPrincipal(new GenericIdentity(String.Empty), new string[] { });
         }
 
-        public ActionDescriptor ActionDescriptor
+        public virtual ControllerContext CreateContext(IActionRequest actionRequest, ControllerBase controller, ActionDescriptor actionDescriptor)
         {
-            get { return _actionDescriptor; }
-        }
+            var controllerDescriptor = actionDescriptor.ControllerDescriptor;
+            var controllerName = controllerDescriptor.ControllerName;
 
-        public IAction Action()
-        {
-            return new ControllerAction(this, Controller, ActionDescriptor);
+            var requestContext = AspNetUtility.CreateRequestContext(actionDescriptor.ActionName, controllerName,
+                actionRequest.HttpMethod, actionRequest.User ?? CreateAnonymousUser());
+
+            var controllerContext = new ControllerContext(requestContext, controller);
+            controller.ControllerContext = controllerContext;
+            // Use empty value provider by default to prevent use of ASP.NET MVC default value providers
+            // Its not the purpose of this simulator framework to validate the ASP.NET MVC default value 
+            // providers. Either a value provider is not need in case model values are predefined or a 
+            // custom implementation is provided.
+            controller.ValueProvider = actionRequest.ValueProvider ?? new ValueProviderCollection();
+
+            if (actionDescriptor.GetSelectors().Any(selector => !selector.Invoke(controllerContext)))
+            {
+                throw new InvalidOperationException(String.Format("Http method '{0}' is not allowed", actionRequest.HttpMethod));
+            }
+
+            return controllerContext;
         }
     }
 }

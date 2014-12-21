@@ -35,7 +35,7 @@ namespace Xania.AspNet.Simulator
 
         public override string GetHttpVersion()
         {
-            return _requestRequest.HttpVersion ?? "HTTP/1.1";
+            return "HTTP/1.1";
         }
 
         public override string GetRemoteAddress()

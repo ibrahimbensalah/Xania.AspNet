@@ -6,6 +6,7 @@ using System.Linq;
 using System.Security.Principal;
 using System.Web;
 using System.Web.Caching;
+using System.Web.Mvc;
 using System.Web.Routing;
 using Moq;
 
@@ -23,8 +24,9 @@ namespace Xania.AspNet.Simulator
 
         internal static HttpContextBase GetContext(string url, string method, IPrincipal user)
         {
-            return GetContext(new UrlActionRequest(url)
+            return GetContext(new ActionRequest
             {
+                UriPath = url,
                 User = user,
                 HttpMethod = method
             });

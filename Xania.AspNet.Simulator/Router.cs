@@ -37,24 +37,24 @@ namespace Xania.AspNet.Simulator
             throw new KeyNotFoundException(controllerName);
         }
 
-        public virtual IAction Action(UrlActionRequest actionRequest)
-        {
-            var context = AspNetUtility.GetContext(actionRequest);
-            var routeData = Routes.GetRouteData(context);
+        //public virtual IAction Action(ActionRequest actionRequest)
+        //{
+        //    var context = AspNetUtility.GetContext(actionRequest);
+        //    var routeData = Routes.GetRouteData(context);
 
-            if (routeData == null)
-                return null;
+        //    if (routeData == null)
+        //        return null;
 
-            var controllerName = routeData.GetRequiredString("controller");
-            var controller = CreateController(controllerName);
-            var controllerDescriptor = new ReflectedControllerDescriptor(controller.GetType());
-            var actionDescriptor = controllerDescriptor.FindAction(new ControllerContext(context, routeData, controller), routeData.GetRequiredString("action"));
+        //    var controllerName = routeData.GetRequiredString("controller");
+        //    var controller = CreateController(controllerName);
+        //    var controllerDescriptor = new ReflectedControllerDescriptor(controller.GetType());
+        //    var actionDescriptor = controllerDescriptor.FindAction(new ControllerContext(context, routeData, controller), routeData.GetRequiredString("action"));
 
-            if (actionDescriptor == null)
-                return null;
+        //    if (actionDescriptor == null)
+        //        return null;
 
-            return new ControllerAction(actionRequest, controller, actionDescriptor);
-        }
+        //    return new ControllerAction(actionRequest, controller, actionDescriptor);
+        //}
 
         public virtual Router RegisterDefaultRoutes()
         {

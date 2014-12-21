@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Xania.AspNet.Simulator
 {
@@ -11,17 +6,18 @@ namespace Xania.AspNet.Simulator
     {
         public static IAction Action(this Router router, string url, Action<ActionRequest> configure = null)
         {
-            var requestInfo = new UrlActionRequest(url);
-            if (configure != null)
-                configure(requestInfo);
+            var actionRequest = new ActionRequest() { UriPath = url };
 
-            return router.Action(requestInfo);
+            if (configure != null)
+                configure(actionRequest);
+
+            return new RouterAction(actionRequest, router);
         }
 
         public static IAction ParseAction(this Router router, string rawHttpRequest)
         {
             var requestInfo = ActionRequest.Parse(rawHttpRequest);
-            return router.Action(requestInfo);
+            return new RouterAction(requestInfo, router);
         }
     }
 }

@@ -8,13 +8,12 @@ namespace Xania.AspNet.Simulator.Tests
     {
         [TestCase("POST /home/index HTTP/1.1\n", "POST", "/home/index", "HTTP/1.1")]
         [TestCase("GET /home/index HTTP/1.1", "GET", "/home/index", "HTTP/1.1")]
-        [TestCase("OPTIONS /home/ HTTPVERSION", "OPTIONS", "/home/", "HTTPVERSION")]
+        [TestCase("OPTIONS /home/ HTTP/1.1", "OPTIONS", "/home/", "HTTP/1.1")]
         public void RequestLineTest(string requestLine, string httpMethod, string uriPath, string httpVersion)
         {
             var requestInfo = ActionRequest.Parse(requestLine);
             Assert.AreEqual(httpMethod, requestInfo.HttpMethod);
             Assert.AreEqual(uriPath, requestInfo.UriPath);
-            Assert.AreEqual(httpVersion, requestInfo.HttpVersion);
         }
 
         [TestCase("GET /home/index HTTP/1.1")]
