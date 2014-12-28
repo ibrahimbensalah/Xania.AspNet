@@ -5,9 +5,9 @@ using System.Web.Mvc;
 
 namespace Xania.AspNet.Simulator
 {
-    public class ActionRequest : IActionRequest
+    public class ControllerAction
     {
-        public ActionRequest()
+        public ControllerAction()
         {
             FilterProviders = new FilterProviderCollection(System.Web.Mvc.FilterProviders.Providers);
         }
@@ -22,23 +22,7 @@ namespace Xania.AspNet.Simulator
 
         public string UriPath { get; set; }
 
-        public void Raw(string raw)
-        {
-            var lines = raw.Split('\n');
-            var first = lines.First();
-
-            var parts = first.Split(' ');
-            HttpMethod = parts[0];
-            UriPath = parts[1];
-        }
-        public static ActionRequest Parse(String raw)
-        {
-            var actionRequest = new ActionRequest();
-            actionRequest.Raw(raw);
-            return actionRequest;
-        }
-
-        public ControllerActionResult Execute(ControllerContext controllerContext, ActionDescriptor actionDescriptor)
+        protected virtual ControllerActionResult Execute(ControllerContext controllerContext, ActionDescriptor actionDescriptor)
         {
             var filters = FilterProviders.GetFilters(controllerContext, actionDescriptor);
             var invoker = new SimpleActionInvoker(controllerContext, actionDescriptor, filters);
@@ -54,7 +38,7 @@ namespace Xania.AspNet.Simulator
             return new GenericPrincipal(new GenericIdentity(String.Empty), new string[] { });
         }
 
-        public virtual ControllerContext CreateContext(IActionRequest actionRequest, ControllerBase controller, ActionDescriptor actionDescriptor)
+        public virtual ControllerContext CreateContext(IControllerAction actionRequest, ControllerBase controller, ActionDescriptor actionDescriptor)
         {
             var controllerDescriptor = actionDescriptor.ControllerDescriptor;
             var controllerName = controllerDescriptor.ControllerName;

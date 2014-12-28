@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace Xania.AspNet.Simulator
 {
@@ -11,10 +12,15 @@ namespace Xania.AspNet.Simulator
 
         public static IControllerAction ParseAction(this Router router, string rawHttpRequest)
         {
-            var action = new RouterAction(router);
-            action.Raw(rawHttpRequest);
+            var lines = rawHttpRequest.Split('\n');
+            var first = lines.First();
 
-            return action;
+            var parts = first.Split(' ');
+            return new RouterAction(router)
+            {
+                HttpMethod = parts[0],
+                UriPath = parts[1]
+            };
         }
     }
 }

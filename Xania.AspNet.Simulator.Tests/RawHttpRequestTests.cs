@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Web.Mvc;
+using Moq;
 using NUnit.Framework;
 
 namespace Xania.AspNet.Simulator.Tests
@@ -11,9 +12,10 @@ namespace Xania.AspNet.Simulator.Tests
         [TestCase("OPTIONS /home/ HTTP/1.1", "OPTIONS", "/home/", "HTTP/1.1")]
         public void RequestLineTest(string requestLine, string httpMethod, string uriPath, string httpVersion)
         {
-            var requestInfo = ActionRequest.Parse(requestLine);
-            Assert.AreEqual(httpMethod, requestInfo.HttpMethod);
-            Assert.AreEqual(uriPath, requestInfo.UriPath);
+            var router = new Mock<Router>().Object;
+            var action = router.ParseAction(requestLine);
+            Assert.AreEqual(httpMethod, action.HttpMethod);
+            Assert.AreEqual(uriPath, action.UriPath);
         }
 
         [TestCase("GET /home/index HTTP/1.1")]

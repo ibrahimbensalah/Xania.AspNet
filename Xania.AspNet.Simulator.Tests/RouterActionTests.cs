@@ -75,7 +75,7 @@ namespace Xania.AspNet.Simulator.Tests
             var controllerAction = _router.Action("~/home/update");
 
             // assert
-            Assert.IsNull(controllerAction);
+            Assert.IsNull(controllerAction.Execute());
         }
 
         class HomeController : Controller

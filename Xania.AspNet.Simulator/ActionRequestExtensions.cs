@@ -8,14 +8,14 @@ namespace Xania.AspNet.Simulator
     {
 
         public static TActionRequest Get<TActionRequest>(this TActionRequest actionRequest)
-            where TActionRequest : IActionRequest
+            where TActionRequest : IControllerAction
         {
             actionRequest.HttpMethod = "GET";
             return actionRequest;
         }
 
         public static TActionRequest Post<TActionRequest>(this TActionRequest actionRequest)
-            where TActionRequest : IActionRequest
+            where TActionRequest : IControllerAction
         {
             actionRequest.HttpMethod = "POST";
             return actionRequest;
@@ -23,7 +23,7 @@ namespace Xania.AspNet.Simulator
 
         public static TActionRequest Authenticate<TActionRequest>(this TActionRequest actionRequest, string userName,
             string[] roles, string identityType = "Simulator")
-            where TActionRequest : IActionRequest
+            where TActionRequest : IControllerAction
         {
             actionRequest.User = new GenericPrincipal(new GenericIdentity(userName, identityType),
                 roles ?? new string[] {});
@@ -31,7 +31,7 @@ namespace Xania.AspNet.Simulator
         }
 
         public static TActionRequest Data<TActionRequest>(this TActionRequest actionRequest, object values)
-            where TActionRequest : ActionRequest
+            where TActionRequest : ControllerAction
         {
             {
                 actionRequest.ValueProvider = new DictionaryValueProvider<object>(values.ToDictionary(),

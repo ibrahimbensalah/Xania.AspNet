@@ -6,16 +6,19 @@ namespace Xania.AspNet.Simulator
 {
     public class ActionRequestWrapper : HttpWorkerRequest
     {
-        private readonly ActionRequest _requestRequest;
+        private readonly ControllerAction _requestRequest;
 
-        public ActionRequestWrapper(ActionRequest requestRequest)
+        public ActionRequestWrapper(ControllerAction requestRequest)
         {
             _requestRequest = requestRequest;
         }
 
         public override string GetUriPath()
         {
-            return _requestRequest.UriPath;
+            var path = _requestRequest.UriPath;
+            if (path.StartsWith("~"))
+                path = path.Substring(1);
+            return path;
         }
         
         public override string GetQueryString()

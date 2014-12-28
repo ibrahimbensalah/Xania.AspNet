@@ -4,7 +4,7 @@ using System.Web.Routing;
 
 namespace Xania.AspNet.Simulator
 {
-    public class RouterAction : ActionRequest, IControllerAction
+    public class RouterAction : ControllerAction, IControllerAction
     {
         private readonly Router _router;
 
@@ -16,7 +16,7 @@ namespace Xania.AspNet.Simulator
         public ControllerActionResult Execute()
         {
             var context = AspNetUtility.GetContext(this);
-            RouteData routeData = _router.Routes.GetRouteData(context);
+            var routeData = _router.Routes.GetRouteData(context);
 
             if (routeData == null)
                 return null;
