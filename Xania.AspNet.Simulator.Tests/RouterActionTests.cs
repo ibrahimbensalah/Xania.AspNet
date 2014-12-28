@@ -25,7 +25,7 @@ namespace Xania.AspNet.Simulator.Tests
             var result = controllerAction.Execute();
 
             // assert
-            // TODO Assert.IsInstanceOf<HomeController>(controllerAction.Controller);
+            Assert.IsInstanceOf<HomeController>(result.Controller);
             Assert.IsInstanceOf<ContentResult>(result.ActionResult);
             Assert.AreEqual("Hello Mvc Application!", result.ViewBag.Message);
         }

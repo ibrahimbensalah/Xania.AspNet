@@ -10,7 +10,7 @@ namespace Xania.AspNet.Simulator
             return new RouterAction(router) { UriPath = url };
         }
 
-        public static IControllerAction ParseAction(this Router router, string rawHttpRequest)
+        public static RouterAction ParseAction(this Router router, string rawHttpRequest)
         {
             var lines = rawHttpRequest.Split('\n');
             var first = lines.First();

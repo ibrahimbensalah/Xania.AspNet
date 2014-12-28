@@ -18,19 +18,25 @@ namespace Xania.AspNet.Simulator.Tests
             Assert.AreEqual(uriPath, action.UriPath);
         }
 
-        [TestCase("GET /home/index HTTP/1.1")]
-        public void RouterRawRequestTest(string rawRequest)
+        [Test()]
+        public void RouterActionControllerResolveTest(string rawRequest)
         {
             // assert
             var router = new Router();
             router.RegisterController("home", new HomeController());
             router.RegisterDefaultRoutes();
 
+            var routerAction = new RouterAction(router)
+            {
+                HttpMethod = "GET",
+                UriPath = "/home/index"
+            };
+
             // act
-            var controllerAction = router.ParseAction(rawRequest);
+            var actionResult = routerAction.Execute();
 
             // assert
-            // TODO Assert.IsInstanceOf<HomeController>(controllerAction.Controller);
+            Assert.IsInstanceOf<HomeController>(actionResult.Controller);
         }
 
         class HomeController: Controller

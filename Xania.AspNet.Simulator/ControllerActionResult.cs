@@ -27,5 +27,10 @@ namespace Xania.AspNet.Simulator
         {
             get { return ControllerContext.HttpContext.Response; }
         }
+
+        public ControllerBase Controller
+        {
+            get { return ControllerContext.Controller; }
+        }
     }
 }
