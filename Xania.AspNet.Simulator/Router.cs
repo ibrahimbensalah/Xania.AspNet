@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Web.Mvc;
 using System.Web.Routing;
 
@@ -37,31 +36,12 @@ namespace Xania.AspNet.Simulator
             throw new KeyNotFoundException(controllerName);
         }
 
-        //public virtual IAction Action(ActionRequest actionRequest)
-        //{
-        //    var context = AspNetUtility.GetContext(actionRequest);
-        //    var routeData = Routes.GetRouteData(context);
-
-        //    if (routeData == null)
-        //        return null;
-
-        //    var controllerName = routeData.GetRequiredString("controller");
-        //    var controller = CreateController(controllerName);
-        //    var controllerDescriptor = new ReflectedControllerDescriptor(controller.GetType());
-        //    var actionDescriptor = controllerDescriptor.FindAction(new ControllerContext(context, routeData, controller), routeData.GetRequiredString("action"));
-
-        //    if (actionDescriptor == null)
-        //        return null;
-
-        //    return new ControllerAction(actionRequest, controller, actionDescriptor);
-        //}
-
         public virtual Router RegisterDefaultRoutes()
         {
             Routes.MapRoute(
-                name: "Default",
-                url: "{controller}/{action}/{id}",
-                defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
+                "Default",
+                "{controller}/{action}/{id}",
+                new { controller = "Home", action = "Index", id = UrlParameter.Optional }
             );
 
             return this;

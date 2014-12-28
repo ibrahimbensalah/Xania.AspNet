@@ -56,7 +56,6 @@
     <Compile Include="ActionRequestExtensions.cs" />
     <Compile Include="AspNetUtility.cs" />
     <Compile Include="DirectControllerControllerAction.cs" />
-    <Compile Include="RawActionRequest.cs" />
     <Compile Include="IControllerAction.cs" />
     <Compile Include="LinqActionDescriptor.cs" />
     <Compile Include="ActionRouterPathProvider.cs" />

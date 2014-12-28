@@ -59,30 +59,27 @@ namespace Xania.AspNet.Simulator
             return _executeFunc(controllerContext.Controller);
         }
 
-        private void ValidateArgument(string parameterName, Type parameterType, object parameterValue, ControllerContext controllerContext)
+        protected virtual void ValidateArgument(string parameterName, Type parameterType, object parameterValue, ControllerContext controllerContext)
         {
-            var modelMetadata = ModelMetadataProviders.Current.GetMetadataForType(() => parameterValue, parameterType);
+            var validationResults = ValidateModel(parameterType, parameterValue, controllerContext);
+
             var modelState = controllerContext.Controller.ViewData.ModelState;
+            var query = from validationResult in validationResults
+                let subPropertyName = String.Format("{0}.{1}", parameterName, validationResult.MemberName)
+                where modelState.IsValidField(subPropertyName)
+                select new {SubPropertyName = subPropertyName, validationResult.Message};
 
-            var startedValid = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
-
-            foreach (
-                var validationResult in
-                    ModelValidator.GetModelValidator(modelMetadata, controllerContext).Validate(null))
+            foreach (var validationResult in query.ToArray())
             {
-                string subPropertyName = String.Format("{0}.{1}", parameterName, validationResult.MemberName);
-
-                if (!startedValid.ContainsKey(subPropertyName))
-                {
-                    startedValid[subPropertyName] = modelState.IsValidField(subPropertyName);
-                }
-
-                if (startedValid[subPropertyName])
-                {
-                    modelState.AddModelError(subPropertyName, validationResult.Message);
-                }
+                modelState.AddModelError(validationResult.SubPropertyName, validationResult.Message);
             }
 
+        }
+
+        protected virtual IEnumerable<ModelValidationResult> ValidateModel(Type modelType, object modelValue, ControllerContext controllerContext)
+        {
+            var modelMetadata = ModelMetadataProviders.Current.GetMetadataForType(() => modelValue, modelType);
+            return ModelValidator.GetModelValidator(modelMetadata, controllerContext).Validate(null);
         }
 
         private static object Invoke(Expression valueExpression)
