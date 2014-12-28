@@ -62,16 +62,14 @@ namespace Xania.AspNet.Simulator
         protected virtual void ValidateArgument(string parameterName, Type parameterType, object parameterValue, ControllerContext controllerContext)
         {
             var validationResults = ValidateModel(parameterType, parameterValue, controllerContext);
-
+            
             var modelState = controllerContext.Controller.ViewData.ModelState;
-            var query = from validationResult in validationResults
-                let subPropertyName = String.Format("{0}.{1}", parameterName, validationResult.MemberName)
-                where modelState.IsValidField(subPropertyName)
-                select new {SubPropertyName = subPropertyName, validationResult.Message};
+            Func<ModelValidationResult, bool> isValidField = res => modelState.IsValidField(String.Format("{0}.{1}", parameterName, res.MemberName));
 
-            foreach (var validationResult in query.ToArray())
+            foreach (var validationResult in validationResults.Where(isValidField).ToArray())
             {
-                modelState.AddModelError(validationResult.SubPropertyName, validationResult.Message);
+                var subPropertyName = String.Format("{0}.{1}", parameterName, validationResult.MemberName);
+                modelState.AddModelError(subPropertyName, validationResult.Message);
             }
 
         }
