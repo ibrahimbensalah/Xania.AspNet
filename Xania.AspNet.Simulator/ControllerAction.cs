@@ -5,9 +5,9 @@ using System.Web.Mvc;
 
 namespace Xania.AspNet.Simulator
 {
-    public class ControllerAction
+    public abstract class ControllerAction: IHttpRequest, IControllerAction
     {
-        public ControllerAction()
+        protected ControllerAction()
         {
             FilterProviders = new FilterProviderCollection(System.Web.Mvc.FilterProviders.Providers);
         }
@@ -18,12 +18,20 @@ namespace Xania.AspNet.Simulator
 
         public IValueProvider ValueProvider { get; set; }
 
+        public abstract ControllerActionResult Execute();
+
         public string HttpMethod { get; set; }
 
         public string UriPath { get; set; }
 
         protected virtual ControllerActionResult Execute(ControllerContext controllerContext, ActionDescriptor actionDescriptor)
         {
+            // Use empty value provider by default to prevent use of ASP.NET MVC default value providers
+            // Its not the purpose of this simulator framework to validate the ASP.NET MVC default value 
+            // providers. Either a value provider is not need in case model values are predefined or a 
+            // custom implementation is provided.
+            controllerContext.Controller.ValueProvider = ValueProvider ?? new ValueProviderCollection();
+
             var filters = FilterProviders.GetFilters(controllerContext, actionDescriptor);
             var invoker = new SimpleActionInvoker(controllerContext, actionDescriptor, filters);
             return new ControllerActionResult

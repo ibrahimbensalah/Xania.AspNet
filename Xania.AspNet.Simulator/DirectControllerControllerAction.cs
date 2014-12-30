@@ -2,7 +2,7 @@
 
 namespace Xania.AspNet.Simulator
 {
-    public class DirectControllerAction : ControllerAction, IControllerAction
+    public class DirectControllerAction : ControllerAction
     {
         public DirectControllerAction(ControllerBase controller, ActionDescriptor actionDescriptor)
         {
@@ -14,7 +14,7 @@ namespace Xania.AspNet.Simulator
 
         public ActionDescriptor ActionDescriptor { get; private set; }
 
-        public ControllerActionResult Execute()
+        public override ControllerActionResult Execute()
         {
             var controllerContext = CreateContext(this, Controller, ActionDescriptor);
             return Execute(controllerContext, ActionDescriptor);

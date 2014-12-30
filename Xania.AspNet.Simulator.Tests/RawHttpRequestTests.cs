@@ -18,8 +18,8 @@ namespace Xania.AspNet.Simulator.Tests
             Assert.AreEqual(uriPath, action.UriPath);
         }
 
-        [Test()]
-        public void RouterActionControllerResolveTest(string rawRequest)
+        [Test]
+        public void RouterActionControllerResolveTest()
         {
             // assert
             var router = new Router();

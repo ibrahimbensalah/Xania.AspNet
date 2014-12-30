@@ -1,8 +1,10 @@
+using System;
 using System.Web.Mvc;
+using System.Web.Routing;
 
 namespace Xania.AspNet.Simulator
 {
-    public class RouterAction : ControllerAction, IControllerAction
+    public class RouterAction : ControllerAction
     {
         private readonly Router _router;
 
@@ -11,7 +13,7 @@ namespace Xania.AspNet.Simulator
             _router = router;
         }
 
-        public ControllerActionResult Execute()
+        public override ControllerActionResult Execute()
         {
             ControllerBase controller;
             var actionDescriptor = GetActionDescriptor(out controller);
@@ -19,12 +21,10 @@ namespace Xania.AspNet.Simulator
             if (actionDescriptor == null)
                 return null;
 
-            var controllerContext = CreateContext(this, controller, actionDescriptor);
-
-            return Execute(controllerContext, actionDescriptor);
+            return Execute(controller.ControllerContext, actionDescriptor);
         }
 
-        private ActionDescriptor GetActionDescriptor(out ControllerBase controller)
+        protected virtual ActionDescriptor GetActionDescriptor(out ControllerBase controller)
         {
             controller = null;
             var context = AspNetUtility.GetContext(this);
@@ -36,9 +36,15 @@ namespace Xania.AspNet.Simulator
             var controllerName = routeData.GetRequiredString("controller");
             controller = _router.CreateController(controllerName);
             var controllerDescriptor = new ReflectedControllerDescriptor(controller.GetType());
-            var actionDescriptor = controllerDescriptor.FindAction(new ControllerContext(context, routeData, controller),
-                routeData.GetRequiredString("action"));
-            return actionDescriptor;
+
+            var actionName = routeData.GetRequiredString("action");
+            var httpContext = AspNetUtility.GetContext(String.Format("/{0}/{1}", controllerName, actionName), HttpMethod, User ?? CreateAnonymousUser());
+
+            var requestContext = new RequestContext(httpContext, routeData);
+
+            controller.ControllerContext = new ControllerContext(requestContext, controller);
+
+            return controllerDescriptor.FindAction(controller.ControllerContext, actionName);
         }
     }
 }

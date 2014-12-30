@@ -22,7 +22,7 @@ namespace Xania.AspNet.Simulator
 
         internal static HttpContextBase GetContext(string url, string method, IPrincipal user)
         {
-            return GetContext(new ControllerAction
+            return GetContext(new SimpleHttpRequest
             {
                 UriPath = url,
                 User = user,
@@ -30,11 +30,11 @@ namespace Xania.AspNet.Simulator
             });
         }
 
-        internal static HttpContextBase GetContext(ControllerAction controllerAction)
+        internal static HttpContextBase GetContext(IHttpRequest httpRequest)
         {
-            var worker = new ActionRequestWrapper(controllerAction);
+            var worker = new ActionRequestWrapper(httpRequest);
             var httpContext = new HttpContext(worker);
-            return GetContext(httpContext, controllerAction.User);
+            return GetContext(httpContext, httpRequest.User);
         }
 
         internal static HttpContextBase GetContext(HttpContext httpContext, IPrincipal user)

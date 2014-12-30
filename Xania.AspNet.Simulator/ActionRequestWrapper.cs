@@ -1,20 +1,21 @@
 ﻿using System;
+using System.Security.Principal;
 using System.Web;
 
 namespace Xania.AspNet.Simulator
 {
     public class ActionRequestWrapper : HttpWorkerRequest
     {
-        private readonly ControllerAction _requestRequest;
+        private readonly IHttpRequest _httpRequest;
 
-        public ActionRequestWrapper(ControllerAction requestRequest)
+        public ActionRequestWrapper(IHttpRequest httpRequest)
         {
-            _requestRequest = requestRequest;
+            _httpRequest = httpRequest;
         }
 
         public override string GetUriPath()
         {
-            var path = _requestRequest.UriPath;
+            var path = _httpRequest.UriPath;
             if (path.StartsWith("~"))
                 path = path.Substring(1);
             return path;
@@ -32,7 +33,7 @@ namespace Xania.AspNet.Simulator
 
         public override string GetHttpVerbName()
         {
-            return _requestRequest.HttpMethod;
+            return _httpRequest.HttpMethod;
         }
 
         public override string GetHttpVersion()
@@ -100,5 +101,12 @@ namespace Xania.AspNet.Simulator
             throw new NotImplementedException();
         }
 
+    }
+
+    public interface IHttpRequest
+    {
+        string UriPath { get; }
+        string HttpMethod { get; }
+        IPrincipal User { get; }
     }
 }

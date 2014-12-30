@@ -71,6 +71,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LinqAction\AuthorizationTests.cs" />
     <Compile Include="LinqActionValidationTests.cs" />
     <Compile Include="LinqActionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
