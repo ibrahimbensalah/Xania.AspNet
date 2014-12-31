@@ -15,18 +15,17 @@ namespace Xania.AspNet.Simulator
 
         public override ControllerActionResult Execute()
         {
-            ControllerBase controller;
-            var actionDescriptor = GetActionDescriptor(out controller);
+            var actionContext = GetActionContext();
+            var actionDescriptor = actionContext.ActionDescriptor;
 
             if (actionDescriptor == null)
                 return null;
 
-            return Execute(controller.ControllerContext, actionDescriptor);
+            return Execute(actionContext.ControllerContext, actionDescriptor);
         }
 
-        protected virtual ActionDescriptor GetActionDescriptor(out ControllerBase controller)
+        protected override ActionContext GetActionContext()
         {
-            controller = null;
             var context = AspNetUtility.GetContext(this);
             var routeData = _router.Routes.GetRouteData(context);
 
@@ -34,7 +33,7 @@ namespace Xania.AspNet.Simulator
                 return null;
 
             var controllerName = routeData.GetRequiredString("controller");
-            controller = _router.CreateController(controllerName);
+            var controller = _router.CreateController(controllerName);
             var controllerDescriptor = new ReflectedControllerDescriptor(controller.GetType());
 
             var actionName = routeData.GetRequiredString("action");
@@ -44,7 +43,11 @@ namespace Xania.AspNet.Simulator
 
             controller.ControllerContext = new ControllerContext(requestContext, controller);
 
-            return controllerDescriptor.FindAction(controller.ControllerContext, actionName);
+            return new ActionContext
+            {
+                ControllerContext = controller.ControllerContext,
+                ActionDescriptor = controllerDescriptor.FindAction(controller.ControllerContext, actionName)
+            };
         }
     }
 }

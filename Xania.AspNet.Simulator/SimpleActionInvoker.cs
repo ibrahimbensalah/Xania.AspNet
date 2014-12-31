@@ -17,7 +17,7 @@ namespace Xania.AspNet.Simulator
             _filterInfo = new FilterInfo(filters);
         }
 
-        private ActionResult AuthorizeAction()
+        public virtual ActionResult AuthorizeAction()
         {
             var authorizationContext = InvokeAuthorizationFilters(_controllerContext,
                 _filterInfo.AuthorizationFilters, _actionDescriptor);
@@ -47,6 +47,5 @@ namespace Xania.AspNet.Simulator
 
             return actionExecutedContext.Result;
         }
-        
     }
 }

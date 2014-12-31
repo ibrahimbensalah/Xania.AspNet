@@ -14,10 +14,13 @@ namespace Xania.AspNet.Simulator
 
         public ActionDescriptor ActionDescriptor { get; private set; }
 
-        public override ControllerActionResult Execute()
+        protected override ActionContext GetActionContext()
         {
-            var controllerContext = CreateContext(this, Controller, ActionDescriptor);
-            return Execute(controllerContext, ActionDescriptor);
+            return new ActionContext
+            {
+                ControllerContext = CreateContext(this, Controller, ActionDescriptor),
+                ActionDescriptor = ActionDescriptor
+            };
         }
     }
 }

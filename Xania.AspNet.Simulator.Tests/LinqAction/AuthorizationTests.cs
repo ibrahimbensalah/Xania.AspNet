@@ -7,7 +7,7 @@ namespace Xania.AspNet.Simulator.Tests.LinqAction
     public class AuthorizationTests
     {
         [Test]
-        public void CustomControllerAuthorizationTests()
+        public void CustomControllerAuthorizationTest()
         {
             // arrange
             var action = new HomeController().Action(c => c.Index()).Authenticate("normaluser", null);
@@ -18,7 +18,7 @@ namespace Xania.AspNet.Simulator.Tests.LinqAction
         }
 
         [Test]
-        public void CustomFilterAuthorizationTests()
+        public void CustomFilterAuthorizationTest()
         {
             // arrange
             var action = new HomeController().Action(c => c.About()).Authenticate("normaluser", null);
@@ -26,6 +26,16 @@ namespace Xania.AspNet.Simulator.Tests.LinqAction
             var result = action.Execute();
             // assert
             Assert.IsInstanceOf<HttpUnauthorizedResult>(result.ActionResult);
+        }
+
+        [TestCase("ADMIN", true)]
+        [TestCase("CUSTOMER", false)]
+        public void AdminRoleAuthorizationTest(string roleName, bool isAuthorized)
+        {
+            // arrange
+            var action = new AdminController().Action(c => c.Index()).Authenticate("user1", new[] {roleName});
+            // assert
+            Assert.AreEqual(isAuthorized, action.Authorize() == null);
         }
 
         class HomeController : Controller
@@ -40,6 +50,13 @@ namespace Xania.AspNet.Simulator.Tests.LinqAction
                 if (!"SUPERUSER".Equals(filterContext.HttpContext.User.Identity.Name))
                     filterContext.Result = new HttpUnauthorizedResult();
             }
+        }
+
+
+        [Authorize(Roles = "ADMIN")]
+        class AdminController : Controller
+        {
+            public void Index() { }
         }
 
         class MyAuthorizeAttribute : AuthorizeAttribute
