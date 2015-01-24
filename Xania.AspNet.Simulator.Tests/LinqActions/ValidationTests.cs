@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
 using NUnit.Framework;
 
-namespace Xania.AspNet.Simulator.Tests
+namespace Xania.AspNet.Simulator.Tests.LinqActions
 {
     public class LinqActionValidationTests
     {

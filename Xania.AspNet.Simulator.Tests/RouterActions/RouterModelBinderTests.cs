@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
 using NUnit.Framework;
 
-namespace Xania.AspNet.Simulator.Tests
+namespace Xania.AspNet.Simulator.Tests.RouterActions
 {
     public class RouterModelBinderTests
     {
@@ -13,8 +13,13 @@ namespace Xania.AspNet.Simulator.Tests
         public void SetupRouter()
         {
             _router = new Router()
-                .RegisterDefaultRoutes()
                 .RegisterController("test", new TestController());
+        }
+
+        [Test]
+        public void ControllerNameIsRequiredTest()
+        {
+            Assert.Catch(() => _router.RegisterController(null, new LinqActions.TestController()));
         }
 
         [Test]

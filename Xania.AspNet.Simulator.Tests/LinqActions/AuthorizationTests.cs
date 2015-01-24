@@ -2,7 +2,7 @@
 using System.Web.Mvc;
 using NUnit.Framework;
 
-namespace Xania.AspNet.Simulator.Tests.LinqAction
+namespace Xania.AspNet.Simulator.Tests.LinqActions
 {
     public class AuthorizationTests
     {

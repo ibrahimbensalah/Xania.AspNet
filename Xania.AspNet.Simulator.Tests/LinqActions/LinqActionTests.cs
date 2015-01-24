@@ -3,7 +3,7 @@ using System.Web.Mvc;
 using System.Web.Security;
 using NUnit.Framework;
 
-namespace Xania.AspNet.Simulator.Tests
+namespace Xania.AspNet.Simulator.Tests.LinqActions
 {
     public class LinqActionTests
     {

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
+using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 
@@ -9,6 +11,7 @@ namespace Xania.AspNet.Simulator
     public class Router
     {
         private readonly Dictionary<string, ControllerBase> _controllerMap;
+
         public RouteCollection Routes { get; private set; }
 
         public Router()
@@ -36,15 +39,23 @@ namespace Xania.AspNet.Simulator
             throw new KeyNotFoundException(controllerName);
         }
 
-        public virtual Router RegisterDefaultRoutes()
+        public RouteData GetRouteData(HttpContextBase context)
         {
-            Routes.MapRoute(
+            return Routes.Any() ? 
+                Routes.GetRouteData(context) : 
+                DefaultRoutes.GetRouteData(context);
+        }
+
+        public static RouteCollection DefaultRoutes { get; set; }
+
+        static Router ()
+        {
+            DefaultRoutes = new RouteCollection();
+            DefaultRoutes.MapRoute(
                 "Default",
                 "{controller}/{action}/{id}",
                 new { controller = "Home", action = "Index", id = UrlParameter.Optional }
-            );
-
-            return this;
+                );
         }
     }
 }

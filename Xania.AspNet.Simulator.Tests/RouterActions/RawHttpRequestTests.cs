@@ -1,9 +1,8 @@
-﻿using System;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
 using Moq;
 using NUnit.Framework;
 
-namespace Xania.AspNet.Simulator.Tests
+namespace Xania.AspNet.Simulator.Tests.RouterActions
 {
     public class RawHttpRequestTests
     {
@@ -22,9 +21,8 @@ namespace Xania.AspNet.Simulator.Tests
         public void RouterActionControllerResolveTest()
         {
             // assert
-            var router = new Router();
-            router.RegisterController("home", new HomeController());
-            router.RegisterDefaultRoutes();
+            var router = new Router()
+                .RegisterController("home", new HomeController());
 
             var routerAction = new RouterAction(router)
             {

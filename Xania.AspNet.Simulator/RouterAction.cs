@@ -27,7 +27,7 @@ namespace Xania.AspNet.Simulator
         protected override ActionContext GetActionContext()
         {
             var context = AspNetUtility.GetContext(this);
-            var routeData = _router.Routes.GetRouteData(context);
+            var routeData = _router.GetRouteData(context);
 
             if (routeData == null)
                 return null;
