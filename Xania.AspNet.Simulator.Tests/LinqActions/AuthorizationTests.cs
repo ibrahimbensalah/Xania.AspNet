@@ -38,12 +38,30 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
             Assert.AreEqual(isAuthorized, action.Authorize() == null);
         }
 
+
+        [Test]
+        public void PublicActionSkipsControllerAuthorizationTest()
+        {
+            // arrange 
+            var controllerAction = new HomeController().Action(c => c.Public());
+
+            // act 
+            var result = controllerAction.Execute();
+
+            // assert
+            Assert.IsInstanceOf<HttpUnauthorizedResult>(result.ActionResult);
+        }
+
+
         class HomeController : Controller
         {
             public void Index(){}
 
             [MyAuthorize]
             public void About(){}
+
+            [AllowAnonymous]
+            public void Public() {}
 
             protected override void OnAuthorization(AuthorizationContext filterContext)
             {

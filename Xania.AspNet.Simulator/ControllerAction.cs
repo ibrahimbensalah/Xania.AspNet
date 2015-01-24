@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Security.Principal;
+using System.Web;
 using System.Web.Mvc;
 
 namespace Xania.AspNet.Simulator
@@ -10,6 +13,7 @@ namespace Xania.AspNet.Simulator
         protected ControllerAction()
         {
             FilterProviders = new FilterProviderCollection(System.Web.Mvc.FilterProviders.Providers);
+            Cookies = new Collection<HttpCookie>();
         }
 
         public FilterProviderCollection FilterProviders { get; private set; }
@@ -17,6 +21,8 @@ namespace Xania.AspNet.Simulator
         public IPrincipal User { get; set; }
 
         public IValueProvider ValueProvider { get; set; }
+
+        public ICollection<HttpCookie> Cookies { get; private set; }
 
         public string HttpMethod { get; set; }
 
@@ -80,6 +86,9 @@ namespace Xania.AspNet.Simulator
             var requestContext = AspNetUtility.CreateRequestContext(actionDescriptor.ActionName, controllerName,
                 actionRequest.HttpMethod, actionRequest.User ?? CreateAnonymousUser());
 
+            foreach(var cookie in Cookies)
+                requestContext.HttpContext.Request.Cookies.Add(cookie);
+
             var controllerContext = new ControllerContext(requestContext, controller);
             controller.ControllerContext = controllerContext;
 
@@ -90,5 +99,6 @@ namespace Xania.AspNet.Simulator
 
             return controllerContext;
         }
+
     }
 }

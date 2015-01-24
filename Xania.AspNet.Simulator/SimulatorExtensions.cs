@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 
 namespace Xania.AspNet.Simulator
 {
-    public static class SimulatorExtensions
+    public static class ControlllerActionExtensions
     {
         //public static IAction Authenticate(this IAction action, string userName,
         //    string[] roles, string identityType = "simulator")
@@ -56,6 +57,13 @@ namespace Xania.AspNet.Simulator
             where TController : ControllerBase
         {
             return Action(controller, actionExpression).Execute();
+        }
+
+        public static TControllerAction AddCookie<TControllerAction>(this TControllerAction controllerAction, string name, string value)
+            where TControllerAction: ControllerAction
+        {
+            controllerAction.Cookies.Add(new HttpCookie(name, value));
+            return controllerAction;
         }
 
         public static TService GetService<TService>(this IServiceProvider serviceProvider)

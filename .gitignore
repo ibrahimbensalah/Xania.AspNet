@@ -6,3 +6,4 @@ packages
 nupack.cmd
 *.nupkg
 /Xania.AspNet.Simulator/Xania.AspNet.Simulator.nuspec
+*.coverage

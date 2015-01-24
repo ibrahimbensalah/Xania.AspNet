@@ -32,5 +32,10 @@ namespace Xania.AspNet.Simulator
         {
             get { return ControllerContext.Controller; }
         }
+
+        public HttpRequestBase Request
+        {
+            get { return ControllerContext.HttpContext.Request; }
+        }
     }
 }

@@ -22,33 +22,6 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
         }
 
         [Test]
-        public void UnAuthorizedActionTest()
-        {
-            // arrange 
-            var controller = new TestController();
-
-            // act 
-            var result = controller.Execute(c => c.UserProfile());
-
-            // assert
-            Assert.IsInstanceOf<HttpUnauthorizedResult>(result.ActionResult);
-        }
-
-
-        [Test]
-        public void AuthorizedActionTest()
-        {
-            // arrange 
-            var action = new TestController().Action(c => c.UserProfile()).Authenticate("user", null);
-
-            // act 
-            var result = action.Execute();
-
-            // assert
-            Assert.IsInstanceOf<ViewResult>(result.ActionResult);
-        }
-
-        [Test]
         public void PostActionIsNotAllowedWithGetTest()
         {
             // arrange 
@@ -59,6 +32,21 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
 
             // assert
             Assert.Catch<InvalidOperationException>(() => controllerAction.Execute());
+        }
+
+        [Test]
+        public void ActionWithCookieTest()
+        {
+            // arrange
+            var action = new TestController()
+                .Action(e => e.Index())
+                .AddCookie("name1", "value1");
+
+            // act
+            var result = action.Execute();
+
+            // assert
+            Assert.AreEqual("value1", result.Request.Cookies["name1"].Value);
         }
     }
 
@@ -79,12 +67,6 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
         [HttpPost]
         public void Update()
         {
-        }
-
-        [HttpPost]
-        public void Login(string userName)
-        {
-            FormsAuthentication.SetAuthCookie(userName, true);
         }
     }
 }
