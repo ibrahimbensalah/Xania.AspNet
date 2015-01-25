@@ -43,11 +43,27 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
                 .AddCookie("name1", "value1");
 
             // act
-            var result = action.Execute();
+            var actionContext = action.GetActionContext();
 
             // assert
-            Assert.AreEqual("value1", result.Request.Cookies["name1"].Value);
+            Assert.AreEqual("value1", actionContext.ControllerContext.HttpContext.Request.Cookies["name1"].Value);
         }
+
+        [Test]
+        public void ActionWithSessionTest()
+        {
+            // arrange
+            var action = new TestController()
+                .Action(e => e.Index())
+                .AddSession("name1", "value1");
+
+            // act
+            var actionContext = action.GetActionContext();
+
+            // assert
+            Assert.AreEqual("value1", actionContext.ControllerContext.HttpContext.Session["name1"]);
+        }
+       
     }
 
     public class TestController : Controller

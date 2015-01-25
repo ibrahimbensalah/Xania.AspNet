@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -14,6 +15,7 @@ namespace Xania.AspNet.Simulator
         {
             FilterProviders = new FilterProviderCollection(System.Web.Mvc.FilterProviders.Providers);
             Cookies = new Collection<HttpCookie>();
+            Session = new Dictionary<string, object>();
         }
 
         public FilterProviderCollection FilterProviders { get; private set; }
@@ -23,12 +25,13 @@ namespace Xania.AspNet.Simulator
         public IValueProvider ValueProvider { get; set; }
 
         public ICollection<HttpCookie> Cookies { get; private set; }
+        public IDictionary<string, object> Session { get; private set; }
 
         public string HttpMethod { get; set; }
 
         public string UriPath { get; set; }
 
-        protected abstract ActionContext GetActionContext();
+        public abstract ActionContext GetActionContext();
 
         public virtual ControllerActionResult Execute()
         {
@@ -89,6 +92,10 @@ namespace Xania.AspNet.Simulator
             foreach(var cookie in Cookies)
                 requestContext.HttpContext.Request.Cookies.Add(cookie);
 
+            foreach (var kvp in Session)
+                // ReSharper disable once PossibleNullReferenceException
+                requestContext.HttpContext.Session[kvp.Key] = kvp.Value;
+
             var controllerContext = new ControllerContext(requestContext, controller);
             controller.ControllerContext = controllerContext;
 
@@ -99,6 +106,5 @@ namespace Xania.AspNet.Simulator
 
             return controllerContext;
         }
-
     }
 }

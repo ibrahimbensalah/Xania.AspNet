@@ -14,7 +14,7 @@ namespace Xania.AspNet.Simulator
 
         public ActionDescriptor ActionDescriptor { get; private set; }
 
-        protected override ActionContext GetActionContext()
+        public override ActionContext GetActionContext()
         {
             return new ActionContext
             {

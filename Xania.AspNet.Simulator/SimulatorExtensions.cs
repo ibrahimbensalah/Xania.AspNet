@@ -66,6 +66,13 @@ namespace Xania.AspNet.Simulator
             return controllerAction;
         }
 
+        public static TControllerAction AddSession<TControllerAction>(this TControllerAction controllerAction, string name, string value)
+            where TControllerAction : ControllerAction
+        {
+            controllerAction.Session[name] = value;
+            return controllerAction;
+        }
+
         public static TService GetService<TService>(this IServiceProvider serviceProvider)
         {
             var service = serviceProvider.GetService(typeof (TService));

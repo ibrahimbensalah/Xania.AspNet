@@ -1,11 +1,13 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Security.Principal;
 using System.Web;
 using System.Web.Caching;
 using System.Web.Routing;
+using System.Web.SessionState;
 using Moq;
 
 namespace Xania.AspNet.Simulator
@@ -39,8 +41,6 @@ namespace Xania.AspNet.Simulator
 
         internal static HttpContextBase GetContext(HttpContext httpContext, IPrincipal user)
         {
-            var session = new Mock<HttpSessionStateBase>();
-
             // mock HttpRequest
             var requestBase = Wrap(httpContext.Request);
 
@@ -48,16 +48,16 @@ namespace Xania.AspNet.Simulator
             var responseBase = Wrap(httpContext.Response);
 
             // mock HttpContext
-            return Wrap(requestBase, responseBase, session.Object, httpContext.Cache, user);
+            return Wrap(requestBase, responseBase, httpContext.Cache, user);
         }
 
-        private static HttpContextBase Wrap(HttpRequestBase requestBase, HttpResponseBase responseBase, HttpSessionStateBase session, Cache cache, IPrincipal user)
+        private static HttpContextBase Wrap(HttpRequestBase requestBase, HttpResponseBase responseBase, Cache cache, IPrincipal user)
         {
             var contextMock = new Mock<HttpContextBase>();
             contextMock.Setup(context => context.Items).Returns(new Hashtable());
             contextMock.Setup(context => context.Request).Returns(requestBase);
             contextMock.Setup(context => context.Response).Returns(responseBase);
-            contextMock.Setup(context => context.Session).Returns(session);
+            contextMock.Setup(context => context.Session).Returns(new SimpleSessionState());
             contextMock.Setup(context => context.Cache).Returns(cache);
             contextMock.Setup(context => context.User).Returns(user);
             return contextMock.Object;
