@@ -1,5 +1,10 @@
+using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Web;
+using System.Web.SessionState;
 
 namespace Xania.AspNet.Simulator
 {
@@ -11,7 +16,6 @@ namespace Xania.AspNet.Simulator
         {
             _values = new Dictionary<string, object>();
         }
-
 
         public override void Add(string name, object value)
         {
