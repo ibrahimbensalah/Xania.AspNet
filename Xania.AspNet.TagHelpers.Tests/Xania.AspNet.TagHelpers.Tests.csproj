@@ -73,6 +73,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AnchorHelper.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="TagC.cs" />
     <Compile Include="TagHelperTests.cs" />

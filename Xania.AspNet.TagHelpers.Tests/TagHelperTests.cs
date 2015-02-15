@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using NUnit.Framework;
 
@@ -20,9 +19,11 @@ namespace Xania.AspNet.TagHelpers.Tests
         {
             // arrange
             var writer = new StringWriter();
-            var mng = new HtmlProcessor(writer).Register<TagC>("c");
+            var tagHelperProvider = new TagHelperProvider().Register<TagC>("c");
+            var mng = new HtmlProcessor(writer, tagHelperProvider);
+            var bytes = writer.Encoding.GetBytes(input);
             // act
-            mng.Write(input).Flush();
+            mng.Write(bytes, 0, bytes.Length);
             // assert
             Assert.AreEqual(expected, writer.GetStringBuilder().ToString());
         }
@@ -32,63 +33,14 @@ namespace Xania.AspNet.TagHelpers.Tests
         {
             // arrange
             var writer = new StringWriter();
-            var mng = new HtmlProcessor(writer).Register<AnchorHelper>("a");
+            var tagHelperProvider = new TagHelperProvider().Register<AnchorHelper>("a");
+            var mng = new HtmlProcessor(writer, tagHelperProvider);
+            var bytes = writer.Encoding.GetBytes(input);
             // act
-            mng.Write(input).Flush();
+            mng.Write(bytes, 0, bytes.Length);
             // assert
             Assert.AreEqual(expected, writer.GetStringBuilder().ToString());
         }
 
-    }
-
-    public class AnchorHelper: ITagHelper
-    {
-        public string TagName { get; set; }
-        public IDictionary<string, string> Attributes { get; set; }
-
-        public void WriteContent(TextWriter writer, char ch)
-        {
-            writer.Write(ch);
-        }
-
-        public void RenderAfterContent(TextWriter writer)
-        {
-            writer.Write("</a>");
-        }
-
-        public void RenderBeforeContent(TextWriter writer)
-        {
-            var action = PopAttribute("action");
-            var controller = PopAttribute("controller");
-
-            writer.Write("<a href=\"");
-            writer.Write(String.Format("/{0}/{1}", controller, action).ToLowerInvariant());
-            writer.Write("\"");
-            RenderAttributes(writer);
-            writer.Write(">");
-        }
-
-        private void RenderAttributes(TextWriter writer)
-        {
-            foreach (var kvp in this.Attributes)
-            {
-                writer.Write(" ");
-                writer.Write(kvp.Key);
-                writer.Write("=\"");
-                writer.Write(kvp.Value);
-                writer.Write("\"");
-            }
-        }
-
-        private string PopAttribute(string name)
-        {
-            string value;
-            if (Attributes.TryGetValue(name, out value))
-            {
-                Attributes.Remove(name);
-                return value;
-            }
-            return null;
-        }
     }
 }
