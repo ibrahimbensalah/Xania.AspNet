@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using NUnit.Framework;
-using Xania.AspNet.TagHelpers.Tests.Annotations;
 
 namespace Xania.AspNet.TagHelpers.Tests
 {
@@ -27,27 +26,42 @@ namespace Xania.AspNet.TagHelpers.Tests
             Assert.AreEqual(expected, writer.GetStringBuilder().ToString());
         }
 
-        [UsedImplicitly]
-        public class TagC: ITagHelper
+        [TestCase("<a controller=\"Home\" action=\"Index\">Home</a>", "<a href=\"/home/index\">Home</a>")]
+        public void ActionLinkTest(String input, string expected)
         {
-            public IRenderContext RenderContext { get; set; }
+            // arrange
+            var writer = new StringWriter();
+            var mng = new HtmlProcessor(writer).Register<AnchorHelper>("a");
+            // act
+            mng.Write(input).Flush();
+            // assert
+            Assert.AreEqual(expected, writer.GetStringBuilder().ToString());
+        }
 
-            public void WriteContent(TextWriter writer, char ch)
-            {
-                writer.Write(Char.ToUpper(ch));
-            }
+    }
 
-            public void RenderAfterContent(TextWriter writer)
-            {
-                writer.Write("</span></h1></div>");
-            }
+    public class AnchorHelper: ITagHelper
+    {
+        public IRenderContext RenderContext { get; set; }
 
-            public void RenderBeforeContent(TextWriter writer)
-            {
-                writer.Write("<div><h1>");
-                writer.Write(RenderContext.GetValue("P1"));
-                writer.Write("<span>");
-            }
+        public void WriteContent(TextWriter writer, char ch)
+        {
+            writer.Write(ch);
+        }
+
+        public void RenderAfterContent(TextWriter writer)
+        {
+            writer.Write("</a>");
+        }
+
+        public void RenderBeforeContent(TextWriter writer)
+        {
+            var action = RenderContext.GetValue("action");
+            var controller = RenderContext.GetValue("controller");
+
+            writer.Write("<a href=\"");
+            writer.Write(String.Format("/{0}/{1}", controller, action).ToLowerInvariant());
+            writer.Write("\">");
         }
     }
 }
