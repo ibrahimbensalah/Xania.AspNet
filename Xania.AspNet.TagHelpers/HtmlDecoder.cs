@@ -61,11 +61,8 @@ namespace Xania.AspNet.TagHelpers
             current.Closed = true;
 
             var tagHelper = GetTagHelper(current);
-            tagHelper.RenderContext = new RenderContext
-            {
-                TagName = current.TagName,
-                Values = current.Values
-            };
+            tagHelper.TagName = current.TagName;
+            tagHelper.Attributes = current.Attributes;
 
             if (current.IsClosingTag)
             {

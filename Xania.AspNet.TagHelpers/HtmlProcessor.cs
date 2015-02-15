@@ -119,7 +119,9 @@ namespace Xania.AspNet.TagHelpers
             _tagDecoder = tagDecoder;
         }
 
-        public IRenderContext RenderContext { get; set; }
+        public String TagName { get; set; }
+
+        public IDictionary<string, string> Attributes { get; set; }
 
         public void WriteContent(TextWriter writer, char ch)
         {
@@ -136,18 +138,6 @@ namespace Xania.AspNet.TagHelpers
         {
             if (!_tagDecoder.IsClosingTag)
                 _tagDecoder.Render(writer);
-        }
-    }
-
-    public class RenderContext : IRenderContext
-    {
-        public string TagName { get; set; }
-        public IDictionary<string, object> Values { get; set; }
-
-        public object GetValue(string name)
-        {
-            object value;
-            return Values.TryGetValue(name, out value) ? value : null;
         }
     }
 }

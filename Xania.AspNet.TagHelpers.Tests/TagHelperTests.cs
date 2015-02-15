@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using NUnit.Framework;
 
@@ -26,7 +27,7 @@ namespace Xania.AspNet.TagHelpers.Tests
             Assert.AreEqual(expected, writer.GetStringBuilder().ToString());
         }
 
-        [TestCase("<a controller=\"Home\" action=\"Index\">Home</a>", "<a href=\"/home/index\">Home</a>")]
+        [TestCase("<a controller=\"Home\" action=\"Index\" target=\"_blank\">Home</a>", "<a href=\"/home/index\" target=\"_blank\">Home</a>")]
         public void ActionLinkTest(String input, string expected)
         {
             // arrange
@@ -42,7 +43,8 @@ namespace Xania.AspNet.TagHelpers.Tests
 
     public class AnchorHelper: ITagHelper
     {
-        public IRenderContext RenderContext { get; set; }
+        public string TagName { get; set; }
+        public IDictionary<string, string> Attributes { get; set; }
 
         public void WriteContent(TextWriter writer, char ch)
         {
@@ -56,12 +58,37 @@ namespace Xania.AspNet.TagHelpers.Tests
 
         public void RenderBeforeContent(TextWriter writer)
         {
-            var action = RenderContext.GetValue("action");
-            var controller = RenderContext.GetValue("controller");
+            var action = PopAttribute("action");
+            var controller = PopAttribute("controller");
 
             writer.Write("<a href=\"");
             writer.Write(String.Format("/{0}/{1}", controller, action).ToLowerInvariant());
-            writer.Write("\">");
+            writer.Write("\"");
+            RenderAttributes(writer);
+            writer.Write(">");
+        }
+
+        private void RenderAttributes(TextWriter writer)
+        {
+            foreach (var kvp in this.Attributes)
+            {
+                writer.Write(" ");
+                writer.Write(kvp.Key);
+                writer.Write("=\"");
+                writer.Write(kvp.Value);
+                writer.Write("\"");
+            }
+        }
+
+        private string PopAttribute(string name)
+        {
+            string value;
+            if (Attributes.TryGetValue(name, out value))
+            {
+                Attributes.Remove(name);
+                return value;
+            }
+            return null;
         }
     }
 }

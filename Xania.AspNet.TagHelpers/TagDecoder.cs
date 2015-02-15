@@ -181,11 +181,11 @@ namespace Xania.AspNet.TagHelpers
             get { return _name.ToString(); }
         }
 
-        public IDictionary<string, object> Values
+        public IDictionary<string, string> Attributes
         {
             get
             {
-                return _attributes.ToDictionary(attr => attr.Name, attr => new HtmlString(attr.Value) as object);
+                return _attributes.ToDictionary(attr => attr.Name, attr => attr.Value);
             }
         }
 

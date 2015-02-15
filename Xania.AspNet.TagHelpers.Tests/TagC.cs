@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Xania.AspNet.TagHelpers.Tests.Annotations;
 
@@ -7,7 +8,9 @@ namespace Xania.AspNet.TagHelpers.Tests
     [UsedImplicitly]
     public class TagC: ITagHelper
     {
-        public IRenderContext RenderContext { get; set; }
+        public string TagName { get; set; }
+
+        public IDictionary<string, string> Attributes { get; set; }
 
         public void WriteContent(TextWriter writer, char ch)
         {
@@ -22,7 +25,7 @@ namespace Xania.AspNet.TagHelpers.Tests
         public void RenderBeforeContent(TextWriter writer)
         {
             writer.Write("<div><h1>");
-            writer.Write(RenderContext.GetValue("P1"));
+            writer.Write(Attributes["P1"]);
             writer.Write("<span>");
         }
     }
