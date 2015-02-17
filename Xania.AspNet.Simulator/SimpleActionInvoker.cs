@@ -38,6 +38,12 @@ namespace Xania.AspNet.Simulator
 
         private ActionResult InvokeActionMethodWithFilters()
         {
+            var controller = _controllerContext.Controller as Controller;
+            if (controller != null)
+            {
+                controller.ViewEngineCollection = new ViewEngineCollection();
+            }
+
             var parameters = GetParameterValues(_controllerContext, _actionDescriptor);
             var actionExecutedContext = InvokeActionMethodWithFilters(_controllerContext,
                 _filterInfo.ActionFilters, _actionDescriptor, parameters);
