@@ -71,6 +71,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AnchorHelper.cs" />
+    <Compile Include="TagHelperFilterAttribute.cs" />
     <Compile Include="HtmlDecoder.cs" />
     <Compile Include="HtmlProcessorAttribute.cs" />
     <Compile Include="ITagDecoder.cs" />
@@ -80,7 +81,9 @@
     <Compile Include="HtmlProcessor.cs" />
     <Compile Include="TagDecoder.cs" />
     <Compile Include="DecoderStatus.cs" />
+    <Compile Include="TagHelperFilterResult.cs" />
     <Compile Include="TagHelperProvider.cs" />
+    <Compile Include="TagHelperWriter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
