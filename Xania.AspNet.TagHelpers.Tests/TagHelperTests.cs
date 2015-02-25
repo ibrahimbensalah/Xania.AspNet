@@ -19,7 +19,8 @@ namespace Xania.AspNet.TagHelpers.Tests
         {
             // arrange
             var writer = new StringWriter();
-            var tagHelperProvider = new TagHelperProvider().Register<TagC>("c");
+            var tagHelperProvider = new TagHelperProvider();
+            tagHelperProvider.Register<TagC>("c");
             var mng = new HtmlProcessor(writer, tagHelperProvider);
             var bytes = writer.Encoding.GetBytes(input);
             // act
@@ -33,7 +34,8 @@ namespace Xania.AspNet.TagHelpers.Tests
         {
             // arrange
             var writer = new StringWriter();
-            var tagHelperProvider = new TagHelperProvider().Register<AnchorHelper>("a");
+            var tagHelperProvider = new TagHelperProvider();
+            tagHelperProvider.Register<AnchorHelper>("a");
             var mng = new HtmlProcessor(writer, tagHelperProvider);
             var bytes = writer.Encoding.GetBytes(input);
             // act
