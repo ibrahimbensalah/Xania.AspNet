@@ -35,10 +35,5 @@ namespace Xania.AspNet.TagHelpers
             }
             return null;
         }
-
-        private static Func<ConstructorInfo, bool> IsResolvable
-        {
-            get { return ctor => true; }
-        }
     }
 }

@@ -71,7 +71,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AnchorHelper.cs" />
-    <Compile Include="TagHelperFilterAttribute.cs" />
     <Compile Include="HtmlDecoder.cs" />
     <Compile Include="HtmlProcessorAttribute.cs" />
     <Compile Include="ITagDecoder.cs" />
