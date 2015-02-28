@@ -20,7 +20,8 @@ namespace Xania.AspNet.TagHelpers.Tests
         {
             // arrange
             var writer = new StringWriter();
-            var tagHelperProvider = new TagHelperProvider().Register<TagC>("c");
+            var tagHelperProvider = new TagHelperProvider();
+            tagHelperProvider.Register<TagC>("c");
             var mng = new HtmlProcessor(writer, tagHelperProvider);
             var bytes = writer.Encoding.GetBytes(input);
             // act
@@ -34,8 +35,9 @@ namespace Xania.AspNet.TagHelpers.Tests
         {
             // arrange
             var writer = new StringWriter();
-            var tagHelperProvider = new TagHelperProvider()
-                .Register<TestTagHelper>("foo");
+            var tagHelperProvider = new TagHelperProvider();
+            tagHelperProvider.Register<TestTagHelper>("foo");
+
             var mng = new HtmlProcessor(writer, tagHelperProvider);
             var bytes = writer.Encoding.GetBytes(input);
             // act
@@ -48,15 +50,17 @@ namespace Xania.AspNet.TagHelpers.Tests
         public void BindPropertiesAreSet()
         {
             // arrange
-            var tagHelperProvider = new TagHelperProvider()
-                .Register<TestTagHelper>("foo");
+            var tagHelperProvider = new TagHelperProvider();
+            tagHelperProvider.Register<TestTagHelper>("foo");
 
             // act
-            var tagHelper = (TestTagHelper)tagHelperProvider.GetTagHelper("foo", new Dictionary<string, string> { { "controller", "Home" }, { "action", "Index" } });
+            var tagHelper = (TestTagHelper)tagHelperProvider
+                .GetTagHelper("foo", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { { "controller", "Home" }, { "action", "Index" } });
 
             // assert
             Assert.AreEqual("Home", tagHelper.Controller);
             Assert.AreEqual("Index", tagHelper.Action);
+
         }
 
     }

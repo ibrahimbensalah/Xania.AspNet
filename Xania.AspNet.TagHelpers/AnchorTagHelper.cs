@@ -1,12 +1,18 @@
 ﻿using System;
 using System.IO;
+using System.Security.Policy;
 using System.Web.Mvc;
 
 namespace Xania.AspNet.TagHelpers
 {
     public class AnchorTagHelper: TagHelperBase
     {
-        public UrlHelper Url { get; set; }
+        private readonly UrlHelper _url;
+
+        public AnchorTagHelper(UrlHelper url)
+        {
+            _url = url;
+        }
 
         public String Action { get; set; }
 
@@ -18,7 +24,7 @@ namespace Xania.AspNet.TagHelpers
             if (!Attributes.ContainsKey("href"))
             {
                 writer.Write(" href=\"");
-                writer.Write(Url.Action(Action, Controller));
+                writer.Write(_url.Action(Action, Controller));
                 writer.Write("\"");
             }
             RenderAttributes(writer);

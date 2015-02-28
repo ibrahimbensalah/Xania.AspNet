@@ -32,6 +32,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Practices.Unity">
+      <HintPath>..\..\..\BeautyDoc\packages\Unity.3.5.1405-prerelease\lib\net45\Microsoft.Practices.Unity.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity.Configuration">
+      <HintPath>..\..\..\BeautyDoc\packages\Unity.3.5.1405-prerelease\lib\net45\Microsoft.Practices.Unity.Configuration.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity.RegistrationByConvention">
+      <HintPath>..\..\..\BeautyDoc\packages\Unity.3.5.1405-prerelease\lib\net45\Microsoft.Practices.Unity.RegistrationByConvention.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <Private>True</Private>
       <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
@@ -72,7 +81,7 @@
   <ItemGroup>
     <Compile Include="AnchorTagHelper.cs" />
     <Compile Include="HtmlDecoder.cs" />
-    <Compile Include="HtmlProcessorAttribute.cs" />
+    <Compile Include="TagHelperFilterAttribute.cs" />
     <Compile Include="ITagDecoder.cs" />
     <Compile Include="ITagHelper.cs" />
     <Compile Include="ITagHelperProvider.cs" />
@@ -82,7 +91,9 @@
     <Compile Include="TagDecoder.cs" />
     <Compile Include="DecoderStatus.cs" />
     <Compile Include="TagHelperBase.cs" />
-    <Compile Include="TagHelperProvider.cs" />
+    <Compile Include="TagHelperFilterResult.cs" />
+    <Compile Include="TagHelperContainer.cs" />
+    <Compile Include="TagHelperWriter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

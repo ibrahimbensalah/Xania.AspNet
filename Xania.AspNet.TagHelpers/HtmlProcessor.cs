@@ -30,9 +30,14 @@ namespace Xania.AspNet.TagHelpers
                 for (var i = 0; i < charCount; i++)
                 {
                     var ch = chars[i];
-                    _htmlDecoder.Append(ch);
+                    Write(ch);
                 }
             }
+        }
+
+        public virtual void Write(char ch)
+        {
+            _htmlDecoder.Append(ch);
         }
 
         public override void Flush()

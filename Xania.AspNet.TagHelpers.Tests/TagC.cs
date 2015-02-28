@@ -8,8 +8,6 @@ namespace Xania.AspNet.TagHelpers.Tests
     [UsedImplicitly]
     public class TagC: ITagHelper
     {
-        public string TagName { get; set; }
-
         public IDictionary<string, string> Attributes { get; set; }
 
         public void WriteContent(TextWriter writer, char ch)
