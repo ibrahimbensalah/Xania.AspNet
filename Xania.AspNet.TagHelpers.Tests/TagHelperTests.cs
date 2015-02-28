@@ -20,7 +20,7 @@ namespace Xania.AspNet.TagHelpers.Tests
         {
             // arrange
             var writer = new StringWriter();
-            var tagHelperProvider = new TagHelperProvider();
+            var tagHelperProvider = new TagHelperContainer();
             tagHelperProvider.Register<TagC>("c");
             var mng = new HtmlProcessor(writer, tagHelperProvider);
             var bytes = writer.Encoding.GetBytes(input);
@@ -35,7 +35,7 @@ namespace Xania.AspNet.TagHelpers.Tests
         {
             // arrange
             var writer = new StringWriter();
-            var tagHelperProvider = new TagHelperProvider();
+            var tagHelperProvider = new TagHelperContainer();
             tagHelperProvider.Register<TestTagHelper>("foo");
 
             var mng = new HtmlProcessor(writer, tagHelperProvider);
@@ -50,7 +50,7 @@ namespace Xania.AspNet.TagHelpers.Tests
         public void BindPropertiesAreSet()
         {
             // arrange
-            var tagHelperProvider = new TagHelperProvider();
+            var tagHelperProvider = new TagHelperContainer();
             tagHelperProvider.Register<TestTagHelper>("foo");
 
             // act

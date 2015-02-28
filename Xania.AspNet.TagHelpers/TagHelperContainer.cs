@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Web.ModelBinding;
-using System.Web.UI.WebControls;
-using Microsoft.Practices.Unity;
 
 namespace Xania.AspNet.TagHelpers
 {
@@ -34,7 +31,7 @@ namespace Xania.AspNet.TagHelpers
             Type tagHelperType;
             if (_tagHelperTypes.TryGetValue(tagName, out tagHelperType))
             {
-                var tagHelper = (ITagHelper)_objectFactory(tagHelperType);
+                var tagHelper = GetTagHelper(tagHelperType);
                 if (tagHelper == null)
                     return null;
 
@@ -43,6 +40,14 @@ namespace Xania.AspNet.TagHelpers
                 return tagHelper;
             }
             return null;
+        }
+
+        private ITagHelper GetTagHelper(Type tagHelperType)
+        {
+            var ctor = tagHelperType.GetConstructors().First();
+            var args = ctor.GetParameters().Select(parameterInfo => _objectFactory(parameterInfo.ParameterType)).ToArray();
+
+            return (ITagHelper) ctor.Invoke(args);
         }
 
         protected virtual void Bind(ITagHelper tagHelper, Type tagType, IDictionary<string, string> attributes)
@@ -61,5 +66,13 @@ namespace Xania.AspNet.TagHelpers
             tagHelper.Attributes = attributes;
         }
 
+    }
+
+    public static class TagHelperExtensions
+    {
+        public static void Register<TTagHelper>(this ITagHelperContainer tagHelperContainer, string tagName)
+        {
+            tagHelperContainer.Register(tagName, typeof(TTagHelper));
+        }
     }
 }
