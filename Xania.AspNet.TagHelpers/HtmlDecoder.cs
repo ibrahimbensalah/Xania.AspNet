@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -61,8 +62,6 @@ namespace Xania.AspNet.TagHelpers
             current.Closed = true;
 
             var tagHelper = GetTagHelper(current);
-            tagHelper.TagName = current.TagName;
-            tagHelper.Attributes = current.Attributes;
 
             if (current.IsClosingTag)
             {
@@ -88,7 +87,7 @@ namespace Xania.AspNet.TagHelpers
             {
                 return tagHelper;
             }
-            tagHelper = _tagHelperProvider.GetTagHelper(tagDecoder.TagName);
+            tagHelper = _tagHelperProvider.GetTagHelper(tagDecoder.TagName, tagDecoder.Attributes);
 
             if (tagHelper != null)
             {
@@ -96,20 +95,6 @@ namespace Xania.AspNet.TagHelpers
                 return tagHelper;
             }
             return new TagHelperAdapter(tagDecoder);
-        }
-        
-        private void UpdateTagHelpers(ITagDecoder tagDecoder)
-        {
-            if (tagDecoder.IsClosingTag)
-            {
-            }
-            else if (tagDecoder.IsSelfClosing)
-            {
-            }
-            else
-            {
-                var tagHelper = _tagHelperProvider.GetTagHelper(tagDecoder.TagName);
-            }
         }
 
         public void Flush()
@@ -121,10 +106,5 @@ namespace Xania.AspNet.TagHelpers
             }
             _writer.Flush();
         }
-    }
-
-    public interface ITagHelperProvider
-    {
-        ITagHelper GetTagHelper(string tagName);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using NUnit.Framework;
 
@@ -28,18 +29,34 @@ namespace Xania.AspNet.TagHelpers.Tests
             Assert.AreEqual(expected, writer.GetStringBuilder().ToString());
         }
 
-        [TestCase("<a controller=\"Home\" action=\"Index\" target=\"_blank\">Home</a>", "<a href=\"/home/index\" target=\"_blank\">Home</a>")]
+        [TestCase("<foo controller=\"Home\" action=\"Index\" target=\"_blank\">Home</foo>", "<a href=\"/home/index\" target=\"_blank\">Home</a>")]
         public void ActionLinkTest(String input, string expected)
         {
             // arrange
             var writer = new StringWriter();
-            var tagHelperProvider = new TagHelperProvider().Register<AnchorHelper>("a");
+            var tagHelperProvider = new TagHelperProvider()
+                .Register<TestTagHelper>("foo");
             var mng = new HtmlProcessor(writer, tagHelperProvider);
             var bytes = writer.Encoding.GetBytes(input);
             // act
             mng.Write(bytes, 0, bytes.Length);
             // assert
             Assert.AreEqual(expected, writer.GetStringBuilder().ToString());
+        }
+
+        [Test]
+        public void BindPropertiesAreSet()
+        {
+            // arrange
+            var tagHelperProvider = new TagHelperProvider()
+                .Register<TestTagHelper>("foo");
+
+            // act
+            var tagHelper = (TestTagHelper)tagHelperProvider.GetTagHelper("foo", new Dictionary<string, string> { { "controller", "Home" }, { "action", "Index" } });
+
+            // assert
+            Assert.AreEqual("Home", tagHelper.Controller);
+            Assert.AreEqual("Index", tagHelper.Action);
         }
 
     }

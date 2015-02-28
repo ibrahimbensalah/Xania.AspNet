@@ -70,16 +70,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AnchorHelper.cs" />
+    <Compile Include="AnchorTagHelper.cs" />
     <Compile Include="HtmlDecoder.cs" />
     <Compile Include="HtmlProcessorAttribute.cs" />
     <Compile Include="ITagDecoder.cs" />
     <Compile Include="ITagHelper.cs" />
+    <Compile Include="ITagHelperProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TagAttribute.cs" />
     <Compile Include="HtmlProcessor.cs" />
     <Compile Include="TagDecoder.cs" />
     <Compile Include="DecoderStatus.cs" />
+    <Compile Include="TagHelperBase.cs" />
     <Compile Include="TagHelperProvider.cs" />
   </ItemGroup>
   <ItemGroup>

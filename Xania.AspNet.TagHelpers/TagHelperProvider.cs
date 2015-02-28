@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Web.ModelBinding;
 
 namespace Xania.AspNet.TagHelpers
 {
@@ -19,14 +22,33 @@ namespace Xania.AspNet.TagHelpers
             return this;
         }
 
-        public virtual ITagHelper GetTagHelper(string tagName)
+        public virtual ITagHelper GetTagHelper(string tagName, IDictionary<string, string> attributes)
         {
             Type tagHelperType;
             if (_tagHelperTypes.TryGetValue(tagName, out tagHelperType))
             {
-                return (ITagHelper)Activator.CreateInstance(tagHelperType);
+                var instance = (ITagHelper)Activator.CreateInstance(tagHelperType);
+                Bind(instance, new Dictionary<string, string>(attributes, StringComparer.OrdinalIgnoreCase));
+                return instance;
             }
             return null;
         }
+
+        private void Bind(ITagHelper tagHelper, IDictionary<string, string> attributes)
+        {
+            foreach (var propertyInfo in tagHelper.GetType().GetProperties().Where(p => p.CanWrite))
+            {
+                string value;
+                if (attributes.TryGetValue(propertyInfo.Name, out value))
+                {
+                    var convertor = TypeDescriptor.GetConverter(propertyInfo.PropertyType);
+                    propertyInfo.SetValue(tagHelper, convertor.ConvertFrom(value));
+
+                    attributes.Remove(propertyInfo.Name);
+                }
+            }
+            tagHelper.Attributes = attributes;
+        }
+
     }
 }
