@@ -79,8 +79,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ActionTagHelperContainer.cs" />
     <Compile Include="AnchorTagHelper.cs" />
     <Compile Include="HtmlDecoder.cs" />
+    <Compile Include="TagHelperExtensions.cs" />
     <Compile Include="TagHelperFilterAttribute.cs" />
     <Compile Include="ITagDecoder.cs" />
     <Compile Include="ITagHelper.cs" />

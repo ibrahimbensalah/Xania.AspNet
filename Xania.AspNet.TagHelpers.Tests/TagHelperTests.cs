@@ -60,7 +60,6 @@ namespace Xania.AspNet.TagHelpers.Tests
             // assert
             Assert.AreEqual("Home", tagHelper.Controller);
             Assert.AreEqual("Index", tagHelper.Action);
-
         }
 
     }

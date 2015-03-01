@@ -7,7 +7,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Web.Mvc;
-using System.Web.Routing;
 
 namespace Xania.AspNet.TagHelpers
 {
@@ -26,7 +25,7 @@ namespace Xania.AspNet.TagHelpers
 
         public override void ExecuteResult(ControllerContext controllerContext)
         {
-            var tagHelperProvider = GetTagHelperProvider(new ActionDependencyResolver(_defaultDependencyResolver, controllerContext));
+            var tagHelperProvider = GetTagHelperProvider(_defaultDependencyResolver, controllerContext);
 
             var response = controllerContext.HttpContext.Response;
             if (response.Filter != null)
@@ -41,9 +40,9 @@ namespace Xania.AspNet.TagHelpers
             _actionResult.ExecuteResult(controllerContext);
         }
 
-        protected virtual ITagHelperProvider GetTagHelperProvider(IDependencyResolver resolver)
+        protected virtual ITagHelperProvider GetTagHelperProvider(IDependencyResolver resolver, ControllerContext controllerContext)
         {
-            var helperContainer = new TagHelperContainer(resolver.GetService);
+            var helperContainer = new ActionTagHelperContainer(resolver, controllerContext);
             foreach (var kvp in GetTagHandlers())
                 helperContainer.Register(kvp.Key, kvp.Value);
 
@@ -59,37 +58,6 @@ namespace Xania.AspNet.TagHelpers
         protected virtual IEnumerable<KeyValuePair<string, Type>> GetTagHandlers()
         {
             yield return new KeyValuePair<string, Type>("a", typeof(AnchorTagHelper));
-        }
-    }
-
-    public class ActionDependencyResolver : IDependencyResolver
-    {
-        private readonly IDependencyResolver _defaultDependencyResolver;
-        private readonly ControllerContext _controllerContext;
-
-        public ActionDependencyResolver(IDependencyResolver defaultDependencyResolver, ControllerContext controllerContext)
-        {
-            _defaultDependencyResolver = defaultDependencyResolver;
-            _controllerContext = controllerContext;
-        }
-
-        public object GetService(Type serviceType)
-        {
-            if (typeof (ControllerContext) == serviceType)
-                return _controllerContext;
-
-            if (typeof (UrlHelper) == serviceType)
-                return new UrlHelper(_controllerContext.RequestContext);
-
-            if (typeof (RequestContext) == serviceType)
-                return _controllerContext.RequestContext;
-
-            return _defaultDependencyResolver.GetService(serviceType);
-        }
-
-        public IEnumerable<object> GetServices(Type serviceType)
-        {
-            throw new NotImplementedException();
         }
     }
 }

@@ -7,17 +7,10 @@ namespace Xania.AspNet.TagHelpers
 {
     public class TagHelperContainer: ITagHelperContainer
     {
-        private readonly Func<Type, object> _objectFactory;
         private readonly Dictionary<string, Type> _tagHelperTypes;
 
         public TagHelperContainer()
-            : this(Activator.CreateInstance)
         {
-        }
-
-        public TagHelperContainer(Func<Type, object> objectFactory)
-        {
-            _objectFactory = objectFactory;
             _tagHelperTypes = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
         }
 
@@ -42,12 +35,9 @@ namespace Xania.AspNet.TagHelpers
             return null;
         }
 
-        private ITagHelper GetTagHelper(Type tagHelperType)
+        protected virtual ITagHelper GetTagHelper(Type tagHelperType)
         {
-            var ctor = tagHelperType.GetConstructors().First();
-            var args = ctor.GetParameters().Select(parameterInfo => _objectFactory(parameterInfo.ParameterType)).ToArray();
-
-            return (ITagHelper) ctor.Invoke(args);
+            return (ITagHelper)Activator.CreateInstance(tagHelperType);
         }
 
         protected virtual void Bind(ITagHelper tagHelper, Type tagType, IDictionary<string, string> attributes)
@@ -66,13 +56,5 @@ namespace Xania.AspNet.TagHelpers
             tagHelper.Attributes = attributes;
         }
 
-    }
-
-    public static class TagHelperExtensions
-    {
-        public static void Register<TTagHelper>(this ITagHelperContainer tagHelperContainer, string tagName)
-        {
-            tagHelperContainer.Register(tagName, typeof(TTagHelper));
-        }
     }
 }
