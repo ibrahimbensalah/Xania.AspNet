@@ -96,6 +96,7 @@
     <Compile Include="TagHelperFilterResult.cs" />
     <Compile Include="TagHelperContainer.cs" />
     <Compile Include="TagHelperWriter.cs" />
+    <Compile Include="TagNameAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

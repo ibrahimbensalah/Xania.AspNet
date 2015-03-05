@@ -35,6 +35,9 @@ namespace Xania.AspNet.TagHelpers
             if (typeof(RequestContext) == serviceType)
                 return _controllerContext.RequestContext;
 
+            if (typeof (ViewDataDictionary) == serviceType)
+                return _controllerContext.Controller.ViewData;
+
             return _serviceResolver.GetService(serviceType);
 
         }
