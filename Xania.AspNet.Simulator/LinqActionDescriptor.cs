@@ -82,7 +82,8 @@ namespace Xania.AspNet.Simulator
 
         private static object Invoke(Expression valueExpression)
         {
-            var express = Expression.Lambda<Func<object>>(valueExpression).Compile();
+            var convertExpression = Expression.Convert(valueExpression, typeof (object));
+            var express = Expression.Lambda<Func<object>>(convertExpression).Compile();
             return express.Invoke();
         }
     }

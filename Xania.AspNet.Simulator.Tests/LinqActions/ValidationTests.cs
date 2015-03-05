@@ -24,6 +24,18 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
             Assert.AreEqual(confirmPasswordValid, result.ModelState.IsValidField("model.ConfirmPassword"));
         }
 
+        [Test]
+        public void PrivitiveParameterTest()
+        {
+            // arrange
+            var controllerAction = new AccountController().Action(e => e.DeleteUser(1));
+            // act
+            var result = controllerAction.Execute();
+            //assert
+            Assert.IsAssignableFrom<ContentResult>(result.ActionResult);
+            Assert.AreEqual("Deleting User 1", (result.ActionResult as ContentResult).Content);
+        }
+
         private class AccountController : Controller
         {
             public ActionResult ChangePassword(ChangePasswordModel model)
@@ -31,6 +43,11 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
                 if (model == null) throw new ArgumentNullException("model");
 
                 return null;
+            }
+
+            public string DeleteUser(int? userId)
+            {
+                return String.Format("Deleting User {0}", userId);
             }
         }
 
