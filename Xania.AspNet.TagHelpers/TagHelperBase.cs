@@ -7,14 +7,14 @@ namespace Xania.AspNet.TagHelpers
     {
         public virtual IDictionary<string, string> Attributes { get; set; }
 
-        public virtual void WriteContent(TextWriter writer, char ch)
+        public virtual void RenderContent(TextWriter writer, char ch)
         {
             writer.Write(ch);
         }
 
-        public abstract void RenderAfterContent(TextWriter writer);
-
         public abstract void RenderBeforeContent(TextWriter writer);
+
+        public abstract void RenderAfterContent(TextWriter writer);
 
         protected virtual void RenderAttributes(TextWriter writer)
         {

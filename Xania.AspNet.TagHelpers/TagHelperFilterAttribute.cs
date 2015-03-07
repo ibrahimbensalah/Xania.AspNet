@@ -11,7 +11,7 @@ namespace Xania.AspNet.TagHelpers
     public class TagHelperFilterAttribute : ActionFilterAttribute
     {
         private readonly IDependencyResolver _defaultDependencyResolver;
-        public ICollection<Type> CustomTagHelpers { get; private set; }
+        public IEnumerable<Type> TagHelpers { get; set; }
 
         public TagHelperFilterAttribute()
             : this(DependencyResolver.Current)
@@ -21,7 +21,6 @@ namespace Xania.AspNet.TagHelpers
         public TagHelperFilterAttribute(IDependencyResolver defaultDependencyResolver)
         {
             _defaultDependencyResolver = defaultDependencyResolver;
-            CustomTagHelpers = new Collection<Type>();
         }
 
 
@@ -32,7 +31,7 @@ namespace Xania.AspNet.TagHelpers
 
         protected virtual ActionResult GetFilterResult(ActionExecutedContext filterContext)
         {
-            var q = from th in CustomTagHelpers
+            var q = from th in TagHelpers ?? Enumerable.Empty<Type>()
                 from name in GetTagNames(th)
                 select new KeyValuePair<string, Type>(name, th);
 

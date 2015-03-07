@@ -10,7 +10,7 @@ namespace Xania.AspNet.TagHelpers.Tests
     {
         public IDictionary<string, string> Attributes { get; set; }
 
-        public void WriteContent(TextWriter writer, char ch)
+        public void RenderContent(TextWriter writer, char ch)
         {
             writer.Write(Char.ToUpper(ch));
         }

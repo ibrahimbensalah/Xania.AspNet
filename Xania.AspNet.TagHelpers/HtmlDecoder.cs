@@ -48,7 +48,7 @@ namespace Xania.AspNet.TagHelpers
                 _tagDecoders.Peek().Append(ch);
             else if (_tagHelpers.Any())
             {
-                _tagHelpers.Peek().WriteContent(_writer, ch);
+                _tagHelpers.Peek().RenderContent(_writer, ch);
             }
             else 
             {

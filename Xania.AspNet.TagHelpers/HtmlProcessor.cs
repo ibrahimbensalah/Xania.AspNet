@@ -102,7 +102,7 @@ namespace Xania.AspNet.TagHelpers
 
         public IDictionary<string, string> Attributes { get; set; }
 
-        public void WriteContent(TextWriter writer, char ch)
+        public void RenderContent(TextWriter writer, char ch)
         {
             writer.Write(ch);
         }
