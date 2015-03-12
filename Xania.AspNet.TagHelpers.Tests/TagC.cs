@@ -22,8 +22,10 @@ namespace Xania.AspNet.TagHelpers.Tests
 
         public void RenderBeforeContent(TextWriter writer)
         {
+            string p1;
+            Attributes.TryGetValue("P1", out p1);
             writer.Write("<div><h1>");
-            writer.Write(Attributes["P1"]);
+            writer.Write(p1 ?? string.Empty);
             writer.Write("<span>");
         }
     }

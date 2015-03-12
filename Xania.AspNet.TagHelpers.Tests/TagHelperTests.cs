@@ -16,6 +16,12 @@ namespace Xania.AspNet.TagHelpers.Tests
         [TestCase("<a a=\"b\" />", "<a a=\"b\" />")]
         [TestCase("<c P1=\"a &euro;\" />", "<div><h1>a &euro;<span></span></h1></div>")]
         [TestCase("<c P1=\"a &euro;\" >x</c>", "<div><h1>a &euro;<span>X</span></h1></div>")]
+        [TestCase("<br/>", "<br />")]
+        [TestCase("<br>", "<br>")]
+        [TestCase("<!>", "<!>")]
+        [TestCase("<! ... >>", "<! ... >>")]
+        [TestCase("<!-- comment -->", "<!-- comment -->")]
+        [TestCase("<!-- > < c > -->", "<!-- > < c > -->")]
         public void TransformTest(String input, string expected)
         {
             // arrange
@@ -23,9 +29,9 @@ namespace Xania.AspNet.TagHelpers.Tests
             var tagHelperProvider = new TagHelperContainer();
             tagHelperProvider.Register<TagC>("c");
             var mng = new HtmlProcessor(writer, tagHelperProvider);
-            var bytes = writer.Encoding.GetBytes(input);
             // act
-            mng.Write(bytes, 0, bytes.Length);
+            foreach(var ch in input )
+                mng.Write(ch);
             // assert
             Assert.AreEqual(expected, writer.GetStringBuilder().ToString());
         }
@@ -61,6 +67,5 @@ namespace Xania.AspNet.TagHelpers.Tests
             Assert.AreEqual("Home", tagHelper.Controller);
             Assert.AreEqual("Index", tagHelper.Action);
         }
-
     }
 }
