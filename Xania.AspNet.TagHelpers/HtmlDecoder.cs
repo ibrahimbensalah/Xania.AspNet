@@ -15,6 +15,8 @@ namespace Xania.AspNet.TagHelpers
         private readonly Stack<ITagDecoder> _tagDecoders;
         private readonly Dictionary<ITagDecoder, ITagHelper> _tagHelperDictionary;
         private readonly Stack<ITagHelper> _tagHelpers;
+        private readonly StringBuilder _chars;
+        private Action<char> _handler;
 
         public HtmlDecoder(TextWriter writer, ITagHelperProvider tagHelperProvider)
         {
@@ -23,17 +25,122 @@ namespace Xania.AspNet.TagHelpers
             _tagDecoders = new Stack<ITagDecoder>();
             _tagHelpers = new Stack<ITagHelper>();
             _tagHelperDictionary = new Dictionary<ITagDecoder, ITagHelper>();
+            _chars = new StringBuilder();
+            _handler = AppendNonTag;
         }
 
         public void Append(char ch)
         {
+            _handler(ch);
+        }
+
+        private void AppendNonTag(char ch)
+        {
             switch (ch)
             {
                 case '<':
-                    _tagDecoders.Push(new TagDecoder());
+                    _handler = AppendStart;
                     break;
                 case '>':
                     CloseDecoder();
+                    break;
+                default:
+                    AppendContent(ch);
+                    break;
+            }
+        }
+
+        private void AppendStart(char ch)
+        {
+            if (ch == '!')
+            {
+                _handler = AppendSpecial;
+                _writer.Write("<!");
+
+                //if (_chars.Length == 3)
+                //{
+                //    //if (_chars[1] == '-' && _chars[2] == '-')
+                //    //{
+                //    //    // is comment
+                //    //    _handler = AppendComment;
+                //    //}
+                //    //else
+                //    {
+                //        _handler = AppendSpecial;
+                //    }
+                //    _chars.Clear();
+                //}
+            }
+            else
+            {
+                _tagDecoders.Push(new TagDecoder());
+                _handler = AppendTag;
+                Append(ch);
+            }
+        }
+
+        private void Flush(char ch)
+        {
+            for (int i = 0; i < _chars.Length; i++)
+                Append(_chars[i]);
+            _chars.Clear();
+        }
+
+        private void AppendSpecial(char ch)
+        {
+            _writer.Write(ch);
+            if (ch == '>')
+            {
+                _chars.Clear();
+                _handler = AppendNonTag;
+            }
+            else if (_chars.Length == 0)
+            {
+                _chars.Append(ch);
+            }
+            else if (_chars.Length == 1)
+            {
+                _chars.Append(ch);
+                if (_chars[0] == '-' && _chars[1] == '-')
+                {
+                    _chars.Clear();
+                    _handler = AppendComment;
+                }
+            }
+        }
+
+        private void AppendComment(char ch)
+        {
+            _writer.Write(ch);
+            if (_chars.Length == 0 && ch == '-')
+            {
+                _chars.Append(ch);
+            }
+            else if (_chars.Length == 1 && ch == '-')
+            {
+                _chars.Append(ch);
+            }
+            else if (_chars.Length == 2)
+            {
+                if (ch == '>')
+                {
+                    _chars.Clear();
+                    _handler = AppendNonTag;
+                }
+                else if (ch != '-')
+                {
+                    _chars.Clear();
+                }
+            }
+        }
+
+        private void AppendTag(char ch)
+        {
+            switch (ch)
+            {
+                case '>':
+                    CloseDecoder();
+                    _handler = AppendNonTag;
                     break;
                 default:
                     AppendContent(ch);
@@ -58,6 +165,11 @@ namespace Xania.AspNet.TagHelpers
 
         public void CloseDecoder()
         {
+            if (_tagDecoders.Count == 0)
+            {
+                _writer.Write('>');
+                return;
+            }
             var current = _tagDecoders.Peek();
             current.Closed = true;
 

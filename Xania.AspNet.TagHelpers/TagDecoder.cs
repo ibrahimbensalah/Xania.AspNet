@@ -30,8 +30,7 @@ namespace Xania.AspNet.TagHelpers
             IsSelfClosing = false;
 
             _decoders = new Stack<Action<char>>();
-            _decoders.Push(DecodeTagName);
-            _decoders.Push(DecodeSeparator);
+            _decoders.Push(DecodeStart);
         }
 
         public void Append(char ch)
@@ -58,6 +57,7 @@ namespace Xania.AspNet.TagHelpers
                     _decoders.Push(DecodeAttributeName);
                 }
 
+                IsSelfClosing = _name.Length != 0;
                 IsClosingTag = _name.Length == 0;
                 _decoders.Push(DecodeSeparator);
             }
@@ -106,14 +106,14 @@ namespace Xania.AspNet.TagHelpers
                 _decoders.Clear();
                 _decoders.Push(DecodeAttributeValue);
                 _decoders.Push(DecodeSeparator);
-                _attributes.Add(new TagAttribute {Name = _chars.ToString()});
+                _attributes.Add(new TagAttribute { Name = _chars.ToString() });
                 _chars.Clear();
             }
             else if (ch == '=')
             {
                 _decoders.Clear();
                 _decoders.Push(DecodeAttributeValue);
-                _attributes.Add(new TagAttribute {Name = _chars.ToString()});
+                _attributes.Add(new TagAttribute { Name = _chars.ToString() });
                 _chars.Clear();
             }
             else
@@ -130,6 +130,13 @@ namespace Xania.AspNet.TagHelpers
 
             _decoders.Pop();
             _decoders.Peek()(ch);
+        }
+        private void DecodeStart(char ch)
+        {
+            _decoders.Pop();
+            _decoders.Push(DecodeTagName);
+            _decoders.Push(DecodeSeparator);
+            DecodeSeparator(ch);
         }
 
         private void DecodeConstantString(char ch)
@@ -156,7 +163,7 @@ namespace Xania.AspNet.TagHelpers
             {
                 writer.Write("/");
             }
-            writer.Write(_name.ToString());
+            writer.Write(TagName);
             foreach (var attr in _attributes)
             {
                 writer.Write(" ");
