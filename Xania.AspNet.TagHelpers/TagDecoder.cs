@@ -185,7 +185,7 @@ namespace Xania.AspNet.TagHelpers
         {
             get
             {
-                return _attributes.ToDictionary(attr => attr.Name, attr => attr.Value, StringComparer.OrdinalIgnoreCase);
+                return _attributes.ToDictionary(attr => attr.Name, attr => HttpUtility.HtmlDecode(attr.Value), StringComparer.OrdinalIgnoreCase);
             }
         }
 
