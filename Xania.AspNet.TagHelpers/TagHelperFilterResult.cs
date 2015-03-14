@@ -30,8 +30,7 @@ namespace Xania.AspNet.TagHelpers
             var response = controllerContext.HttpContext.Response;
             if (response.Filter != null)
             {
-                response.Filter = new HtmlProcessor(new StreamWriter(response.Filter, response.ContentEncoding),
-                    tagHelperProvider);
+                response.Filter = new HtmlProcessor(response.Output, tagHelperProvider);
             }
             else
             {
