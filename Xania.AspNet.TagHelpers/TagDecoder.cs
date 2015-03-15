@@ -72,7 +72,7 @@ namespace Xania.AspNet.TagHelpers
             if (ch == '/')
             {
                 IsSelfClosing = true;
-                _attributes.Last().Value = _chars.ToString();
+                _attributes.Last().RawValue = _chars.ToString();
                 _chars.Clear();
             }
             if (ch == '"' && _chars.Length == 0)
@@ -86,7 +86,7 @@ namespace Xania.AspNet.TagHelpers
                 _decoders.Push(DecodeAttributeName);
                 _decoders.Push(DecodeSeparator);
 
-                _attributes.Last().Value = _chars.ToString();
+                _attributes.Last().RawValue = _chars.ToString();
                 _chars.Clear();
             }
             else
@@ -147,7 +147,7 @@ namespace Xania.AspNet.TagHelpers
                 _decoders.Push(DecodeAttributeName);
                 _decoders.Push(DecodeSeparator);
 
-                _attributes.Last().Value = _chars.ToString();
+                _attributes.Last().RawValue = _chars.ToString();
                 _chars.Clear();
             }
             else
@@ -188,12 +188,11 @@ namespace Xania.AspNet.TagHelpers
             get { return _name.ToString(); }
         }
 
-        public IDictionary<string, string> Attributes
+        public string TagNs { get; private set; }
+
+        public IEnumerable<TagAttribute> Attributes
         {
-            get
-            {
-                return _attributes.ToDictionary(attr => attr.Name, attr => HttpUtility.HtmlDecode(attr.Value), StringComparer.OrdinalIgnoreCase);
-            }
+            get { return _attributes; }
         }
 
     }

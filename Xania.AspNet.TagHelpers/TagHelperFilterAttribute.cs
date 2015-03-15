@@ -11,7 +11,7 @@ namespace Xania.AspNet.TagHelpers
     public class TagHelperFilterAttribute : ActionFilterAttribute
     {
         private readonly IDependencyResolver _defaultDependencyResolver;
-        public IEnumerable<Type> TagHelpers { get; set; }
+        public Type[] TagHelpers { get; set; }
 
         public TagHelperFilterAttribute()
             : this(DependencyResolver.Current)

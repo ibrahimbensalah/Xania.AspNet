@@ -7,6 +7,7 @@ namespace Xania.AspNet.TagHelpers.Tests
 {
     public class TagHelperTests
     {
+        // Html tags
         [TestCase("< a >< / a>", "<a></a>")]
         [TestCase("<a attrs />", "<a attrs=\"\" />")]
         [TestCase("<a       attrs />", "<a attrs=\"\" />")]
@@ -18,16 +19,24 @@ namespace Xania.AspNet.TagHelpers.Tests
         [TestCase("<c P1=\"a &euro;\" >x</c>", "<div><h1>a &euro;<span>X</span></h1></div>")]
         [TestCase("<br/>", "<br />")]
         [TestCase("<br>", "<br>")]
+
+        // Comment and tag declaration
         [TestCase("<!>", "<!>")]
         [TestCase("<! ... >>", "<! ... >>")]
         [TestCase("<!-- comment -->", "<!-- comment -->")]
         [TestCase("<!-- > < c > -->", "<!-- > < c > -->")]
+
+        // Tag with namespace
+        [TestCase("<div></div>", "<div></div>")]
+        [TestCase("<xn:div></xn:div>", "<div>xn</div>")]
+
         public void TransformTest(String input, string expected)
         {
             // arrange
             var writer = new StringWriter();
             var tagHelperProvider = new TagHelperContainer();
             tagHelperProvider.Register<TagC>("c");
+            tagHelperProvider.Register<TagWithNs>("xn:div");
             var mng = new HtmlProcessor(writer, tagHelperProvider);
             // act
             foreach(var ch in input )
@@ -60,8 +69,8 @@ namespace Xania.AspNet.TagHelpers.Tests
             tagHelperProvider.Register<TestTagHelper>("foo");
 
             // act
-            var tagHelper = (TestTagHelper)tagHelperProvider
-                .GetTagHelper("foo", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { { "controller", "Home" }, { "action", "Index" } });
+            var tagHelper = (TestTagHelper) tagHelperProvider
+                .GetTagHelper("foo", new[] {new TagAttribute("controller", "Home"), new TagAttribute("action", "Index")});
 
             // assert
             Assert.AreEqual("Home", tagHelper.Controller);

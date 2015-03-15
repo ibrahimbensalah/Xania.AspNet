@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Web;
 
 namespace Xania.AspNet.TagHelpers
 {
@@ -19,7 +20,7 @@ namespace Xania.AspNet.TagHelpers
             _tagHelperTypes.Add(tagName, type);
         }
 
-        public virtual ITagHelper GetTagHelper(string tagName, IDictionary<string, string> attributes)
+        public virtual ITagHelper GetTagHelper(string tagName, IEnumerable<TagAttribute> attributes)
         {
             Type tagHelperType;
             if (_tagHelperTypes.TryGetValue(tagName, out tagHelperType))
@@ -28,7 +29,7 @@ namespace Xania.AspNet.TagHelpers
                 if (tagHelper == null)
                     return null;
 
-                Bind(tagHelper, tagHelperType, attributes);
+                Bind(tagHelper, tagHelperType, attributes.ToDictionary(e => e.Name, StringComparer.OrdinalIgnoreCase));
 
                 return tagHelper;
             }
@@ -40,15 +41,15 @@ namespace Xania.AspNet.TagHelpers
             return (ITagHelper)Activator.CreateInstance(tagHelperType);
         }
 
-        protected virtual void Bind(ITagHelper tagHelper, Type tagType, IDictionary<string, string> attributes)
+        protected virtual void Bind(ITagHelper tagHelper, Type tagType, IDictionary<string, TagAttribute> attributes)
         {
             foreach (var propertyDescr in TypeDescriptor.GetProperties(tagType).OfType<PropertyDescriptor>().Where(p => !p.IsReadOnly))
             {
-                string value;
-                if (attributes.TryGetValue(propertyDescr.Name, out value))
+                TagAttribute attr;
+                if (attributes.TryGetValue(propertyDescr.Name, out attr))
                 {
                     var convertor = propertyDescr.Converter;
-                    propertyDescr.SetValue(tagHelper, convertor.ConvertFrom(value));
+                    propertyDescr.SetValue(tagHelper, convertor.ConvertFrom(attr.Value));
 
                     attributes.Remove(propertyDescr.Name);
                 }

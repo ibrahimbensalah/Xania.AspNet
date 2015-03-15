@@ -109,7 +109,7 @@ namespace Xania.AspNet.TagHelpers
 
         public String TagName { get; set; }
 
-        public IDictionary<string, string> Attributes { get; set; }
+        public IDictionary<string, TagAttribute> Attributes { get; set; }
 
         public void RenderContent(TextWriter writer, char ch)
         {

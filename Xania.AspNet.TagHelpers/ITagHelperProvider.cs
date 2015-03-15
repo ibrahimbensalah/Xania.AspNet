@@ -5,7 +5,7 @@ namespace Xania.AspNet.TagHelpers
 {
     public interface ITagHelperProvider
     {
-        ITagHelper GetTagHelper(string tagName, IDictionary<string, string> attributes);
+        ITagHelper GetTagHelper(string tagName, IEnumerable<TagAttribute> tagAttributes);
     }
 
     public interface ITagHelperContainer: ITagHelperProvider

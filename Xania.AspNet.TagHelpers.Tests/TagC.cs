@@ -5,10 +5,9 @@ using Xania.AspNet.TagHelpers.Tests.Annotations;
 
 namespace Xania.AspNet.TagHelpers.Tests
 {
-    [UsedImplicitly]
     public class TagC: ITagHelper
     {
-        public IDictionary<string, string> Attributes { get; set; }
+        public IDictionary<string, TagAttribute> Attributes { get; set; }
 
         public void RenderContent(TextWriter writer, char ch)
         {
@@ -22,11 +21,25 @@ namespace Xania.AspNet.TagHelpers.Tests
 
         public void RenderBeforeContent(TextWriter writer)
         {
-            string p1;
-            Attributes.TryGetValue("P1", out p1);
             writer.Write("<div><h1>");
-            writer.Write(p1 ?? string.Empty);
+            TagAttribute p1;
+            if (Attributes.TryGetValue("P1", out p1))
+                writer.Write(p1.RawValue);
             writer.Write("<span>");
+        }
+    }
+
+
+    public class TagWithNs : TagHelperBase
+    {
+        public override void RenderBeforeContent(TextWriter writer)
+        {
+            writer.Write("<div>xn");
+        }
+
+        public override void RenderAfterContent(TextWriter writer)
+        {
+            writer.Write("</div>");
         }
     }
 }

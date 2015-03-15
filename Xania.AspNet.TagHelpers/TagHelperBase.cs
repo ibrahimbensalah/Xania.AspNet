@@ -5,7 +5,7 @@ namespace Xania.AspNet.TagHelpers
 {
     public abstract class TagHelperBase: ITagHelper
     {
-        public virtual IDictionary<string, string> Attributes { get; set; }
+        public virtual IDictionary<string, TagAttribute> Attributes { get; set; }
 
         public virtual void RenderContent(TextWriter writer, char ch)
         {
@@ -18,12 +18,12 @@ namespace Xania.AspNet.TagHelpers
 
         protected virtual void RenderAttributes(TextWriter writer)
         {
-            foreach (var kvp in Attributes)
+            foreach (var attr in Attributes.Values)
             {
                 writer.Write(" ");
-                writer.Write(kvp.Key);
+                writer.Write(attr.Name);
                 writer.Write("=\"");
-                writer.Write(kvp.Value);
+                writer.Write(attr.RawValue);
                 writer.Write("\"");
             }
         }
