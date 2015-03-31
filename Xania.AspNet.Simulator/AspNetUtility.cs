@@ -14,21 +14,22 @@ namespace Xania.AspNet.Simulator
 {
     public class AspNetUtility
     {
-        internal static RequestContext CreateRequestContext(string actionName, string controllerName, string httpMethod, IPrincipal user)
+        internal static RequestContext CreateRequestContext(string actionName, string controllerName, string httpMethod, IPrincipal user, IDictionary<string, string> formData)
         {
-            var httpContext = GetContext(String.Format("/{0}/{1}", controllerName, actionName), httpMethod, user);
+            var httpContext = GetContext(String.Format("/{0}/{1}", controllerName, actionName), httpMethod, user, formData);
             var routeData = new RouteData { Values = { { "controller", controllerName }, { "action", actionName } } };
 
             return new RequestContext(httpContext, routeData);
         }
 
-        internal static HttpContextBase GetContext(string url, string method, IPrincipal user)
+        internal static HttpContextBase GetContext(string url, string method, IPrincipal user, IDictionary<string, string> form)
         {
             return GetContext(new SimpleHttpRequest
             {
                 UriPath = url,
                 User = user,
-                HttpMethod = method
+                HttpMethod = method,
+                Form = form
             });
         }
 
@@ -36,13 +37,18 @@ namespace Xania.AspNet.Simulator
         {
             var worker = new ActionRequestWrapper(httpRequest);
             var httpContext = new HttpContext(worker);
-            return GetContext(httpContext, httpRequest.User);
+            
+            var form = new NameValueCollection();
+            foreach (var kvp in httpRequest.Form)
+                form.Add(kvp.Key, kvp.Value);
+
+            return GetContext(httpContext, httpRequest.User, form);
         }
 
-        internal static HttpContextBase GetContext(HttpContext httpContext, IPrincipal user)
+        internal static HttpContextBase GetContext(HttpContext httpContext, IPrincipal user, NameValueCollection form)
         {
             // mock HttpRequest
-            var requestBase = Wrap(httpContext.Request);
+            var requestBase = Wrap(httpContext.Request, form);
 
             // mock HttpResponse
             var responseBase = Wrap(httpContext.Response);
@@ -74,7 +80,7 @@ namespace Xania.AspNet.Simulator
             return mock.Object;
         }
 
-        private static HttpRequestBase Wrap(HttpRequest request)
+        private static HttpRequestBase Wrap(HttpRequest request, NameValueCollection form)
         {
             Debug.Assert(request.Headers != null, "request.Headers != null");
 
@@ -91,6 +97,7 @@ namespace Xania.AspNet.Simulator
             mock.Setup(wrapper => wrapper.Files).Returns(new Mock<HttpFileCollectionBase>().Object);
             mock.Setup(wrapper => wrapper.Headers).Returns(request.Headers);
             mock.Setup(wrapper => wrapper.Cookies).Returns(request.Cookies);
+            mock.Setup(wrapper => wrapper.Form).Returns(form);
 
             return mock.Object;
         }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
 using NUnit.Framework;
@@ -63,7 +65,6 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
             // assert
             Assert.AreEqual("value1", actionContext.ControllerContext.HttpContext.Session["name1"]);
         }
-       
     }
 
     public class TestController : Controller

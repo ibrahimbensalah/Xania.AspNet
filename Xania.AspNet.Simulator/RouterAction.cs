@@ -37,7 +37,7 @@ namespace Xania.AspNet.Simulator
             var controllerDescriptor = new ReflectedControllerDescriptor(controller.GetType());
 
             var actionName = routeData.GetRequiredString("action");
-            var httpContext = AspNetUtility.GetContext(String.Format("/{0}/{1}", controllerName, actionName), HttpMethod, User ?? CreateAnonymousUser());
+            var httpContext = AspNetUtility.GetContext(String.Format("/{0}/{1}", controllerName, actionName), HttpMethod, User ?? CreateAnonymousUser(), Form);
 
             var requestContext = new RequestContext(httpContext, routeData);
 

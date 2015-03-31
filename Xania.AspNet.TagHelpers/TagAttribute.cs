@@ -1,5 +1,4 @@
 using System.Web;
-using Microsoft.Practices.Unity.Configuration;
 
 namespace Xania.AspNet.TagHelpers
 {

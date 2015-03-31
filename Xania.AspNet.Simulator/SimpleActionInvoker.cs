@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using System.Web.Mvc;
 
 namespace Xania.AspNet.Simulator
@@ -52,6 +54,48 @@ namespace Xania.AspNet.Simulator
                 throw new Exception("InvokeActionMethodWithFilters returned null");
 
             return actionExecutedContext.Result;
+        }
+
+        protected override object GetParameterValue(ControllerContext controllerContext, ParameterDescriptor parameterDescriptor)
+        {
+            var parameterName = parameterDescriptor.ParameterName;
+            var value = base.GetParameterValue(controllerContext, parameterDescriptor);
+
+            if (value == null)
+                return null;
+
+            var validationResults = ValidateModel(parameterDescriptor.ParameterType, value, controllerContext);
+
+            var modelState = controllerContext.Controller.ViewData.ModelState;
+            Func<ModelValidationResult, bool> isValidField = res => modelState.IsValidField(String.Format("{0}.{1}", parameterName, res.MemberName));
+
+            foreach (var validationResult in validationResults.Where(isValidField).ToArray())
+            {
+                var subPropertyName = String.Format("{0}.{1}", parameterDescriptor.ParameterName, validationResult.MemberName);
+                modelState.AddModelError(subPropertyName, validationResult.Message);
+            }
+
+            return value;
+        }
+
+        //protected virtual void ValidateArgument(string parameterName, Type parameterType, object parameterValue, ControllerContext controllerContext)
+        //{
+        //    var validationResults = ValidateModel(parameterType, parameterValue, controllerContext);
+
+        //    var modelState = controllerContext.Controller.ViewData.ModelState;
+        //    Func<ModelValidationResult, bool> isValidField = res => modelState.IsValidField(String.Format("{0}.{1}", parameterName, res.MemberName));
+
+        //    foreach (var validationResult in validationResults.Where(isValidField).ToArray())
+        //    {
+        //        var subPropertyName = String.Format("{0}.{1}", parameterName, validationResult.MemberName);
+        //        modelState.AddModelError(subPropertyName, validationResult.Message);
+        //    }
+
+        //}
+        protected virtual IEnumerable<ModelValidationResult> ValidateModel(Type modelType, object modelValue, ControllerContext controllerContext)
+        {
+            var modelMetadata = ModelMetadataProviders.Current.GetMetadataForType(() => modelValue, modelType);
+            return ModelValidator.GetModelValidator(modelMetadata, controllerContext).Validate(null);
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Security.Principal;
 using System.Web;
@@ -16,6 +16,8 @@ namespace Xania.AspNet.Simulator
             FilterProviders = new FilterProviderCollection(System.Web.Mvc.FilterProviders.Providers);
             Cookies = new Collection<HttpCookie>();
             Session = new Dictionary<string, object>();
+            Files = new Dictionary<string, Stream>();
+            Form = new Dictionary<string, string>();
         }
 
         public FilterProviderCollection FilterProviders { get; private set; }
@@ -26,6 +28,8 @@ namespace Xania.AspNet.Simulator
 
         public ICollection<HttpCookie> Cookies { get; private set; }
         public IDictionary<string, object> Session { get; private set; }
+        public IDictionary<string, Stream> Files { get; private set; }
+        public IDictionary<string, string> Form { get; private set; }
 
         public string HttpMethod { get; set; }
 
@@ -87,7 +91,7 @@ namespace Xania.AspNet.Simulator
             var controllerName = controllerDescriptor.ControllerName;
 
             var requestContext = AspNetUtility.CreateRequestContext(actionDescriptor.ActionName, controllerName,
-                actionRequest.HttpMethod, actionRequest.User ?? CreateAnonymousUser());
+                actionRequest.HttpMethod, actionRequest.User ?? CreateAnonymousUser(), Form);
 
             foreach(var cookie in Cookies)
                 requestContext.HttpContext.Request.Cookies.Add(cookie);

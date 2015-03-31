@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -34,12 +36,14 @@ namespace Xania.AspNet.Simulator
         }
 
         public static DirectControllerAction Action<TController>(this TController controller,
-            Expression<Func<TController, object>> actionExpression)
+            Expression<Func<TController, object>> actionExpression, string httpMethod = "GET")
             where TController : ControllerBase
         {
-            var actionInfo = new DirectControllerAction(controller, LinqActionDescriptor.Create(actionExpression));
-
-            return actionInfo;
+            return new DirectControllerAction(controller, LinqActionDescriptor.Create(actionExpression))
+            {
+                ValueProvider = new LinqActionValueProvider(actionExpression.Body),
+                HttpMethod = httpMethod
+            };
         }
 
         public static DirectControllerAction Action<TController>(this TController controller,
@@ -48,6 +52,7 @@ namespace Xania.AspNet.Simulator
         {
             return new DirectControllerAction(controller, LinqActionDescriptor.Create(actionExpression))
             {
+                ValueProvider = new LinqActionValueProvider(actionExpression.Body),
                 HttpMethod = httpMethod
             };
         }
@@ -70,6 +75,20 @@ namespace Xania.AspNet.Simulator
             where TControllerAction : ControllerAction
         {
             controllerAction.Session[name] = value;
+            return controllerAction;
+        }
+
+        public static TControllerAction AddForm<TControllerAction>(this TControllerAction controllerAction, string name, string value)
+            where TControllerAction : ControllerAction
+        {
+            controllerAction.Form[name] = value;
+            return controllerAction;
+        }
+
+        public static TControllerAction AddFile<TControllerAction>(this TControllerAction controllerAction, string name,
+            Stream stream) where TControllerAction: ControllerAction
+        {
+            controllerAction.Files[name] = stream;
             return controllerAction;
         }
 
@@ -138,5 +157,39 @@ namespace Xania.AspNet.Simulator
         {
             return new RouteValueDictionary(values);
         } 
+    }
+
+    public class LinqActionValueProvider : IValueProvider
+    {
+        private readonly Dictionary<string, object> _values;
+
+        public LinqActionValueProvider(Expression body)
+        {
+            _values = new Dictionary<String, object>();
+
+            var methodCallExpression = (MethodCallExpression)body;
+            var methodParameters = methodCallExpression.Method.GetParameters();
+            for (int i=0 ; i < methodCallExpression.Arguments.Count ; i++)
+            {
+                var arg = methodCallExpression.Arguments[i];
+                var par = methodParameters[i];
+                _values.Add(par.Name, Invoke(arg));
+            }
+        }
+        private static object Invoke(Expression valueExpression)
+        {
+            var convertExpression = Expression.Convert(valueExpression, typeof(object));
+            var express = Expression.Lambda<Func<object>>(convertExpression).Compile();
+            return express.Invoke();
+        }
+        public bool ContainsPrefix(string prefix)
+        {
+            return _values.ContainsKey(prefix);
+        }
+
+        public ValueProviderResult GetValue(string key)
+        {
+            return new ValueProviderResult(_values[key], null, CultureInfo.InvariantCulture);
+        }
     }
 }

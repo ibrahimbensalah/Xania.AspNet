@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Security.Principal;
 using System.Web;
 
@@ -43,7 +44,7 @@ namespace Xania.AspNet.Simulator
 
         public override string GetRemoteAddress()
         {
-            throw new NotImplementedException();
+            return "localhost";
         }
 
         public override int GetRemotePort()
@@ -108,5 +109,6 @@ namespace Xania.AspNet.Simulator
         string UriPath { get; }
         string HttpMethod { get; }
         IPrincipal User { get; }
+        IDictionary<string, string> Form { get; }
     }
 }
