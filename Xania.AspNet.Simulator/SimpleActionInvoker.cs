@@ -24,13 +24,7 @@ namespace Xania.AspNet.Simulator
             var authorizationContext = InvokeAuthorizationFilters(_controllerContext,
                 _filterInfo.AuthorizationFilters, _actionDescriptor);
 
-            var authorizationResult = authorizationContext.Result;
-            if (authorizationResult != null)
-            {
-                InvokeAuthenticationFiltersChallenge(_controllerContext, _filterInfo.AuthenticationFilters, _actionDescriptor, authorizationResult);
-            }
-
-            return authorizationResult;
+            return authorizationContext.Result;
         }
 
         public virtual ActionResult InvokeAction()
