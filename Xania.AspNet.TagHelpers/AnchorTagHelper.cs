@@ -21,7 +21,7 @@ namespace Xania.AspNet.TagHelpers
         public override void RenderBeforeContent(TextWriter writer)
         {
             writer.Write("<a");
-            if (!Attributes.ContainsKey("href"))
+            if (!Attributes.ContainsKey("href") && (!string.IsNullOrEmpty(Action) || !string.IsNullOrEmpty(Controller)))
             {
                 writer.Write(" href=\"");
                 writer.Write(_url.Action(Action, Controller));
