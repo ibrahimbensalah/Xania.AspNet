@@ -33,7 +33,7 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
             var controllerAction = controller.Action(c => c.Update());
 
             // assert
-            Assert.Catch<InvalidOperationException>(() => controllerAction.Execute());
+            Assert.Catch<ControllerActionException>(() => controllerAction.Execute());
         }
 
         [Test]

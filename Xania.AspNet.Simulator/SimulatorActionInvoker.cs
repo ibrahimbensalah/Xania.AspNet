@@ -6,13 +6,13 @@ using System.Web.Mvc;
 
 namespace Xania.AspNet.Simulator
 {
-    internal class SimpleActionInvoker : ControllerActionInvoker
+    internal class SimulatorActionInvoker : ControllerActionInvoker
     {
         private readonly ControllerContext _controllerContext;
         private readonly ActionDescriptor _actionDescriptor;
         private readonly FilterInfo _filterInfo;
 
-        public SimpleActionInvoker(ControllerContext controllerContext, ActionDescriptor actionDescriptor, IEnumerable<Filter> filters)
+        public SimulatorActionInvoker(ControllerContext controllerContext, ActionDescriptor actionDescriptor, IEnumerable<Filter> filters)
         {
             _controllerContext = controllerContext;
             _actionDescriptor = actionDescriptor;

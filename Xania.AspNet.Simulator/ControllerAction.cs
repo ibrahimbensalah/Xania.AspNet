@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Security.Principal;
@@ -18,6 +19,7 @@ namespace Xania.AspNet.Simulator
             Session = new Dictionary<string, object>();
             Files = new Dictionary<string, Stream>();
             Form = new Dictionary<string, string>();
+            Resolve = DependencyResolver.Current.GetService;
         }
 
         public FilterProviderCollection FilterProviders { get; private set; }
@@ -30,6 +32,7 @@ namespace Xania.AspNet.Simulator
         public IDictionary<string, object> Session { get; private set; }
         public IDictionary<string, Stream> Files { get; private set; }
         public IDictionary<string, string> Form { get; private set; }
+        public Func<Type, object> Resolve { get; set; }
 
         public string HttpMethod { get; set; }
 
@@ -45,19 +48,45 @@ namespace Xania.AspNet.Simulator
 
         protected virtual ControllerActionResult Execute(ControllerContext controllerContext, ActionDescriptor actionDescriptor)
         {
+            var invoker = GetActionInvoker(controllerContext, actionDescriptor);
+            return new ControllerActionResult
+            {
+                ControllerContext = controllerContext,
+                ActionResult = invoker.InvokeAction()
+            };
+        }
+
+        internal virtual SimulatorActionInvoker GetActionInvoker(ControllerContext controllerContext,
+            ActionDescriptor actionDescriptor)
+        {
             // Use empty value provider by default to prevent use of ASP.NET MVC default value providers
             // Its not the purpose of this simulator framework to validate the ASP.NET MVC default value 
             // providers. Either a value provider is not need in case model values are predefined or a 
             // custom implementation is provided.
             controllerContext.Controller.ValueProvider = ValueProvider ?? new ValueProviderCollection();
 
-            var filters = FilterProviders.GetFilters(controllerContext, actionDescriptor);
-            var invoker = new SimpleActionInvoker(controllerContext, actionDescriptor, filters);
-            return new ControllerActionResult
+            var filters = FilterProviders.GetFilters(controllerContext, actionDescriptor).Select(BuildUp);
+
+            return new SimulatorActionInvoker(controllerContext, actionDescriptor, filters);
+        }
+
+        protected virtual Filter BuildUp(Filter filter)
+        {
+            if (Resolve == null)
+                return filter;
+
+            foreach (PropertyDescriptor propertyDesc in TypeDescriptor.GetProperties(filter.Instance))
             {
-                ControllerContext = controllerContext,
-                ActionResult = invoker.InvokeAction()
-            };
+                var typeNames = propertyDesc.Attributes.OfType<Attribute>().Select(e => e.GetType().ToString());
+                if (typeNames.Contains("Microsoft.Practices.Unity.DependencyAttribute"))
+                {
+                    var service = Resolve(propertyDesc.PropertyType);
+                    if (service != null)
+                        propertyDesc.SetValue(filter.Instance, service);
+                }
+            }
+
+            return filter;
         }
 
         public virtual ActionResult Authorize()
@@ -68,16 +97,7 @@ namespace Xania.AspNet.Simulator
 
         protected virtual ActionResult Authorize(ControllerContext controllerContext, ActionDescriptor actionDescriptor)
         {
-            // Use empty value provider by default to prevent use of ASP.NET MVC default value providers
-            // Its not the purpose of this simulator framework to validate the ASP.NET MVC default value 
-            // providers. Either a value provider is not need in case model values are predefined or a 
-            // custom implementation is provided.
-            controllerContext.Controller.ValueProvider = ValueProvider ?? new ValueProviderCollection();
-
-            var filters = FilterProviders.GetFilters(controllerContext, actionDescriptor);
-            var invoker = new SimpleActionInvoker(controllerContext, actionDescriptor, filters);
-
-            return invoker.AuthorizeAction();
+            return GetActionInvoker(controllerContext, actionDescriptor).AuthorizeAction();
         }
 
         public virtual IPrincipal CreateAnonymousUser()
@@ -105,10 +125,18 @@ namespace Xania.AspNet.Simulator
 
             if (actionDescriptor.GetSelectors().Any(selector => !selector.Invoke(controllerContext)))
             {
-                throw new InvalidOperationException(String.Format("Http method '{0}' is not allowed", actionRequest.HttpMethod));
+                throw new ControllerActionException(String.Format("Http method '{0}' is not allowed", actionRequest.HttpMethod));
             }
 
             return controllerContext;
+        }
+    }
+
+    public class ControllerActionException : Exception
+    {
+        public ControllerActionException(string message)
+            : base(message)
+        {
         }
     }
 }
