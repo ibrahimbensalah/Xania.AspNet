@@ -132,6 +132,7 @@ namespace Xania.AspNet.Simulator
         }
     }
 
+    [Serializable]
     public class ControllerActionException : Exception
     {
         public ControllerActionException(string message)

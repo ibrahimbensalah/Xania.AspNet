@@ -1,14 +1,8 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Diagnostics;
 using System.Security.Principal;
 using System.Web;
-using System.Web.Caching;
 using System.Web.Routing;
-using System.Web.SessionState;
-using Moq;
 
 namespace Xania.AspNet.Simulator
 {
@@ -36,70 +30,53 @@ namespace Xania.AspNet.Simulator
         internal static HttpContextBase GetContext(IHttpRequest httpRequest)
         {
             var worker = new ActionRequestWrapper(httpRequest);
-            var httpContext = new HttpContext(worker);
-            
-            var form = new NameValueCollection();
-            foreach (var kvp in httpRequest.Form)
-                form.Add(kvp.Key, kvp.Value);
+            var httpContext = new HttpContext(worker)
+            {
+                User = httpRequest.User
+            };
 
-            return GetContext(httpContext, httpRequest.User, form);
+            return new HttpContextSimulator(httpContext);
+        }
+    }
+
+    internal class HttpRequestSimulator: HttpRequestWrapper
+    {
+        public HttpRequestSimulator(HttpRequest httpRequest) : base(httpRequest)
+        {
         }
 
-        internal static HttpContextBase GetContext(HttpContext httpContext, IPrincipal user, NameValueCollection form)
+        public override string AppRelativeCurrentExecutionFilePath
         {
-            // mock HttpRequest
-            var requestBase = Wrap(httpContext.Request, form);
+            get { return "~" + Url.AbsolutePath; }
+        }
+    }
 
-            // mock HttpResponse
-            var responseBase = Wrap(httpContext.Response);
+    internal class HttpContextSimulator : HttpContextWrapper
+    {
+        private readonly HttpRequestSimulator _request;
+        private readonly HttpResponseWrapper _response;
+        private readonly SimpleSessionState _session;
 
-            // mock HttpContext
-            return Wrap(requestBase, responseBase, httpContext.Cache, user);
+        public HttpContextSimulator(HttpContext httpContext) : base(httpContext)
+        {
+            _request = new HttpRequestSimulator(httpContext.Request);
+            _response = new HttpResponseWrapper(httpContext.Response);
+            _session = new SimpleSessionState();
         }
 
-        private static HttpContextBase Wrap(HttpRequestBase requestBase, HttpResponseBase responseBase, Cache cache, IPrincipal user)
+        public override HttpRequestBase Request
         {
-            var contextMock = new Mock<HttpContextBase>();
-            contextMock.Setup(context => context.Items).Returns(new Hashtable());
-            contextMock.Setup(context => context.Request).Returns(requestBase);
-            contextMock.Setup(context => context.Response).Returns(responseBase);
-            contextMock.Setup(context => context.Session).Returns(new SimpleSessionState());
-            contextMock.Setup(context => context.Cache).Returns(cache);
-            contextMock.Setup(context => context.User).Returns(user);
-            return contextMock.Object;
+            get { return _request; }
         }
 
-        private static HttpResponseBase Wrap(HttpResponse response)
+        public override HttpResponseBase Response
         {
-            var mock = new Mock<HttpResponseBase>();
-            mock.Setup(wrapper => wrapper.StatusCode).Returns(response.StatusCode);
-            mock.Setup(wrapper => wrapper.Output).Returns(response.Output);
-            mock.Setup(wrapper => wrapper.Cache).Returns(new HttpCachePolicyWrapper(response.Cache));
-            mock.Setup(wrapper => wrapper.Cookies).Returns(response.Cookies);
-
-            return mock.Object;
+            get { return _response; }
         }
 
-        private static HttpRequestBase Wrap(HttpRequest request, NameValueCollection form)
+        public override HttpSessionStateBase Session
         {
-            Debug.Assert(request.Headers != null, "request.Headers != null");
-
-            var mock = new Mock<HttpRequestBase>();
-            mock.Setup(wrapper => wrapper.Url).Returns(request.Url);
-            mock.Setup(wrapper => wrapper.HttpMethod).Returns(request.HttpMethod);
-            mock.Setup(wrapper => wrapper.Form).Returns(request.Form);
-            mock.Setup(wrapper => wrapper.ServerVariables).Returns(new NameValueCollection());
-            mock.Setup(wrapper => wrapper.AppRelativeCurrentExecutionFilePath)
-                .Returns("~" + request.Url.AbsolutePath);
-            // requestMock.Setup(request => request.Unvalidated).Returns(unvalidatedRequest.Object);
-            mock.Setup(wrapper => wrapper.ContentType).Returns(request.ContentType);
-            mock.Setup(wrapper => wrapper.QueryString).Returns(request.QueryString);
-            mock.Setup(wrapper => wrapper.Files).Returns(new Mock<HttpFileCollectionBase>().Object);
-            mock.Setup(wrapper => wrapper.Headers).Returns(request.Headers);
-            mock.Setup(wrapper => wrapper.Cookies).Returns(request.Cookies);
-            mock.Setup(wrapper => wrapper.Form).Returns(form);
-
-            return mock.Object;
+            get { return _session; }
         }
     }
 }
