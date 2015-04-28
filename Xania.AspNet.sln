@@ -18,6 +18,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xania.AspNet.TagHelpers", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xania.AspNet.TagHelpers.Tests", "Xania.AspNet.TagHelpers.Tests\Xania.AspNet.TagHelpers.Tests.csproj", "{FDAF5A31-8117-4A01-ABE2-69B6362086C4}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{3FC8FA3B-0EE8-413C-9840-7F2108306AAB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,5 +45,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A61AF6C1-DDE2-4B1F-83DF-C1D7666C457E} = {3FC8FA3B-0EE8-413C-9840-7F2108306AAB}
+		{FDAF5A31-8117-4A01-ABE2-69B6362086C4} = {3FC8FA3B-0EE8-413C-9840-7F2108306AAB}
 	EndGlobalSection
 EndGlobal

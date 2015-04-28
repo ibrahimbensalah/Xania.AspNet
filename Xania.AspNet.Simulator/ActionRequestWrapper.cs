@@ -109,6 +109,5 @@ namespace Xania.AspNet.Simulator
         string UriPath { get; }
         string HttpMethod { get; }
         IPrincipal User { get; }
-        IDictionary<string, string> Form { get; }
     }
 }

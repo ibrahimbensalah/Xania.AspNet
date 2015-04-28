@@ -8,6 +8,5 @@ namespace Xania.AspNet.Simulator
         public string UriPath { get; set; }
         public string HttpMethod { get; set; }
         public IPrincipal User { get; set; }
-        public IDictionary<string, string> Form { get; set; }
     }
 }

@@ -61,7 +61,14 @@ namespace Xania.AspNet.Simulator
             Expression<Func<TController, object>> actionExpression)
             where TController : ControllerBase
         {
-            return Action(controller, actionExpression).Execute();
+            var action = Action(controller, actionExpression);
+            var httpContext = action.CreateHttpContext();
+            return action.Execute(httpContext);
+        }
+
+        public static ControllerActionResult Execute(this ControllerAction action, HttpContextBase httpContext = null)
+        {
+            return action.Execute(httpContext ?? action.CreateHttpContext());
         }
 
         public static TControllerAction AddCookie<TControllerAction>(this TControllerAction controllerAction, string name, string value)

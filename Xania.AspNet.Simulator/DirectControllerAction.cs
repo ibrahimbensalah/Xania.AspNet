@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Web;
 using System.Web.Mvc;
 
 namespace Xania.AspNet.Simulator
@@ -15,13 +16,18 @@ namespace Xania.AspNet.Simulator
 
         public ActionDescriptor ActionDescriptor { get; private set; }
 
-        public override ActionContext GetActionContext()
+        public override ActionContext GetActionContext(HttpContextBase httpContext = null)
         {
             return new ActionContext
             {
-                ControllerContext = CreateContext(this, Controller, ActionDescriptor),
+                ControllerContext = CreateControllerContext(httpContext ?? CreateHttpContext(), Controller, ActionDescriptor),
                 ActionDescriptor = ActionDescriptor
             };
+        }
+
+        public override HttpContextBase CreateHttpContext()
+        {
+            return CreateHttpContext(this, ActionDescriptor);
         }
     }
 }

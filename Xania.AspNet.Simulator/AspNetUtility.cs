@@ -8,22 +8,25 @@ namespace Xania.AspNet.Simulator
 {
     public class AspNetUtility
     {
-        internal static RequestContext CreateRequestContext(string actionName, string controllerName, string httpMethod, IPrincipal user, IDictionary<string, string> formData)
+        internal static RequestContext CreateRequestContext(string actionName, string controllerName, string httpMethod, IPrincipal user)
         {
-            var httpContext = GetContext(String.Format("/{0}/{1}", controllerName, actionName), httpMethod, user, formData);
-            var routeData = new RouteData { Values = { { "controller", controllerName }, { "action", actionName } } };
+            var httpContext = GetContext(String.Format("/{0}/{1}", controllerName, actionName), httpMethod, user);
+            return CreateRequestContext(httpContext, controllerName, actionName);
+        }
 
+        internal static RequestContext CreateRequestContext(HttpContextBase httpContext, string controllerName, string actionName)
+        {
+            var routeData = new RouteData {Values = {{"controller", controllerName}, {"action", actionName}}};
             return new RequestContext(httpContext, routeData);
         }
 
-        internal static HttpContextBase GetContext(string url, string method, IPrincipal user, IDictionary<string, string> form)
+        internal static HttpContextBase GetContext(string url, string method, IPrincipal user)
         {
             return GetContext(new SimpleHttpRequest
             {
                 UriPath = url,
                 User = user,
-                HttpMethod = method,
-                Form = form
+                HttpMethod = method
             });
         }
 
@@ -32,7 +35,7 @@ namespace Xania.AspNet.Simulator
             var worker = new ActionRequestWrapper(httpRequest);
             var httpContext = new HttpContext(worker)
             {
-                User = httpRequest.User
+                User = httpRequest.User,
             };
 
             return new HttpContextSimulator(httpContext);

@@ -1,4 +1,5 @@
 using System.Security.Principal;
+using System.Web;
 using System.Web.Mvc;
 
 namespace Xania.AspNet.Simulator
@@ -15,6 +16,6 @@ namespace Xania.AspNet.Simulator
 
         IValueProvider ValueProvider { get; }
 
-        ControllerActionResult Execute();
+        ControllerActionResult Execute(HttpContextBase httpContext);
     }
 }
