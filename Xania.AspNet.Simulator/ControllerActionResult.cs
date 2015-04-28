@@ -37,5 +37,10 @@ namespace Xania.AspNet.Simulator
         {
             get { return ControllerContext.HttpContext.Request; }
         }
+
+        public void ExecuteResult()
+        {
+            ActionResult.ExecuteResult(ControllerContext);
+        }
     }
 }
