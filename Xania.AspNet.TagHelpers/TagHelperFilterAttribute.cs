@@ -26,7 +26,8 @@ namespace Xania.AspNet.TagHelpers
 
         public override void OnActionExecuted(ActionExecutedContext filterContext)
         {
-            filterContext.Result = GetFilterResult(filterContext);
+            if (filterContext.Result is ViewResultBase)
+                filterContext.Result = GetFilterResult(filterContext);
         }
 
         protected virtual ActionResult GetFilterResult(ActionExecutedContext filterContext)
