@@ -39,18 +39,35 @@ namespace Xania.AspNet.Simulator
             Expression<Func<TController, object>> actionExpression, string httpMethod = "GET")
             where TController : ControllerBase
         {
-            return new DirectControllerAction(controller, LinqActionDescriptor.Create(actionExpression))
+            return new DirectControllerAction(controller, LinqActionDescriptor.Create(actionExpression), GetDefaultRoutes())
             {
                 ValueProvider = new LinqActionValueProvider(actionExpression.Body),
                 HttpMethod = httpMethod
             };
         }
 
+
+        public static RouteCollection GetDefaultRoutes()
+        {
+            var routes = new RouteCollection();
+            if (RouteTable.Routes.Count == 0)
+                routes.MapRoute(
+                    "Default",
+                    "{controller}/{action}/{id}",
+                    new { controller = "Home", action = "Index", id = UrlParameter.Optional }
+                    );
+            else
+                foreach (var route in RouteTable.Routes)
+                    routes.Add(route);
+
+            return routes;
+        }
+
         public static DirectControllerAction Action<TController>(this TController controller,
             Expression<Action<TController>> actionExpression, String httpMethod = "GET")
             where TController : ControllerBase
         {
-            return new DirectControllerAction(controller, LinqActionDescriptor.Create(actionExpression))
+            return new DirectControllerAction(controller, LinqActionDescriptor.Create(actionExpression), GetDefaultRoutes())
             {
                 ValueProvider = new LinqActionValueProvider(actionExpression.Body),
                 HttpMethod = httpMethod

@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Routing;
 using System.Web.Security;
 using NUnit.Framework;
 
@@ -45,10 +48,12 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
                 .AddCookie("name1", "value1");
 
             // act
-            var actionContext = action.GetActionContext();
+            var name1 = action.GetActionContext()
+                .ControllerContext.HttpContext.Request.Cookies["name1"];
 
             // assert
-            Assert.AreEqual("value1", actionContext.ControllerContext.HttpContext.Request.Cookies["name1"].Value);
+            Assert.IsNotNull(name1);
+            Assert.AreEqual("value1", name1.Value);
         }
 
         [Test]
@@ -60,13 +65,31 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
                 .AddSession("name1", "value1");
 
             // act
-            var actionContext = action.GetActionContext();
+            var session = action.GetActionContext()
+                .ControllerContext.HttpContext.Session;
 
             // assert
-            Assert.AreEqual("value1", actionContext.ControllerContext.HttpContext.Session["name1"]);
+            Assert.IsNotNull(session);
+            Assert.AreEqual("value1", session["name1"]);
+        }
+
+        [Test]
+        public void ActionUsingUrlTest()
+        {
+            // arrange
+            var action = new TestController()
+                .Action(e => e.ActionUsingUrl());
+
+            // act
+            var result = action.Execute();
+
+            // assert
+            Assert.IsInstanceOf<ContentResult>(result.ActionResult);
+            Assert.AreEqual("/Test", ((ContentResult)result.ActionResult).Content);
         }
     }
 
+    [SuppressMessage("ReSharper", "Mvc.ViewNotResolved", Justification = "Views are not executed")]
     public class TestController : Controller
     {
         public ActionResult Index()
@@ -84,6 +107,11 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
         [HttpPost]
         public void Update()
         {
+        }
+
+        public String ActionUsingUrl()
+        {
+            return Url.Action("Index");
         }
     }
 }
