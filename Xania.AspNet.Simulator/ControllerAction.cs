@@ -7,7 +7,6 @@ using System.Linq;
 using System.Security.Principal;
 using System.Web;
 using System.Web.Mvc;
-using System.Web.Routing;
 
 namespace Xania.AspNet.Simulator
 {
@@ -105,7 +104,49 @@ namespace Xania.AspNet.Simulator
             return new GenericPrincipal(new GenericIdentity(String.Empty), new string[] { });
         }
 
+        public virtual ControllerContext CreateControllerContext(IControllerAction actionRequest, ControllerBase controller,
+            ActionDescriptor actionDescriptor)
+        {
+            var httpContext = CreateHttpContext(actionRequest, actionDescriptor);
+            return CreateControllerContext(httpContext, controller, actionDescriptor);
+        }
+
         public abstract HttpContextBase CreateHttpContext();
+
+        public HttpContextBase CreateHttpContext(IControllerAction actionRequest, ActionDescriptor actionDescriptor)
+        {
+            var controllerDescriptor = actionDescriptor.ControllerDescriptor;
+            var controllerName = controllerDescriptor.ControllerName;
+
+            var user = actionRequest.User ?? CreateAnonymousUser();
+            var httpContext =
+                AspNetUtility.GetContext(String.Format("/{0}/{1}", controllerName, actionDescriptor.ActionName),
+                    actionRequest.HttpMethod, user);
+            return httpContext;
+        }
+
+        public virtual ControllerContext CreateControllerContext(HttpContextBase httpContext, ControllerBase controller, ActionDescriptor actionDescriptor)
+        {
+            var requestContext = AspNetUtility.CreateRequestContext(httpContext, actionDescriptor.ControllerDescriptor.ControllerName,
+                actionDescriptor.ActionName);
+
+            foreach(var cookie in Cookies)
+                requestContext.HttpContext.Request.Cookies.Add(cookie);
+
+            foreach (var kvp in Session)
+                // ReSharper disable once PossibleNullReferenceException
+                requestContext.HttpContext.Session[kvp.Key] = kvp.Value;
+
+            var controllerContext = new ControllerContext(requestContext, controller);
+            controller.ControllerContext = controllerContext;
+
+            if (actionDescriptor.GetSelectors().Any(selector => !selector.Invoke(controllerContext)))
+            {
+                throw new ControllerActionException(String.Format("Http method '{0}' is not allowed", controllerContext.HttpContext.Request.HttpMethod));
+            }
+
+            return controllerContext;
+        }
     }
 
     [Serializable]
