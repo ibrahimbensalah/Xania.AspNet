@@ -1,4 +1,5 @@
 ﻿using System.Web;
+using System.Web.Hosting;
 using System.Web.Mvc;
 
 namespace Xania.AspNet.Simulator

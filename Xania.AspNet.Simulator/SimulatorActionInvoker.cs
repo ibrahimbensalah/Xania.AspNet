@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web.Mvc;
+using RazorEngine;
 
 namespace Xania.AspNet.Simulator
 {
@@ -36,7 +38,7 @@ namespace Xania.AspNet.Simulator
             var controller = _controllerContext.Controller as Controller;
             if (controller != null)
             {
-                controller.ViewEngineCollection = new ViewEngineCollection();
+                controller.ViewEngineCollection = new ViewEngineCollection(new IViewEngine[]{ new RazorViewEngineSimulator() });
             }
 
             var parameters = GetParameterValues(_controllerContext, _actionDescriptor);
@@ -71,24 +73,45 @@ namespace Xania.AspNet.Simulator
             return value;
         }
 
-        //protected virtual void ValidateArgument(string parameterName, Type parameterType, object parameterValue, ControllerContext controllerContext)
-        //{
-        //    var validationResults = ValidateModel(parameterType, parameterValue, controllerContext);
-
-        //    var modelState = controllerContext.Controller.ViewData.ModelState;
-        //    Func<ModelValidationResult, bool> isValidField = res => modelState.IsValidField(String.Format("{0}.{1}", parameterName, res.MemberName));
-
-        //    foreach (var validationResult in validationResults.Where(isValidField).ToArray())
-        //    {
-        //        var subPropertyName = String.Format("{0}.{1}", parameterName, validationResult.MemberName);
-        //        modelState.AddModelError(subPropertyName, validationResult.Message);
-        //    }
-
-        //}
         protected virtual IEnumerable<ModelValidationResult> ValidateModel(Type modelType, object modelValue, ControllerContext controllerContext)
         {
             var modelMetadata = ModelMetadataProviders.Current.GetMetadataForType(() => modelValue, modelType);
             return ModelValidator.GetModelValidator(modelMetadata, controllerContext).Validate(null);
+        }
+    }
+
+    internal class RazorViewEngineSimulator : IViewEngine
+    {
+        public ViewEngineResult FindPartialView(ControllerContext controllerContext, string partialViewName, bool useCache)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ViewEngineResult FindView(ControllerContext controllerContext, string viewName, string masterName, bool useCache)
+        {
+            return new ViewEngineResult(new ViewSimulator(viewName), this);
+        }
+
+        public void ReleaseView(ControllerContext controllerContext, IView view)
+        {
+        }
+    }
+
+    internal class ViewSimulator : IView
+    {
+        private readonly string _viewName;
+
+        public ViewSimulator(string viewName)
+        {
+            _viewName = viewName;
+        }
+
+        public void Render(ViewContext viewContext, TextWriter writer)
+        {
+            var model = viewContext.ViewData.Model;
+            var html = Razor.Parse<string>("<h1>hello @Model</h1>", "simulator");
+
+            writer.Write(html);
         }
     }
 }

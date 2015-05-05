@@ -4,10 +4,9 @@ using System.Diagnostics;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
+using System.Web.Hosting;
 using FluentAssertions;
-using Microsoft.Practices.Unity;
 using NUnit.Framework;
-using Xania.AspNet.Simulator.Tests.LinqActions;
 
 namespace Xania.AspNet.Simulator.Tests.Server
 {
@@ -28,16 +27,18 @@ namespace Xania.AspNet.Simulator.Tests.Server
             _server.Dispose();
         }
 
-        [TestCase("test/ActionUsingUrl", "/test")]
         [TestCase("test/echo/hello", "hello")]
+        [TestCase("test/actionusingurl", "/test")]
+        [TestCase("test/razorview", "<h1>hello simulator</h1>")]
         public void MvcModuleTest(string path, string content)
         {
             // arrange
             _server.UseMvc(new Router()
                 .RegisterController("test", new TestController()));
-            // act
+
             using (var client = new HttpClient())
             {
+                // act
                 var result = client.GetStringAsync(BaseUrl + path).Result;
 
                 // assert
@@ -72,6 +73,14 @@ namespace Xania.AspNet.Simulator.Tests.Server
         {
             var message = contextBase.Request.Params["message"];
             contextBase.Response.Output.Write(message);
+        }
+    }
+
+    public class VirtualPathProviderSimulator : VirtualPathProvider
+    {
+        public override string GetCacheKey(string virtualPath)
+        {
+            return null;
         }
     }
 }

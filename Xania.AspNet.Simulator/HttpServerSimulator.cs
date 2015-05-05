@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web;
@@ -46,7 +47,7 @@ namespace Xania.AspNet.Simulator
             _listener.Stop();
         }
 
-        public async void Use(Action<HttpContextBase> worker)
+        public async void Use(Action<HttpContextBase> handler)
         {
             bool running = true;
 
@@ -60,7 +61,17 @@ namespace Xania.AspNet.Simulator
 
                     try
                     {
-                        worker(context);
+                        handler(context);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine(ex.ToString());
+
+                        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                        context.Response.StatusDescription = "Internal Server Error";
+                        context.Response.Write(ex.Message);
+                        context.Response.Write("\n");
+                        context.Response.Write(ex.StackTrace);
                     }
                     finally
                     {

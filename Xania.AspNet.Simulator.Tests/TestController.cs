@@ -29,6 +29,11 @@ namespace Xania.AspNet.Simulator.Tests
             return Url.Action("Index");
         }
 
+        public ViewResult RazorView()
+        {
+            return View("RazorView");
+        }
+
         public string Echo(string id)
         {
             return id;

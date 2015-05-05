@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -23,6 +24,32 @@ namespace Xania.AspNet.Simulator
         public override string ContentType { get; set; }
 
         public override Encoding ContentEncoding { get; set; }
+
+        public override int StatusCode
+        {
+            get { return _listenerResponse.StatusCode; }
+            set { _listenerResponse.StatusCode = value; }
+        }
+
+        public override string Status
+        {
+            get 
+            {
+                return this.StatusCode.ToString(NumberFormatInfo.InvariantInfo) + " " + this.StatusDescription;
+            }
+            set
+            {
+                int i = value.IndexOf(' ');
+                StatusCode = Int32.Parse(value.Substring(0, i), CultureInfo.InvariantCulture);
+                StatusDescription = value.Substring(i + 1);
+            }
+        }
+
+        public override string StatusDescription
+        {
+            get { return _listenerResponse.StatusDescription; }
+            set { _listenerResponse.StatusDescription = value; }
+        }
 
         public override TextWriter Output
         {
