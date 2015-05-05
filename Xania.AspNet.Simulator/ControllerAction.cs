@@ -7,7 +7,6 @@ using System.Linq;
 using System.Security.Principal;
 using System.Web;
 using System.Web.Mvc;
-using System.Web.Routing;
 
 namespace Xania.AspNet.Simulator
 {
@@ -59,12 +58,6 @@ namespace Xania.AspNet.Simulator
         internal virtual SimulatorActionInvoker GetActionInvoker(ControllerContext controllerContext,
             ActionDescriptor actionDescriptor)
         {
-            // Use empty value provider by default to prevent use of ASP.NET MVC default value providers
-            // Its not the purpose of this simulator framework to validate the ASP.NET MVC default value 
-            // providers. Either a value provider is not need in case model values are predefined or a 
-            // custom implementation is provided.
-            controllerContext.Controller.ValueProvider = ValueProvider ?? new ValueProviderCollection();
-
             var filters = FilterProviders.GetFilters(controllerContext, actionDescriptor).Select(BuildUp);
 
             return new SimulatorActionInvoker(controllerContext, actionDescriptor, filters);
@@ -98,11 +91,6 @@ namespace Xania.AspNet.Simulator
         protected virtual ActionResult Authorize(ControllerContext controllerContext, ActionDescriptor actionDescriptor)
         {
             return GetActionInvoker(controllerContext, actionDescriptor).AuthorizeAction();
-        }
-
-        public virtual IPrincipal CreateAnonymousUser()
-        {
-            return new GenericPrincipal(new GenericIdentity(String.Empty), new string[] { });
         }
 
         public abstract HttpContextBase CreateHttpContext();

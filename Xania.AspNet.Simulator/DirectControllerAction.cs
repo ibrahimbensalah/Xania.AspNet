@@ -38,6 +38,11 @@ namespace Xania.AspNet.Simulator
             var controllerContext = CreateControllerContext(httpContext ?? CreateHttpContext(), Controller,
                 ActionDescriptor);
 
+            // Use empty value provider by default to prevent use of ASP.NET MVC default value providers
+            // Its not the purpose of this simulator framework to validate the ASP.NET MVC default value 
+            // providers. Either a value provider is not need in case model values are predefined or a 
+            // custom implementation is provided.
+            Controller.ValueProvider = ValueProvider ?? new ValueProviderCollection();
             Controller.ControllerContext = controllerContext;
             var controller = Controller as Controller;
             if (controller != null)
@@ -69,7 +74,7 @@ namespace Xania.AspNet.Simulator
             var controllerDescriptor = actionDescriptor.ControllerDescriptor;
             var controllerName = controllerDescriptor.ControllerName;
 
-            var user = actionRequest.User ?? CreateAnonymousUser();
+            var user = actionRequest.User ?? AspNetUtility.CreateAnonymousUser();
             var httpContext =
                 AspNetUtility.GetContext(String.Format("/{0}/{1}", controllerName, actionDescriptor.ActionName),
                     actionRequest.HttpMethod, user);

@@ -18,6 +18,12 @@ namespace Xania.AspNet.Simulator
         {
             _controllerMap = new Dictionary<String, ControllerBase>();
             Routes = new RouteCollection(new ActionRouterPathProvider());
+            if (RouteTable.Routes.Any())
+                foreach (var r in RouteTable.Routes)
+                    Routes.Add(r);
+            else
+                foreach (var r in DefaultRoutes)
+                    Routes.Add(r);
         }
 
         public virtual Router RegisterController(string name, ControllerBase controller)
@@ -41,9 +47,7 @@ namespace Xania.AspNet.Simulator
 
         public RouteData GetRouteData(HttpContextBase context)
         {
-            return Routes.Any() ? 
-                Routes.GetRouteData(context) : 
-                DefaultRoutes.GetRouteData(context);
+            return Routes.GetRouteData(context);
         }
 
         public static RouteCollection DefaultRoutes { get; set; }

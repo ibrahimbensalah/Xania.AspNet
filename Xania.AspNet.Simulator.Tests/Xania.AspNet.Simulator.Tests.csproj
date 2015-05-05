@@ -107,6 +107,7 @@
     <Compile Include="RouterActions\RouterActionTests.cs" />
     <Compile Include="RouterActions\RouterModelBinderTests.cs" />
     <Compile Include="RouterActions\ValidationTests.cs" />
+    <Compile Include="Server\HttpServerTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

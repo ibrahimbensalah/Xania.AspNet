@@ -35,11 +35,17 @@ namespace Xania.AspNet.Simulator
             var worker = new ActionRequestWrapper(httpRequest);
             var httpContext = new HttpContext(worker)
             {
-                User = httpRequest.User,
+                User = httpRequest.User ?? CreateAnonymousUser(),
             };
 
             return new HttpContextSimulator(httpContext);
         }
+
+        public static IPrincipal CreateAnonymousUser()
+        {
+            return new GenericPrincipal(new GenericIdentity(String.Empty), new string[] { });
+        }
+
     }
 
     internal class HttpRequestSimulator: HttpRequestWrapper
@@ -51,35 +57,6 @@ namespace Xania.AspNet.Simulator
         public override string AppRelativeCurrentExecutionFilePath
         {
             get { return "~" + Url.AbsolutePath; }
-        }
-    }
-
-    internal class HttpContextSimulator : HttpContextWrapper
-    {
-        private readonly HttpRequestSimulator _request;
-        private readonly HttpResponseWrapper _response;
-        private readonly SimpleSessionState _session;
-
-        public HttpContextSimulator(HttpContext httpContext) : base(httpContext)
-        {
-            _request = new HttpRequestSimulator(httpContext.Request);
-            _response = new HttpResponseWrapper(httpContext.Response);
-            _session = new SimpleSessionState();
-        }
-
-        public override HttpRequestBase Request
-        {
-            get { return _request; }
-        }
-
-        public override HttpResponseBase Response
-        {
-            get { return _response; }
-        }
-
-        public override HttpSessionStateBase Session
-        {
-            get { return _session; }
         }
     }
 }

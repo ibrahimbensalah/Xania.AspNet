@@ -78,9 +78,14 @@
     <Compile Include="ActionRequestExtensions.cs" />
     <Compile Include="AspNetUtility.cs" />
     <Compile Include="DirectControllerAction.cs" />
+    <Compile Include="HttpContextSimulator.cs" />
+    <Compile Include="HttpListenerRequestWrapper.cs" />
+    <Compile Include="HttpListenerResponseWrapper.cs" />
+    <Compile Include="HttpServerSimulator.cs" />
     <Compile Include="IControllerAction.cs" />
     <Compile Include="LinqActionDescriptor.cs" />
     <Compile Include="ActionRouterPathProvider.cs" />
+    <Compile Include="HttpServerExtensions.cs" />
     <Compile Include="RouterExtensions.cs" />
     <Compile Include="ActionRequestWrapper.cs" />
     <Compile Include="ControllerActionResult.cs" />

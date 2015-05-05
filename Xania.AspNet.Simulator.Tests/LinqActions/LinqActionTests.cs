@@ -113,5 +113,10 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
         {
             return Url.Action("Index");
         }
+
+        public string Echo(string id)
+        {
+            return id;
+        }
     }
 }
