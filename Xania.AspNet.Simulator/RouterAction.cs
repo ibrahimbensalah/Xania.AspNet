@@ -50,6 +50,11 @@ namespace Xania.AspNet.Simulator
             var requestContext = new RequestContext(httpContext, routeData);
 
             controller.ControllerContext = new ControllerContext(requestContext, controller);
+            if (controller is Controller)
+            {
+                (controller as Controller).Url = new UrlHelper(requestContext, _router.Routes);
+            }
+
 
             return new ActionContext
             {

@@ -35,6 +35,11 @@ namespace Xania.AspNet.Simulator
             get { return _outputStream; }
         }
 
+        public override string ApplyAppPathModifier(string virtualPath)
+        {
+            return virtualPath;
+        }
+
         public override void Flush()
         {
         }

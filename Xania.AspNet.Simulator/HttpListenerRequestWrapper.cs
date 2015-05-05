@@ -9,6 +9,7 @@ namespace Xania.AspNet.Simulator
     {
         private readonly HttpListenerRequest _request;
         private NameValueCollection _params;
+        private NameValueCollection _serverVariables;
 
         public HttpListenerRequestWrapper(HttpListenerRequest request)
         {
@@ -27,6 +28,18 @@ namespace Xania.AspNet.Simulator
             }
         }
 
+        public override NameValueCollection ServerVariables
+        {
+            get
+            {
+                if (_serverVariables == null)
+                {
+                    _serverVariables = new NameValueCollection();
+                }
+                return _serverVariables;
+            }
+        }
+
         public override Uri Url
         {
             get { return _request.Url; }
@@ -35,6 +48,14 @@ namespace Xania.AspNet.Simulator
         public override string AppRelativeCurrentExecutionFilePath
         {
             get { return "~" + _request.RawUrl; }
+        }
+
+        public override string ApplicationPath
+        {
+            get
+            {
+                return "/";
+            }
         }
 
         public override string PathInfo

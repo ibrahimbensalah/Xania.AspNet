@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
@@ -27,13 +28,13 @@ namespace Xania.AspNet.Simulator.Tests.Server
             _server.Dispose();
         }
 
+        [TestCase("test/ActionUsingUrl", "/test")]
         [TestCase("test/echo/hello", "hello")]
         public void MvcModuleTest(string path, string content)
         {
             // arrange
             _server.UseMvc(new Router()
                 .RegisterController("test", new TestController()));
-
             // act
             using (var client = new HttpClient())
             {
@@ -52,7 +53,7 @@ namespace Xania.AspNet.Simulator.Tests.Server
             using (var client = new HttpClient())
             {
                 var tasks = new List<Task>();
-                for (int i = 0; i < 1000; i++)
+                for (int i = 0; i < 1; i++)
                 {
                     var message = "msg-" + i;
                     tasks.Add(client.GetStringAsync(BaseUrl + "?message=" + message).ContinueWith(t =>

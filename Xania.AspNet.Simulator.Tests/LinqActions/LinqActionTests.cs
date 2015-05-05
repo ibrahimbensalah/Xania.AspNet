@@ -1,6 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics;
 using System.IO;
 using System.Web;
 using System.Web.Mvc;
@@ -86,37 +84,6 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
             // assert
             Assert.IsInstanceOf<ContentResult>(result.ActionResult);
             Assert.AreEqual("/Test", ((ContentResult)result.ActionResult).Content);
-        }
-    }
-
-    [SuppressMessage("ReSharper", "Mvc.ViewNotResolved", Justification = "Views are not executed")]
-    public class TestController : Controller
-    {
-        public ActionResult Index()
-        {
-            ViewBag.Title = "Hello Simulator!";
-            return View();
-        }
-
-        [Authorize]
-        public ActionResult UserProfile()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        public void Update()
-        {
-        }
-
-        public String ActionUsingUrl()
-        {
-            return Url.Action("Index");
-        }
-
-        public string Echo(string id)
-        {
-            return id;
         }
     }
 }

@@ -19,7 +19,7 @@ namespace Xania.AspNet.Simulator.Tests.RouterActions
         [Test]
         public void ControllerNameIsRequiredTest()
         {
-            Assert.Catch(() => _router.RegisterController(null, new LinqActions.TestController()));
+            Assert.Catch(() => _router.RegisterController(null, new TestController()));
         }
 
         [Test]
