@@ -1,0 +1,230 @@
+using System;
+using System.Collections;
+using System.Configuration;
+using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
+using System.Web;
+using System.Web.Compilation;
+using System.Web.Configuration;
+using System.Web.Hosting;
+
+namespace Xania.AspNet.Simulator
+{
+    public class HttpRuntimeHelper
+    {
+        private static Type VirtualPathType { get; set; }
+
+        static HttpRuntimeHelper()
+        {
+            VirtualPathType = typeof (HttpRuntime).Assembly.GetTypes()
+                .First(t => t.Name == "VirtualPath");
+        }
+
+        public static object CreateNonRelativeTrailingSlash(string vpath)
+        {
+            var createNonRelativeTrailingSlash = VirtualPathType
+                .GetMethod("CreateNonRelativeTrailingSlash", BindingFlags.Static | BindingFlags.Public);
+
+            return createNonRelativeTrailingSlash.Invoke(null, new object[] { vpath });
+        }
+
+
+        public static object CreateVirtualPath(string vpath)
+        {
+            return VirtualPathType.GetMethod("Create", new []{typeof(string)})
+                .Invoke(null, new object[] { vpath });
+        }
+
+
+        public static object GetPrivatePropertyValue<T>(T instance, string propertyName)
+        {
+            var property = typeof(T).GetProperty(propertyName,
+                BindingFlags.NonPublic | (instance == null ? BindingFlags.Static : BindingFlags.Instance));
+            return property.GetValue(instance, null);
+        }
+
+        public static object GetPublicPropertyValue<T>(T instance, string propertyName)
+        {
+            var property = typeof(T).GetProperty(propertyName,
+                BindingFlags.Public | (instance == null ? BindingFlags.Static : BindingFlags.Instance));
+            return property.GetValue(instance, null);
+        }
+
+        public static string GetVirtualPathString(object virtualPath)
+        {
+            var property = VirtualPathType.GetProperty("VirtualPathString", BindingFlags.Public | BindingFlags.Instance);
+            return property.GetValue(virtualPath) as string;
+        }
+
+        public static string SimpleCombine(object virtualPath)
+        {
+            var property = VirtualPathType.GetProperty("VirtualPathString", BindingFlags.Public | BindingFlags.Instance);
+            return property.GetValue(virtualPath) as string;
+        }
+
+        public static HttpRuntime CurrentHttpRuntime
+        {
+            get
+            {
+                var runtimeField = typeof(HttpRuntime).GetField("_theRuntime", BindingFlags.NonPublic | BindingFlags.Static);
+                Debug.Assert(runtimeField != null, "runtimeField != null");
+                var runtime = (HttpRuntime)runtimeField.GetValue(null);
+                return runtime;
+            }
+        }
+
+        public static BuildManager CurrentBuildManager
+        {
+            get
+            {
+                var runtimeField = typeof(BuildManager).GetField("_theBuildManager", BindingFlags.NonPublic | BindingFlags.Static);
+                Debug.Assert(runtimeField != null, "_theBuildManager != null");
+                var buildManager = (BuildManager)runtimeField.GetValue(null);
+                return buildManager;
+            }
+        }
+
+        public static void SetPrivateField<T>(T runtime, string fieldName, object value)
+        {
+            Console.WriteLine("set private field {0} = {1}", fieldName, value);
+            var privateField = typeof(T).GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance);
+            Debug.Assert(privateField != null, "privateField != null");
+            privateField.SetValue(runtime, value);
+        }
+
+        public static void Initialize()
+        {
+            var appDomainAppVPath = CreateNonRelativeTrailingSlash("/");
+
+            SetPrivateField(CurrentHttpRuntime, "_appDomainAppId", "SimulatorApp");
+            SetPrivateField(CurrentHttpRuntime, "_appDomainAppPath", @"C:/Dev/Xania.AspNet-master/Xania.AspNet.Simulator.Tests/Server");
+            SetPrivateField(CurrentHttpRuntime, "_appDomainAppVPath", appDomainAppVPath);
+            // SetPrivateField(HttpRuntime, "_appDomainId", "SimulatorDomain");
+            SetPrivateField(CurrentHttpRuntime, "_isOnUNCShare", false);
+            SetPrivateField(CurrentHttpRuntime, "_codegenDir", @"C:\Dev\temp\codegen");
+
+            string appDomainAppVirtualPathString = GetPrivatePropertyValue<HttpRuntime>(null, "AppDomainAppVirtualPathString") as string;
+            Debug.Assert(appDomainAppVirtualPathString != null);
+            Debug.Assert(HttpRuntime.AppDomainAppVirtualPath != null);
+            Debug.Assert(AppDomain.CurrentDomain != null);
+
+            try
+            {
+                var hostingEnvironment = CreateHostingEnvironment(appDomainAppVPath);
+
+                ValidateVirtualPathInternal(
+                    @"C:\Dev\Xania.AspNet-master\Xania.AspNet.Simulator.Tests\Server\Dummy.cshtml");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.InnerException);
+                throw ex.InnerException;
+            }
+        }
+
+        private static HostingEnvironment CreateHostingEnvironment(object appDomainAppVPath)
+        {
+            var hostingEnvironment = new HostingEnvironment();
+            var providerField = typeof (HostingEnvironment).GetField("_virtualPathProvider",
+                BindingFlags.NonPublic | BindingFlags.Instance);
+            Debug.Assert(providerField != null, "providerProperty != null");
+
+            providerField.SetValue(hostingEnvironment, new VirtualPathProviderSimulator());
+
+            SetPrivateField(hostingEnvironment, "_appId", "SimulatorApp");
+            SetPrivateField(hostingEnvironment, "_appVirtualPath", appDomainAppVPath);
+            string appPhysicalPath;
+            SetPrivateField(hostingEnvironment, "_appPhysicalPath", appPhysicalPath = GetPrivatePropertyValue((HttpRuntime)null, "AppDomainAppPathInternal") as string);
+
+            // IConfigMapPathFactory configMapPathFactory = new ConfigMapPathFactorySimulator();
+            var configMapPath = new ConfigMapPathSimulator();
+            SetPrivateField(hostingEnvironment, "_configMapPath", configMapPath);
+
+            return hostingEnvironment;
+        }
+
+        private static void ValidateVirtualPathInternal(string viewPath)
+        {
+            var codegenDirInternal = GetPrivatePropertyValue((HttpRuntime)null, "CodegenDirInternal");
+            Debug.Assert(codegenDirInternal != null);
+
+            typeof(BuildManager).GetMethod("Initialize", BindingFlags.Instance | BindingFlags.NonPublic)
+                .Invoke(CurrentBuildManager, null);
+
+            var appDomainAppVirtualPathObject = GetPrivatePropertyValue<HttpRuntime>(null, "AppDomainAppVirtualPathObject");
+            Debug.Assert(appDomainAppVirtualPathObject != null);
+            var appDomainAppVirtualPathString = (string)GetPrivatePropertyValue<HttpRuntime>(null, "AppDomainAppVirtualPathString");
+            Debug.Assert(appDomainAppVirtualPathString != null);
+
+            int length = appDomainAppVirtualPathString.Length;
+
+            var virtualPath = CreateVirtualPath(viewPath);
+            Debug.Assert(virtualPath != null);
+            var virtualPathString = GetVirtualPathString(virtualPath);
+            Debug.Assert(virtualPathString != null);
+
+            int num = virtualPathString.IndexOf('/', length);
+            if (num < 0)
+                return;
+            string str = virtualPathString.Substring(length, num - length);
+
+            var forbiddenField = typeof(BuildManager).GetField("_forbiddenTopLevelDirectories", BindingFlags.Instance | BindingFlags.NonPublic);
+            Debug.Assert(forbiddenField != null, "forbiddenField != null");
+            var forbidden = (ICollection)forbiddenField.GetValue(CurrentBuildManager);
+
+            var method = typeof(BuildManager).GetMethod("ValidateVirtualPathInternal",
+                BindingFlags.NonPublic | BindingFlags.Instance);
+
+            VirtualPathType.GetMethod("FailIfNotWithinAppRoot", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(virtualPath, null);
+
+
+            method.Invoke(CurrentBuildManager, new []{virtualPath, false, false});
+
+        }
+    }
+
+    internal class ConfigMapPathSimulator: IConfigMapPath
+    {
+        public string GetMachineConfigFilename()
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetRootWebConfigFilename()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void GetPathConfigFilename(string siteID, string path, out string directory, out string baseName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void GetDefaultSiteNameAndID(out string siteName, out string siteID)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ResolveSiteArgument(string siteArgument, out string siteName, out string siteID)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string MapPath(string siteID, string path)
+        {
+            switch (path.ToLower())
+            {
+                case "/web.config":
+                    return @"C:\Dev\Xania.AspNet-master\Xania.AspNet.Simulator.Tests\Server\Web.config";
+                default:
+                    return null;
+            }
+        }
+
+        public string GetAppPathForPath(string siteID, string path)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
