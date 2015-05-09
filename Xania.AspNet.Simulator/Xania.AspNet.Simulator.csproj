@@ -84,10 +84,12 @@
     <Compile Include="ControllerAction.cs" />
     <Compile Include="ActionRequestExtensions.cs" />
     <Compile Include="AspNetUtility.cs" />
+    <Compile Include="ConfigMapPathSimulator.cs" />
     <Compile Include="DirectControllerAction.cs" />
     <Compile Include="HttpContextSimulator.cs" />
     <Compile Include="HttpListenerRequestWrapper.cs" />
     <Compile Include="HttpListenerResponseWrapper.cs" />
+    <Compile Include="HttpRuntimeHelper.cs" />
     <Compile Include="HttpServerSimulator.cs" />
     <Compile Include="IControllerAction.cs" />
     <Compile Include="LinqActionDescriptor.cs" />

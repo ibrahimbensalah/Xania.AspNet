@@ -89,7 +89,8 @@ namespace Xania.AspNet.Simulator
 
         public ViewEngineResult FindView(ControllerContext controllerContext, string viewName, string masterName, bool useCache)
         {
-            return new ViewEngineResult(new ViewSimulator(viewName), this);
+            var view = new RazorView(controllerContext, "~/dummy.cshtml", null, false, Enumerable.Empty<string>());
+            return new ViewEngineResult(view, this);
         }
 
         public void ReleaseView(ControllerContext controllerContext, IView view)

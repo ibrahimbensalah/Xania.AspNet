@@ -19,6 +19,7 @@ namespace Xania.AspNet.Simulator.Tests.Server
         public void StartServer()
         {
             _server = new HttpServerSimulator(BaseUrl);
+            HttpRuntimeHelper.Initialize();
         }
 
         [TearDown]
@@ -73,14 +74,6 @@ namespace Xania.AspNet.Simulator.Tests.Server
         {
             var message = contextBase.Request.Params["message"];
             contextBase.Response.Output.Write(message);
-        }
-    }
-
-    public class VirtualPathProviderSimulator : VirtualPathProvider
-    {
-        public override string GetCacheKey(string virtualPath)
-        {
-            return null;
         }
     }
 }
