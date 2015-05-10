@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Web.Mvc;
-using RazorEngine;
 
 namespace Xania.AspNet.Simulator
 {
@@ -77,42 +77,6 @@ namespace Xania.AspNet.Simulator
         {
             var modelMetadata = ModelMetadataProviders.Current.GetMetadataForType(() => modelValue, modelType);
             return ModelValidator.GetModelValidator(modelMetadata, controllerContext).Validate(null);
-        }
-    }
-
-    internal class RazorViewEngineSimulator : IViewEngine
-    {
-        public ViewEngineResult FindPartialView(ControllerContext controllerContext, string partialViewName, bool useCache)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ViewEngineResult FindView(ControllerContext controllerContext, string viewName, string masterName, bool useCache)
-        {
-            var view = new RazorView(controllerContext, "~/dummy.cshtml", null, false, Enumerable.Empty<string>());
-            return new ViewEngineResult(view, this);
-        }
-
-        public void ReleaseView(ControllerContext controllerContext, IView view)
-        {
-        }
-    }
-
-    internal class ViewSimulator : IView
-    {
-        private readonly string _viewName;
-
-        public ViewSimulator(string viewName)
-        {
-            _viewName = viewName;
-        }
-
-        public void Render(ViewContext viewContext, TextWriter writer)
-        {
-            var model = viewContext.ViewData.Model;
-            var html = Razor.Parse<string>("<h1>hello @Model</h1>", "simulator");
-
-            writer.Write(html);
         }
     }
 }

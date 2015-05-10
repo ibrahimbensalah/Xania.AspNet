@@ -65,5 +65,10 @@ namespace Xania.AspNet.Simulator
                 return null;
             }
         }
+
+        public override bool IsLocal
+        {
+            get { return true; }
+        }
     }
 }

@@ -38,6 +38,7 @@ namespace Xania.AspNet.Simulator
                         if (task.IsFaulted)
                             return null;
 
+                        task.Result.Response.AppendHeader("Server", "Xania");
                         return (HttpContextBase) new HttpListenerContextSimulator(task.Result);
                     });
         }

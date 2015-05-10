@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
-using System.Web.Hosting;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -19,7 +18,6 @@ namespace Xania.AspNet.Simulator.Tests.Server
         public void StartServer()
         {
             _server = new HttpServerSimulator(BaseUrl);
-            HttpRuntimeHelper.Initialize();
         }
 
         [TearDown]
@@ -30,7 +28,10 @@ namespace Xania.AspNet.Simulator.Tests.Server
 
         [TestCase("test/echo/hello", "hello")]
         [TestCase("test/actionusingurl", "/test")]
-        [TestCase("test/razorview", "<h1>hello simulator</h1>")]
+        [TestCase("test/razorview/1", "<h1>Hello Simulator!</h1>")]
+        [TestCase("test/razorview/2", "<h1>Hello Simulator!</h1>")]
+        [TestCase("test/razorview/3", "<h1>Hello Simulator!</h1>")]
+        [TestCase("test/razorview/4", "<h1>Hello Simulator!</h1>")]
         public void MvcModuleTest(string path, string content)
         {
             // arrange
@@ -55,7 +56,7 @@ namespace Xania.AspNet.Simulator.Tests.Server
             using (var client = new HttpClient())
             {
                 var tasks = new List<Task>();
-                for (int i = 0; i < 1; i++)
+                for (int i = 0; i < 100; i++)
                 {
                     var message = "msg-" + i;
                     tasks.Add(client.GetStringAsync(BaseUrl + "?message=" + message).ContinueWith(t =>
