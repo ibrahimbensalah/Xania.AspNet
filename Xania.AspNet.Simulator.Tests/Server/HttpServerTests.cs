@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using FluentAssertions;
@@ -27,16 +26,21 @@ namespace Xania.AspNet.Simulator.Tests.Server
         }
 
         [TestCase("test/echo/hello", "hello")]
+        [TestCase("test/echo/simulator", "simulator")]
         [TestCase("test/actionusingurl", "/test")]
         [TestCase("test/razorview/1", "<h1>Hello Simulator!</h1>")]
         [TestCase("test/razorview/2", "<h1>Hello Simulator!</h1>")]
         [TestCase("test/razorview/3", "<h1>Hello Simulator!</h1>")]
-        [TestCase("test/razorview/4", "<h1>Hello Simulator!</h1>")]
+
+        [TestCase("test", "<h1>Hello Simulator!</h1>")]
+        [TestCase("test/index", "<h1>Hello Simulator!</h1>")]
         public void MvcModuleTest(string path, string content)
         {
             // arrange
-            _server.UseMvc(new Router()
-                .RegisterController("test", new TestController()));
+            var controllerContainer = new ControllerContainer()
+                .RegisterController("test", new TestController());
+
+            _server.UseMvc(controllerContainer);
 
             using (var client = new HttpClient())
             {

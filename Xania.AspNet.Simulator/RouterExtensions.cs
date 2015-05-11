@@ -5,18 +5,18 @@ namespace Xania.AspNet.Simulator
 {
     public static class RouterExtensions
     {
-        public static RouterAction Action(this Router router, string url)
+        public static RouterAction Action(this ControllerContainer controllerContainer, string url)
         {
-            return new RouterAction(router) { UriPath = url };
+            return new RouterAction(controllerContainer) { UriPath = url };
         }
 
-        public static RouterAction ParseAction(this Router router, string rawHttpRequest)
+        public static RouterAction ParseAction(this ControllerContainer controllerContainer, string rawHttpRequest)
         {
             var lines = rawHttpRequest.Split('\n');
             var first = lines.First();
 
             var parts = first.Split(' ');
-            return new RouterAction(router)
+            return new RouterAction(controllerContainer)
             {
                 HttpMethod = parts[0],
                 UriPath = parts[1]

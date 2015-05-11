@@ -2,42 +2,95 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.Principal;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Routing;
 
 namespace Xania.AspNet.Simulator
 {
     public abstract class ControllerAction: IHttpRequest, IControllerAction
     {
         protected ControllerAction()
+            : this(new RouteCollection())
+        {
+        }
+
+        protected ControllerAction(RouteCollection routes)
         {
             FilterProviders = new FilterProviderCollection(System.Web.Mvc.FilterProviders.Providers);
             Cookies = new Collection<HttpCookie>();
             Session = new Dictionary<string, object>();
             Files = new Dictionary<string, Stream>();
             Resolve = DependencyResolver.Current.GetService;
+            Routes = GetRoutes();
+        }
+
+        private static RouteCollection GetRoutes()
+        {
+            var routes = new RouteCollection(new ActionRouterPathProvider());
+
+            if (RouteTable.Routes.Any())
+                foreach (var r in RouteTable.Routes)
+                    routes.Add(r);
+            else
+                routes.MapRoute(
+                    "Default",
+                    "{controller}/{action}/{id}",
+                    new {controller = "Home", action = "Index", id = UrlParameter.Optional}
+                    );
+
+            return routes;
         }
 
         public FilterProviderCollection FilterProviders { get; private set; }
 
         public IPrincipal User { get; set; }
 
-        public IValueProvider ValueProvider { get; set; }
+        public virtual RouteCollection Routes { get; private set; }
+
+        public virtual IValueProvider ValueProvider { get; set; }
 
         public ICollection<HttpCookie> Cookies { get; private set; }
         public IDictionary<string, object> Session { get; private set; }
         public IDictionary<string, Stream> Files { get; private set; }
-        public IDictionary<string, string> Form { get; private set; }
         public Func<Type, object> Resolve { get; set; }
 
         public string HttpMethod { get; set; }
 
         public string UriPath { get; set; }
 
+        public virtual IContentProvider ViewContentProvider { get; set; }
+
+
         public abstract ActionContext GetActionContext(HttpContextBase httpContext = null);
+
+        protected virtual void Initialize(ControllerContext controllerContext)
+        {
+            var controllerBase = controllerContext.Controller;
+
+            // Use empty value provider by default to prevent use of ASP.NET MVC default value providers
+            // Its not the purpose of this simulator framework to validate the ASP.NET MVC default value 
+            // providers. Either a value provider is not need in case model values are predefined or a 
+            // custom implementation is provided.
+            var valueProviders = new ValueProviderCollection();
+            if (ValueProvider != null)
+                valueProviders.Add(ValueProvider);
+            valueProviders.Add(new RouteDataValueProvider(controllerContext.RouteData, new CultureInfo("nl-NL")));
+            controllerBase.ValueProvider = valueProviders;
+            controllerBase.ControllerContext = controllerContext;
+            var controller = controllerBase as Controller;
+            if (controller != null)
+            {
+                controller.Url = new UrlHelper(controllerContext.RequestContext, Routes);
+
+                controller.ViewEngineCollection =
+                    new ViewEngineCollection(new IViewEngine[] { new RazorViewEngineSimulator(ViewContentProvider) });
+            }
+        }
 
         public virtual ControllerActionResult Execute(HttpContextBase httpContext = null)
         {
@@ -58,6 +111,7 @@ namespace Xania.AspNet.Simulator
         internal virtual SimulatorActionInvoker GetActionInvoker(ControllerContext controllerContext,
             ActionDescriptor actionDescriptor)
         {
+            
             var filters = FilterProviders.GetFilters(controllerContext, actionDescriptor).Select(BuildUp);
 
             return new SimulatorActionInvoker(controllerContext, actionDescriptor, filters);
@@ -90,10 +144,34 @@ namespace Xania.AspNet.Simulator
 
         protected virtual ActionResult Authorize(ControllerContext controllerContext, ActionDescriptor actionDescriptor)
         {
+            Initialize(controllerContext);
+
             return GetActionInvoker(controllerContext, actionDescriptor).AuthorizeAction();
         }
 
         public abstract HttpContextBase CreateHttpContext();
+    }
+
+    public class DirectoryContentProvider : IContentProvider
+    {
+        private readonly string[] _baseDirectories;
+
+        public DirectoryContentProvider(params string[] baseDirectories)
+        {
+            _baseDirectories = baseDirectories;
+        }
+
+        public Stream Open(string virtualPath)
+        {
+            foreach (var baseDirectory in _baseDirectories)
+            {
+                var filePath = Path.Combine(baseDirectory, virtualPath);
+                if (File.Exists(filePath))
+                    return File.OpenRead(filePath);
+            }
+
+            throw new FileNotFoundException(String.Format("Path {0} not found in {1}", virtualPath, string.Join(",", _baseDirectories)));
+        }
     }
 
     [Serializable]

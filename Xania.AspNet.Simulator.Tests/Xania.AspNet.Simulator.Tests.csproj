@@ -18,7 +18,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
+    <Optimize>true</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
@@ -119,7 +119,8 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Server\Dummy.cshtml" />
+    <None Include="Views\Test\Index.cshtml" />
+    <None Include="Views\Test\RazorView.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Xania.AspNet.Simulator\Xania.AspNet.Simulator.csproj">

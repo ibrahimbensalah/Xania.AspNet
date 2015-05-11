@@ -4,7 +4,7 @@ namespace Xania.AspNet.Simulator
 {
     public static class HttpServerExtensions
     {
-        public static void UseMvc(this HttpServerSimulator server, Router router)
+        public static void UseMvc(this HttpServerSimulator server, ControllerContainer controllerContainer)
         {
             server.Use(context =>
             {
@@ -12,7 +12,7 @@ namespace Xania.AspNet.Simulator
                     return;
 
                 var path = context.Request.Url.AbsolutePath;
-                var action = new RouterAction(router)
+                var action = new RouterAction(controllerContainer)
                 {
                     UriPath = path
                 };

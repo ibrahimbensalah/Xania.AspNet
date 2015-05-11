@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -9,14 +8,11 @@ namespace Xania.AspNet.Simulator
 {
     public class DirectControllerAction : ControllerAction
     {
-        public DirectControllerAction(ControllerBase controller, ActionDescriptor actionDescriptor, RouteCollection routes)
+        public DirectControllerAction(ControllerBase controller, ActionDescriptor actionDescriptor)
         {
             Controller = controller;
             ActionDescriptor = actionDescriptor;
-            Routes = routes;
         }
-
-        public virtual RouteCollection Routes { get; private set; }
 
         public virtual ControllerBase Controller { get; private set; }
 
@@ -24,31 +20,15 @@ namespace Xania.AspNet.Simulator
 
         public override ActionContext GetActionContext(HttpContextBase httpContext = null)
         {
-            InitializeController(httpContext);
-
-            return new ActionContext
-            {
-                ControllerContext = Controller.ControllerContext,
-                ActionDescriptor = ActionDescriptor
-            };
-        }
-
-        protected virtual void InitializeController(HttpContextBase httpContext)
-        {
             var controllerContext = CreateControllerContext(httpContext ?? CreateHttpContext(), Controller,
                 ActionDescriptor);
 
-            // Use empty value provider by default to prevent use of ASP.NET MVC default value providers
-            // Its not the purpose of this simulator framework to validate the ASP.NET MVC default value 
-            // providers. Either a value provider is not need in case model values are predefined or a 
-            // custom implementation is provided.
-            Controller.ValueProvider = ValueProvider ?? new ValueProviderCollection();
-            Controller.ControllerContext = controllerContext;
-            var controller = Controller as Controller;
-            if (controller != null)
+            Initialize(controllerContext);
+            return new ActionContext
             {
-                controller.Url = new UrlHelper(controllerContext.RequestContext, Routes);
-            }
+                ControllerContext = controllerContext,
+                ActionDescriptor = ActionDescriptor
+            };
         }
 
         public override HttpContextBase CreateHttpContext()

@@ -6,12 +6,12 @@ namespace Xania.AspNet.Simulator.Tests.RouterActions
 {
     public class ValidationTests
     {
-        private Router _router;
+        private ControllerContainer _controllerContainer;
 
         [SetUp]
         public void SetupRouter()
         {
-            _router = new Router()
+            _controllerContainer = new ControllerContainer()
                 .RegisterController("home", new HomeController());
         }
 
@@ -19,7 +19,7 @@ namespace Xania.AspNet.Simulator.Tests.RouterActions
         public void AuthorizedActionFromUrlTest()
         {
             // arrange
-            var controllerAction = _router.Action("~/home/private").Authenticate("Ibrahim", null);
+            var controllerAction = _controllerContainer.Action("~/home/private").Authenticate("Ibrahim", null);
 
             // act
             var result = controllerAction.Execute();
@@ -33,7 +33,7 @@ namespace Xania.AspNet.Simulator.Tests.RouterActions
         public void UnAuthorizedActionFromUrlTest()
         {
             // arrange
-            var controllerAction = _router.Action("~/home/private");
+            var controllerAction = _controllerContainer.Action("~/home/private");
 
             // act
             var result = controllerAction.Execute();

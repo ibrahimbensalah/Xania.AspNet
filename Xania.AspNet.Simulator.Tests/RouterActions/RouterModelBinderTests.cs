@@ -7,26 +7,26 @@ namespace Xania.AspNet.Simulator.Tests.RouterActions
 {
     public class RouterModelBinderTests
     {
-        private Router _router;
+        private ControllerContainer _controllerContainer;
 
         [SetUp]
         public void SetupRouter()
         {
-            _router = new Router()
+            _controllerContainer = new ControllerContainer()
                 .RegisterController("test", new TestController());
         }
 
         [Test]
         public void ControllerNameIsRequiredTest()
         {
-            Assert.Catch(() => _router.RegisterController(null, new TestController()));
+            Assert.Catch(() => _controllerContainer.RegisterController(null, new TestController()));
         }
 
         [Test]
         public void RequiredModelTest()
         {
             // arrange
-            var action = _router.Action("/test/index").Post().Data(new {name = "my name"});
+            var action = _controllerContainer.Action("/test/index").Post().Data(new {name = "my name"});
 
             // act
             var result = action.Execute();

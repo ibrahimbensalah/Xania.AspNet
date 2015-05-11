@@ -39,7 +39,7 @@ namespace Xania.AspNet.Simulator
             Expression<Func<TController, object>> actionExpression, string httpMethod = "GET")
             where TController : ControllerBase
         {
-            return new DirectControllerAction(controller, LinqActionDescriptor.Create(actionExpression), GetDefaultRoutes())
+            return new DirectControllerAction(controller, LinqActionDescriptor.Create(actionExpression))
             {
                 ValueProvider = new LinqActionValueProvider(actionExpression.Body),
                 HttpMethod = httpMethod
@@ -67,7 +67,7 @@ namespace Xania.AspNet.Simulator
             Expression<Action<TController>> actionExpression, String httpMethod = "GET")
             where TController : ControllerBase
         {
-            return new DirectControllerAction(controller, LinqActionDescriptor.Create(actionExpression), GetDefaultRoutes())
+            return new DirectControllerAction(controller, LinqActionDescriptor.Create(actionExpression))
             {
                 ValueProvider = new LinqActionValueProvider(actionExpression.Body),
                 HttpMethod = httpMethod
@@ -102,13 +102,6 @@ namespace Xania.AspNet.Simulator
             return controllerAction;
         }
 
-        public static TControllerAction AddForm<TControllerAction>(this TControllerAction controllerAction, string name, string value)
-            where TControllerAction : ControllerAction
-        {
-            controllerAction.Form[name] = value;
-            return controllerAction;
-        }
-
         public static TControllerAction AddFile<TControllerAction>(this TControllerAction controllerAction, string name,
             Stream stream) where TControllerAction: ControllerAction
         {
@@ -132,12 +125,12 @@ namespace Xania.AspNet.Simulator
             return resolver.GetService<TController>().Execute(actionExpression);
         }
 
-        public static Router RegisterControllers(this Router application, params Assembly[] assemblies)
+        public static ControllerContainer RegisterControllers(this ControllerContainer application, params Assembly[] assemblies)
         {
             return RegisterControllers(application, null, assemblies);
         }
 
-        public static Router RegisterControllers(this Router application,
+        public static ControllerContainer RegisterControllers(this ControllerContainer application,
             IDependencyResolver dependencyResolver, params Assembly[] assemblies)
         {
             const string controllerPostFix = "Controller";
@@ -169,12 +162,6 @@ namespace Xania.AspNet.Simulator
                     !t.IsAbstract &&
                     !t.IsGenericTypeDefinition &&
                     !typeof (Delegate).IsAssignableFrom(t));
-        }
-
-        public static Router RegisterRoutes(this Router router, Action<RouteCollection> configAction)
-        {
-            configAction(router.Routes);
-            return router;
         }
 
         public static IDictionary<string, object> ToDictionary(this object values)

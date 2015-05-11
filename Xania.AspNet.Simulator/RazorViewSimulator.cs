@@ -9,16 +9,16 @@ using Microsoft.CSharp;
 
 namespace Xania.AspNet.Simulator
 {
-    internal class RazorViewSimulator : IView
+    internal class RazorViewSimulator : IView, IDisposable
     {
-        private readonly string _viewPath;
+        private readonly TextReader _contentReader;
         private readonly string _virtualPath;
         private readonly RazorTemplateEngine _engine;
         private readonly CSharpCodeProvider _provider;
 
-        public RazorViewSimulator(string viewPath, string virtualPath)
+        public RazorViewSimulator(TextReader contentReader, string virtualPath)
         {
-            _viewPath = viewPath;
+            _contentReader = contentReader;
             _virtualPath = virtualPath;
 
             var host = new RazorEngineHost(new CSharpRazorCodeLanguage())
@@ -62,23 +62,20 @@ namespace Xania.AspNet.Simulator
 
         public void Render(ViewContext viewContext, TextWriter writer)
         {
-            using (var reader = new StreamReader(_viewPath))
-            {
-                var razorTemplate = _engine.GenerateCode(reader);
-                var parameters = CreateComplilerParameters();
+            var razorTemplate = _engine.GenerateCode(_contentReader);
+            var parameters = CreateComplilerParameters();
 
-                var result = _provider.CompileAssemblyFromDom(parameters, razorTemplate.GeneratedCode);
+            var result = _provider.CompileAssemblyFromDom(parameters, razorTemplate.GeneratedCode);
 
-                foreach (var err in result.Errors)
-                    Console.WriteLine(err);
+            foreach (var err in result.Errors)
+                Console.WriteLine(err);
 
-                var compiledTemplateType =
-                    result.CompiledAssembly.GetTypes().SingleOrDefault(t => t.Name == "__CompiledTemplate");
+            var compiledTemplateType =
+                result.CompiledAssembly.GetTypes().SingleOrDefault(t => t.Name == "__CompiledTemplate");
 
-                var instance = (WebViewPage) Activator.CreateInstance(compiledTemplateType);
+            var instance = (WebViewPage) Activator.CreateInstance(compiledTemplateType);
 
-                RenderView(viewContext, writer, instance);
-            }
+            RenderView(viewContext, writer, instance);
         }
 
         private void RenderView(ViewContext viewContext, TextWriter writer, object instance)
@@ -96,6 +93,15 @@ namespace Xania.AspNet.Simulator
             webViewPage.InitHelpers();
 
             webViewPage.ExecutePageHierarchy(new WebPageContext(viewContext.HttpContext, (WebPageRenderingBase)null, (object)null), writer, null);
+        }
+
+        public void Dispose()
+        {
+            if (_contentReader != null)
+            {
+                _contentReader.Close();
+                _contentReader.Dispose();
+            }
         }
     }
 }

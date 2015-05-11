@@ -5,12 +5,12 @@ namespace Xania.AspNet.Simulator.Tests.RouterActions
 {
     public class RouterActionTests
     {
-        private Router _router;
+        private ControllerContainer _controllerContainer;
 
         [SetUp]
         public void SetupRouter()
         {
-            _router = new Router()
+            _controllerContainer = new ControllerContainer()
                 .RegisterController("home", new HomeController());
         }
 
@@ -18,7 +18,7 @@ namespace Xania.AspNet.Simulator.Tests.RouterActions
         public void ActionFromUrlTest()
         {
             // arrange
-            var controllerAction = _router.Action("~/");
+            var controllerAction = _controllerContainer.Action("~/");
 
             // act
             var result = controllerAction.Execute();
@@ -33,7 +33,7 @@ namespace Xania.AspNet.Simulator.Tests.RouterActions
         public void PostActionTest()
         {
             // arrange
-            var controllerAction = _router.Action("~/home/update").Post();
+            var controllerAction = _controllerContainer.Action("~/home/update").Post();
             // act
             var result = controllerAction.Execute();
             // assert
@@ -44,7 +44,7 @@ namespace Xania.AspNet.Simulator.Tests.RouterActions
         public void UnmatchedPostActionTest()
         {
             // arrange
-            var controllerAction = _router.Action("~/home/update");
+            var controllerAction = _controllerContainer.Action("~/home/update");
 
             // assert
             Assert.IsNull(controllerAction.Execute());

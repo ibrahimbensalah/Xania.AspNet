@@ -11,7 +11,7 @@ namespace Xania.AspNet.Simulator.Tests.RouterActions
         [TestCase("OPTIONS /home/ HTTP/1.1", "OPTIONS", "/home/", "HTTP/1.1")]
         public void RequestLineTest(string requestLine, string httpMethod, string uriPath, string httpVersion)
         {
-            var router = new Mock<Router>().Object;
+            var router = new Mock<ControllerContainer>().Object;
             var action = router.ParseAction(requestLine);
             Assert.AreEqual(httpMethod, action.HttpMethod);
             Assert.AreEqual(uriPath, action.UriPath);
@@ -21,10 +21,10 @@ namespace Xania.AspNet.Simulator.Tests.RouterActions
         public void RouterActionControllerResolveTest()
         {
             // assert
-            var router = new Router()
+            var controllerContainer = new ControllerContainer()
                 .RegisterController("home", new HomeController());
 
-            var routerAction = new RouterAction(router)
+            var routerAction = new RouterAction(controllerContainer)
             {
                 HttpMethod = "GET",
                 UriPath = "/home/index"
