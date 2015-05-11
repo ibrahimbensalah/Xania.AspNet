@@ -72,9 +72,6 @@ namespace Xania.AspNet.Simulator.Tests.Server
             }
         }
 
-        [Test]
-
-
         void Echo(HttpContextBase contextBase)
         {
             var message = contextBase.Request.Params["message"];
