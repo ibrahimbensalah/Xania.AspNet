@@ -36,7 +36,7 @@ namespace Xania.AspNet.Simulator
 
         public ViewEngineResult FindPartialView(ControllerContext controllerContext, string partialViewName, bool useCache)
         {
-            throw new NotImplementedException();
+            return FindView(controllerContext, partialViewName, null, useCache);
         }
 
         public ViewEngineResult FindView(ControllerContext controllerContext, string viewName, string masterName, bool useCache)
@@ -45,7 +45,7 @@ namespace Xania.AspNet.Simulator
             var virtualPath = String.Format(@"Views\{0}\{1}.cshtml", controllerName, viewName);
             var content = _contentProvider.Open(virtualPath);
 
-            var view = new RazorViewSimulator(new StreamReader(content), virtualPath);
+            var view = new RazorViewSimulator(new WebViewPageFactory(_contentProvider), virtualPath);
 
             return new ViewEngineResult(view, this);
         }

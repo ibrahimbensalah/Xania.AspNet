@@ -34,6 +34,8 @@ namespace Xania.AspNet.Simulator.Tests.Server
 
         [TestCase("test", "<h1>Hello Simulator!</h1>")]
         [TestCase("test/index", "<h1>Hello Simulator!</h1>")]
+
+        [TestCase("test/ViewWithPartial", "<h1>Hello Partial!</h1>")]
         public void MvcModuleTest(string path, string content)
         {
             // arrange

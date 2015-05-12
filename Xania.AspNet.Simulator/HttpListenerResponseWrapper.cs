@@ -13,12 +13,14 @@ namespace Xania.AspNet.Simulator
         private TextWriter _output;
         private readonly MemoryStream _outputStream;
         private bool _closed = false;
+        private readonly HttpCookieCollection _cookies;
 
         public HttpListenerResponseWrapper(HttpListenerResponse listenerResponse)
         {
             _listenerResponse = listenerResponse;
             _outputStream = new MemoryStream();
             _output = new StreamWriter(_outputStream);
+            _cookies = new HttpCookieCollection();
         }
 
         public override string ContentType { get; set; }
@@ -29,6 +31,11 @@ namespace Xania.AspNet.Simulator
         {
             get { return _listenerResponse.StatusCode; }
             set { _listenerResponse.StatusCode = value; }
+        }
+
+        public override HttpCookieCollection Cookies
+        {
+            get { return _cookies; }
         }
 
         public override string Status

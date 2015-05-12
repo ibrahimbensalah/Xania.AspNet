@@ -9,73 +9,22 @@ using Microsoft.CSharp;
 
 namespace Xania.AspNet.Simulator
 {
-    internal class RazorViewSimulator : IView, IDisposable
+    internal class RazorViewSimulator : IView
     {
-        private readonly TextReader _contentReader;
+        private readonly WebViewPageFactory _webViewPageFactory;
         private readonly string _virtualPath;
-        private readonly RazorTemplateEngine _engine;
-        private readonly CSharpCodeProvider _provider;
 
-        public RazorViewSimulator(TextReader contentReader, string virtualPath)
+        public RazorViewSimulator(WebViewPageFactory webViewPageFactory, string virtualPath)
         {
-            _contentReader = contentReader;
+            _webViewPageFactory = webViewPageFactory;
             _virtualPath = virtualPath;
-
-            var host = new RazorEngineHost(new CSharpRazorCodeLanguage())
-            {
-                DefaultBaseClass = typeof (WebViewPage).FullName,
-                NamespaceImports =
-                {
-                    "System" ,
-                    "System.Collections.Generic",
-                    "System.Linq"
-                }
-            };
-
-            _engine = new RazorTemplateEngine(host);
-            _provider = new CSharpCodeProvider();
-        }
-
-        private CompilerParameters CreateComplilerParameters()
-        {
-            var parameters = new CompilerParameters
-            {
-                GenerateInMemory = true,
-                GenerateExecutable = false,
-                IncludeDebugInformation = false,
-                CompilerOptions = "/target:library /optimize"
-            };
-
-            var assemblies = AppDomain.CurrentDomain
-                .GetAssemblies()
-                .Where(a => !a.IsDynamic)
-                .GroupBy(a => a.FullName)
-                .Select(grp => grp.First())
-                .Select(a => a.Location)
-                .Where(a => !String.IsNullOrWhiteSpace(a))
-                .ToArray();
-
-            parameters.ReferencedAssemblies.AddRange(assemblies);
-
-            return parameters;
         }
 
         public void Render(ViewContext viewContext, TextWriter writer)
         {
-            var razorTemplate = _engine.GenerateCode(_contentReader);
-            var parameters = CreateComplilerParameters();
+            var webPage = _webViewPageFactory.Create(_virtualPath);
 
-            var result = _provider.CompileAssemblyFromDom(parameters, razorTemplate.GeneratedCode);
-
-            foreach (var err in result.Errors)
-                Console.WriteLine(err);
-
-            var compiledTemplateType =
-                result.CompiledAssembly.GetTypes().SingleOrDefault(t => t.Name == "__CompiledTemplate");
-
-            var instance = (WebViewPage) Activator.CreateInstance(compiledTemplateType);
-
-            RenderView(viewContext, writer, instance);
+            RenderView(viewContext, writer, webPage);
         }
 
         private void RenderView(ViewContext viewContext, TextWriter writer, object instance)
@@ -93,15 +42,6 @@ namespace Xania.AspNet.Simulator
             webViewPage.InitHelpers();
 
             webViewPage.ExecutePageHierarchy(new WebPageContext(viewContext.HttpContext, (WebPageRenderingBase)null, (object)null), writer, null);
-        }
-
-        public void Dispose()
-        {
-            if (_contentReader != null)
-            {
-                _contentReader.Close();
-                _contentReader.Dispose();
-            }
         }
     }
 }

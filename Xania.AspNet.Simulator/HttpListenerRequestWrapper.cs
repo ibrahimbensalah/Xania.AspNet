@@ -10,10 +10,12 @@ namespace Xania.AspNet.Simulator
         private readonly HttpListenerRequest _request;
         private NameValueCollection _params;
         private NameValueCollection _serverVariables;
+        private readonly HttpCookieCollection _cookies;
 
         public HttpListenerRequestWrapper(HttpListenerRequest request)
         {
             _request = request;
+            _cookies = new HttpCookieCollection();
         }
 
         public override NameValueCollection Params
@@ -38,6 +40,11 @@ namespace Xania.AspNet.Simulator
                 }
                 return _serverVariables;
             }
+        }
+
+        public override HttpCookieCollection Cookies
+        {
+            get { return _cookies; }
         }
 
         public override Uri Url

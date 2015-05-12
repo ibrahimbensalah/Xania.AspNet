@@ -72,6 +72,9 @@ namespace Xania.AspNet.Simulator
         {
             var controllerBase = controllerContext.Controller;
 
+            ViewEngines.Engines.Clear();
+            ViewEngines.Engines.Add(new RazorViewEngineSimulator(ViewContentProvider));
+
             // Use empty value provider by default to prevent use of ASP.NET MVC default value providers
             // Its not the purpose of this simulator framework to validate the ASP.NET MVC default value 
             // providers. Either a value provider is not need in case model values are predefined or a 
@@ -86,9 +89,7 @@ namespace Xania.AspNet.Simulator
             if (controller != null)
             {
                 controller.Url = new UrlHelper(controllerContext.RequestContext, Routes);
-
-                controller.ViewEngineCollection =
-                    new ViewEngineCollection(new IViewEngine[] { new RazorViewEngineSimulator(ViewContentProvider) });
+                controller.ViewEngineCollection = ViewEngines.Engines;
             }
         }
 

@@ -103,6 +103,7 @@
     <Compile Include="SimpleSessionState.cs" />
     <Compile Include="SimulatorExtensions.cs" />
     <Compile Include="RouterAction.cs" />
+    <Compile Include="WebViewPageFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

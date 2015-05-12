@@ -31,12 +31,17 @@ namespace Xania.AspNet.Simulator.Tests
 
         public ViewResult RazorView()
         {
-            return View("RazorView");
+            return View();
         }
 
         public string Echo(string id)
         {
             return id;
+        }
+
+        public ViewResult ViewWithPartial()
+        {
+            return View();
         }
     }
 }
