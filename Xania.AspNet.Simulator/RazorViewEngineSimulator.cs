@@ -3,35 +3,20 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Web.Mvc;
+using System.Web.Routing;
 
 namespace Xania.AspNet.Simulator
 {
     internal class RazorViewEngineSimulator : IViewEngine
     {
-        private readonly IContentProvider _contentProvider;
+        private readonly RouteCollection _routes;
+        private readonly IApplicationHostSimulator _applicationHost;
 
-        public RazorViewEngineSimulator(IContentProvider contentProvider)
+        public RazorViewEngineSimulator(IApplicationHostSimulator applicationHost, RouteCollection routes)
         {
-            _contentProvider = contentProvider ?? GetDefaultContentProvider();
-        }
-
-        private IContentProvider GetDefaultContentProvider()
-        {
-            var directories = new List<string>();
-            
-            var appDomainBaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            directories.Add(appDomainBaseDirectory);
-
-            var regex = new Regex(@"(.*)\\bin\\[^\\]*\\?$");
-
-            var match = regex.Match(appDomainBaseDirectory);
-            if (match.Success)
-            {
-                var sourceBaseDirectory = match.Groups[1].Value;
-                directories.Add(sourceBaseDirectory);
-            }
-
-            return new DirectoryContentProvider(directories.ToArray());
+            _routes = routes;
+            _applicationHost = applicationHost;
+            // _contentProvider = contentProvider ?? GetDefaultContentProvider();
         }
 
         public ViewEngineResult FindPartialView(ControllerContext controllerContext, string partialViewName, bool useCache)
@@ -41,12 +26,13 @@ namespace Xania.AspNet.Simulator
 
         public ViewEngineResult FindView(ControllerContext controllerContext, string viewName, string masterName, bool useCache)
         {
+            HttpServerSimulator.PrintElapsedMilliseconds("findview started");
             var controllerName = controllerContext.RouteData.GetRequiredString("controller");
             var virtualPath = String.Format(@"Views\{0}\{1}.cshtml", controllerName, viewName);
-            var content = _contentProvider.Open(virtualPath);
 
-            var view = new RazorViewSimulator(new WebViewPageFactory(_contentProvider), virtualPath);
+            var view = new RazorViewSimulator(_applicationHost, virtualPath, _routes);
 
+            HttpServerSimulator.PrintElapsedMilliseconds("findview completed");
             return new ViewEngineResult(view, this);
         }
 
@@ -57,4 +43,30 @@ namespace Xania.AspNet.Simulator
                 viewSimulator.Dispose();
         }
     }
+
+    public class ControllerContextViewEngine : IViewEngine
+    {
+        public ViewEngineResult FindPartialView(ControllerContext controllerContext, string partialViewName, bool useCache)
+        {
+            var controller = controllerContext.Controller as Controller;
+            if (controller == null)
+                return null;
+
+            return controller.ViewEngineCollection.FindPartialView(controllerContext, partialViewName);
+        }
+
+        public ViewEngineResult FindView(ControllerContext controllerContext, string viewName, string masterName, bool useCache)
+        {
+            var controller = controllerContext.Controller as Controller;
+            if (controller == null)
+                return null;
+
+            return controller.ViewEngineCollection.FindView(controllerContext, viewName, masterName);
+        }
+
+        public void ReleaseView(ControllerContext controllerContext, IView view)
+        {
+        }
+    }
+
 }

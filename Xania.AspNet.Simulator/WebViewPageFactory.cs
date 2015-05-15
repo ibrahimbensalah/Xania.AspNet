@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Web.Mvc;
 using System.Web.Razor;
+using System.Web.Routing;
 using Microsoft.CSharp;
 
 namespace Xania.AspNet.Simulator
@@ -17,14 +18,14 @@ namespace Xania.AspNet.Simulator
             _contentProvider = contentProvider;
         }
 
-        public WebViewPage Create(string virtualPath)
+        public WebViewPageSimulator Create(string virtualPath)
         {
             using (var stream = _contentProvider.Open(virtualPath))
             {
                 var _contentReader = new StreamReader(stream);
                 var host = new RazorEngineHost(new CSharpRazorCodeLanguage())
                 {
-                    DefaultBaseClass = typeof (WebViewPage).FullName,
+                    DefaultBaseClass = typeof (WebViewPageSimulator).FullName,
                     NamespaceImports =
                     {
                         "System",
@@ -51,7 +52,7 @@ namespace Xania.AspNet.Simulator
                 var compiledTemplateType =
                     result.CompiledAssembly.GetTypes().SingleOrDefault(t => t.Name == "__CompiledTemplate");
 
-                return (WebViewPage) Activator.CreateInstance(compiledTemplateType);
+                return (WebViewPageSimulator) Activator.CreateInstance(compiledTemplateType);
             }
         }
 
@@ -78,6 +79,42 @@ namespace Xania.AspNet.Simulator
 
             return parameters;
         }
+    }
 
+    public abstract class WebViewPageSimulator: WebViewPage
+    {
+        public new HtmlHelperSimulator<object> Html { get; set; }
+    }
+
+    public class HtmlHelperSimulator<T> : HtmlHelper<T>
+    {
+        private readonly IControllerProvider _controllerProvider;
+
+        public HtmlHelperSimulator(ViewContext viewContext, IViewDataContainer viewDataContainer,
+            RouteCollection routeCollection, IControllerProvider controllerProvider) : base(viewContext, viewDataContainer, routeCollection)
+        {
+            _controllerProvider = controllerProvider;
+        }
+
+        public MvcHtmlString Action(string actionName, object routeValues)
+        {
+            var controllerName = ViewContext.RouteData.GetRequiredString("controller");
+            var controller = _controllerProvider.CreateController(controllerName);
+            var controllerType = controller.GetType();
+
+            var controllerDescriptor = new ReflectedControllerDescriptor(controller.GetType());
+            var actionDescriptor = controllerDescriptor.FindAction(controller.ControllerContext, actionName);
+
+            var writer = new StringWriter();
+            var action = new DirectControllerAction(controller, actionDescriptor)
+            {
+                ControllerProvider = _controllerProvider,
+                Output = writer
+            }.Data(routeValues);
+
+            var result = action.Execute();
+            result.ExecuteResult();
+            return MvcHtmlString.Create(writer.ToString());
+        }
     }
 }

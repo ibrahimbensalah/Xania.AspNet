@@ -6,6 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.Principal;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
@@ -53,6 +54,8 @@ namespace Xania.AspNet.Simulator
         public virtual RouteCollection Routes { get; private set; }
 
         public virtual IValueProvider ValueProvider { get; set; }
+        public virtual IContentProvider ContentProvider { get; set; }
+        public virtual IControllerProvider ControllerProvider { get; set; }
 
         public ICollection<HttpCookie> Cookies { get; private set; }
         public IDictionary<string, object> Session { get; private set; }
@@ -63,17 +66,17 @@ namespace Xania.AspNet.Simulator
 
         public string UriPath { get; set; }
 
-        public virtual IContentProvider ViewContentProvider { get; set; }
-
-
         public abstract ActionContext GetActionContext(HttpContextBase httpContext = null);
 
         protected virtual void Initialize(ControllerContext controllerContext)
         {
+            HttpServerSimulator.PrintElapsedMilliseconds("initialize action");
             var controllerBase = controllerContext.Controller;
 
-            ViewEngines.Engines.Clear();
-            ViewEngines.Engines.Add(new RazorViewEngineSimulator(ViewContentProvider));
+            var applicationHost = new ApplicationHostSimulator(ControllerProvider, ContentProvider);
+            IViewEngine viewEngine = new RazorViewEngineSimulator(applicationHost, Routes);
+            // ViewEngines.Engines.Clear();
+            // ViewEngines.Engines.Add(viewEngine);
 
             // Use empty value provider by default to prevent use of ASP.NET MVC default value providers
             // Its not the purpose of this simulator framework to validate the ASP.NET MVC default value 
@@ -89,8 +92,9 @@ namespace Xania.AspNet.Simulator
             if (controller != null)
             {
                 controller.Url = new UrlHelper(controllerContext.RequestContext, Routes);
-                controller.ViewEngineCollection = ViewEngines.Engines;
+                controller.ViewEngineCollection = new ViewEngineCollection(new[] {viewEngine});
             }
+            HttpServerSimulator.PrintElapsedMilliseconds("initialize action complete");
         }
 
         public virtual ControllerActionResult Execute(HttpContextBase httpContext = null)
@@ -153,6 +157,52 @@ namespace Xania.AspNet.Simulator
         public abstract HttpContextBase CreateHttpContext();
     }
 
+    public class ApplicationHostSimulator: IApplicationHostSimulator
+    {
+        private readonly IControllerProvider _controllerProvider;
+        private readonly IContentProvider _contentProvider;
+
+        public ApplicationHostSimulator(IControllerProvider controllerProvider, IContentProvider contentProvider = null)
+        {
+            _controllerProvider = controllerProvider;
+            _contentProvider = contentProvider ?? GetDefaultContentProvider();
+        }
+
+        private IContentProvider GetDefaultContentProvider()
+        {
+            var directories = new List<string>();
+
+            var appDomainBaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            directories.Add(appDomainBaseDirectory);
+
+            var regex = new Regex(@"(.*)\\bin\\[^\\]*\\?$");
+
+            var match = regex.Match(appDomainBaseDirectory);
+            if (match.Success)
+            {
+                var sourceBaseDirectory = match.Groups[1].Value;
+                directories.Add(sourceBaseDirectory);
+            }
+
+            return new DirectoryContentProvider(directories.ToArray());
+        }
+
+        public ControllerBase CreateController(string controllerName)
+        {
+            return _controllerProvider.CreateController(controllerName);
+        }
+
+        public Stream Open(string virtualPath)
+        {
+            return _contentProvider.Open(virtualPath);
+        }
+
+        public WebViewPageSimulator Create(string virtualPath)
+        {
+            return _contentProvider.Create(virtualPath);
+        }
+    }
+
     public class DirectoryContentProvider : IContentProvider
     {
         private readonly string[] _baseDirectories;
@@ -172,6 +222,11 @@ namespace Xania.AspNet.Simulator
             }
 
             throw new FileNotFoundException(String.Format("Path {0} not found in {1}", virtualPath, string.Join(",", _baseDirectories)));
+        }
+
+        public WebViewPageSimulator Create(string virtualPath)
+        {
+            return new WebViewPageFactory(this).Create(virtualPath);
         }
     }
 

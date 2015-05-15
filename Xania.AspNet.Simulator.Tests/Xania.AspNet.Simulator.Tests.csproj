@@ -134,6 +134,7 @@
     </None>
     <None Include="Views\Test\Index.cshtml" />
     <None Include="Views\Test\RazorView.cshtml" />
+    <None Include="Views\Test\ViewWithChildAction.cshtml" />
     <None Include="Views\Test\ViewWithPartial.cshtml" />
     <None Include="Views\Test\_Partial.cshtml" />
   </ItemGroup>

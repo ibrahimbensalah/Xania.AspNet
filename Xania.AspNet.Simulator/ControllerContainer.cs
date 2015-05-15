@@ -5,7 +5,7 @@ using System.Web.Mvc;
 
 namespace Xania.AspNet.Simulator
 {
-    public class ControllerContainer
+    public class ControllerContainer : IControllerProvider
     {
         private readonly Dictionary<string, ControllerBase> _controllerMap;
 
@@ -24,7 +24,7 @@ namespace Xania.AspNet.Simulator
             return this;
         }
 
-        protected internal virtual ControllerBase CreateController(string controllerName)
+        public virtual ControllerBase CreateController(string controllerName)
         {
             ControllerBase controller;
             if (_controllerMap.TryGetValue(controllerName.ToLower(CultureInfo.InvariantCulture), out controller))

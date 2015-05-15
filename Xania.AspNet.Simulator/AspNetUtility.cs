@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Security.Principal;
 using System.Web;
 using System.Web.Routing;
@@ -20,22 +21,23 @@ namespace Xania.AspNet.Simulator
             return new RequestContext(httpContext, routeData);
         }
 
-        internal static HttpContextBase GetContext(string url, string method, IPrincipal user)
+        internal static HttpContextBase GetContext(string url, string method, IPrincipal user, TextWriter output = null)
         {
             return GetContext(new SimpleHttpRequest
             {
                 UriPath = url,
                 User = user,
                 HttpMethod = method
-            });
+            }, output);
         }
 
-        internal static HttpContextBase GetContext(IHttpRequest httpRequest)
+        internal static HttpContextBase GetContext(IHttpRequest httpRequest, TextWriter output)
         {
             var worker = new ActionRequestWrapper(httpRequest);
             var httpContext = new HttpContext(worker)
             {
                 User = httpRequest.User ?? CreateAnonymousUser(),
+                Response = { Output = output }
             };
 
             return new HttpContextSimulator(httpContext);

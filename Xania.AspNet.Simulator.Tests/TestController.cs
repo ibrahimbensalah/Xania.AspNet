@@ -9,6 +9,7 @@ namespace Xania.AspNet.Simulator.Tests
     {
         public ActionResult Index()
         {
+            HttpServerSimulator.PrintElapsedMilliseconds("home index");
             ViewBag.Title = "Hello Simulator!";
             return View();
         }
@@ -40,6 +41,11 @@ namespace Xania.AspNet.Simulator.Tests
         }
 
         public ViewResult ViewWithPartial()
+        {
+            return View();
+        }
+
+        public ViewResult ViewWithChildAction()
         {
             return View();
         }

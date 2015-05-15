@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
@@ -12,10 +13,12 @@ namespace Xania.AspNet.Simulator.Tests.Server
     {
         const string BaseUrl = "http://localhost:9989/";
         private HttpServerSimulator _server;
+        private Stopwatch _stopwatch;
 
         [SetUp]
         public void StartServer()
         {
+            _stopwatch = new Stopwatch();
             _server = new HttpServerSimulator(BaseUrl);
         }
 
@@ -36,6 +39,7 @@ namespace Xania.AspNet.Simulator.Tests.Server
         [TestCase("test/index", "<h1>Hello Simulator!</h1>")]
 
         [TestCase("test/ViewWithPartial", "<h1>Hello Partial!</h1>")]
+        [TestCase("test/ViewWithChildAction", "<h1>Hello ChildAction!</h1>")]
         public void MvcModuleTest(string path, string content)
         {
             // arrange

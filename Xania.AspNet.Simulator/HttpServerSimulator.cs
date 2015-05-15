@@ -10,6 +10,13 @@ namespace Xania.AspNet.Simulator
     {
         private readonly HttpListener _listener;
 
+        private static readonly Stopwatch Stopwatch = new Stopwatch();
+
+        static HttpServerSimulator()
+        {
+            Stopwatch.Start();
+        }
+
         public HttpServerSimulator(params string[] prefixes)
         {
             if (!HttpListener.IsSupported)
@@ -62,7 +69,11 @@ namespace Xania.AspNet.Simulator
 
                     try
                     {
+                        PrintElapsedMilliseconds("handler started");
                         handler(context);
+                        PrintElapsedMilliseconds("handler complete");
+
+                        Stopwatch.Reset();
                     }
                     catch (Exception ex)
                     {
@@ -81,6 +92,11 @@ namespace Xania.AspNet.Simulator
                     return true;
                 });
             }
+        }
+
+        public static void PrintElapsedMilliseconds(string category)
+        {
+            Console.WriteLine("{0,-10} {1}", Stopwatch.ElapsedMilliseconds, category);
         }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
@@ -7,11 +8,10 @@ namespace Xania.AspNet.Simulator
 {
     public class RouterAction : ControllerAction
     {
-        private readonly ControllerContainer _controllerContainer;
 
-        public RouterAction(ControllerContainer controllerContainer)
+        public RouterAction(IControllerProvider controllerContainer)
         {
-            _controllerContainer = controllerContainer;
+            ControllerProvider = controllerContainer;
         }
 
         public override ControllerActionResult Execute(HttpContextBase httpContext)
@@ -27,14 +27,14 @@ namespace Xania.AspNet.Simulator
 
         public override ActionContext GetActionContext(HttpContextBase httpContext1)
         {
-            var context = httpContext1 ?? AspNetUtility.GetContext(this);
+            var context = httpContext1 ?? AspNetUtility.GetContext(this, new StringWriter());
             var routeData = Routes.GetRouteData(context);
 
             if (routeData == null)
                 return null;
 
             var controllerName = routeData.GetRequiredString("controller");
-            var controller = _controllerContainer.CreateController(controllerName);
+            var controller = ControllerProvider.CreateController(controllerName);
             var controllerDescriptor = new ReflectedControllerDescriptor(controller.GetType());
 
             var actionName = routeData.GetRequiredString("action");
@@ -53,7 +53,12 @@ namespace Xania.AspNet.Simulator
 
         public override HttpContextBase CreateHttpContext()
         {
-            return AspNetUtility.GetContext(this);
+            return AspNetUtility.GetContext(this, new StringWriter());
         }
+    }
+
+    public interface IControllerProvider
+    {
+        ControllerBase CreateController(string controllerName);
     }
 }

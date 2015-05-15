@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -17,6 +18,7 @@ namespace Xania.AspNet.Simulator
         public virtual ControllerBase Controller { get; private set; }
 
         public virtual ActionDescriptor ActionDescriptor { get; private set; }
+        public virtual TextWriter Output { get; set; }
 
         public override ActionContext GetActionContext(HttpContextBase httpContext = null)
         {
@@ -57,7 +59,8 @@ namespace Xania.AspNet.Simulator
             var user = actionRequest.User ?? AspNetUtility.CreateAnonymousUser();
             var httpContext =
                 AspNetUtility.GetContext(String.Format("/{0}/{1}", controllerName, actionDescriptor.ActionName),
-                    actionRequest.HttpMethod, user);
+                    actionRequest.HttpMethod, user, Output);
+
             return httpContext;
         }
 

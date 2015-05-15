@@ -1,4 +1,5 @@
-﻿using System.Web.Mvc;
+﻿using System.Diagnostics;
+using System.Web.Mvc;
 
 namespace Xania.AspNet.Simulator
 {
@@ -6,6 +7,9 @@ namespace Xania.AspNet.Simulator
     {
         public static void UseMvc(this HttpServerSimulator server, ControllerContainer controllerContainer)
         {
+            ViewEngines.Engines.Clear();
+            ViewEngines.Engines.Add(new ControllerContextViewEngine());
+
             server.Use(context =>
             {
                 if (context.Request.Url == null) 
