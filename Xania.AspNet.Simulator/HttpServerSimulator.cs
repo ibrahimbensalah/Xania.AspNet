@@ -52,7 +52,17 @@ namespace Xania.AspNet.Simulator
 
         public void Dispose()
         {
-            _listener.Stop();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _listener.Stop();
+                _listener.Close();
+            }
         }
 
         public async void Use(Action<HttpContextBase> handler)

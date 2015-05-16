@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
@@ -5,7 +6,7 @@ using System.Web;
 
 namespace Xania.AspNet.Simulator
 {
-    public class HttpListenerContextSimulator : HttpContextBase
+    public class HttpListenerContextSimulator : HttpContextBase, IDisposable
     {
         private readonly HttpListenerResponseWrapper _response;
         private readonly HttpListenerRequestWrapper _request;
@@ -31,6 +32,25 @@ namespace Xania.AspNet.Simulator
         public override IDictionary Items
         {
             get { return _items; }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _response.Dispose();
+            }
+        }
+
+        ~HttpListenerContextSimulator()
+        {
+            Dispose(false);
         }
     }
 }

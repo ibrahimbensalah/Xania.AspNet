@@ -5,7 +5,5 @@ namespace Xania.AspNet.Simulator
     public interface IContentProvider
     {
         Stream Open(string dummyCshtml);
-
-        WebViewPageSimulator Create(string virtualPath);
     }
 }

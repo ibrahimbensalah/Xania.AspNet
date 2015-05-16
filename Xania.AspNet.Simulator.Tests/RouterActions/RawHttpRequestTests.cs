@@ -24,7 +24,7 @@ namespace Xania.AspNet.Simulator.Tests.RouterActions
             var controllerContainer = new ControllerContainer()
                 .RegisterController("home", new HomeController());
 
-            var routerAction = new RouterAction(controllerContainer)
+            var routerAction = new HttpControllerAction(controllerContainer)
             {
                 HttpMethod = "GET",
                 UriPath = "/home/index"

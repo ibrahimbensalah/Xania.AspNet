@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Web.Mvc;
 using System.Web.Razor;
-using System.Web.Routing;
 using Microsoft.CSharp;
 
 namespace Xania.AspNet.Simulator
@@ -88,33 +87,22 @@ namespace Xania.AspNet.Simulator
 
     public class HtmlHelperSimulator<T> : HtmlHelper<T>
     {
-        private readonly IControllerProvider _controllerProvider;
+        private readonly IMvcApplication _mvcApplication;
 
-        public HtmlHelperSimulator(ViewContext viewContext, IViewDataContainer viewDataContainer,
-            RouteCollection routeCollection, IControllerProvider controllerProvider) : base(viewContext, viewDataContainer, routeCollection)
+        internal HtmlHelperSimulator(ViewContext viewContext, IViewDataContainer viewDataContainer, IMvcApplication mvcApplication) 
+            : base(viewContext, viewDataContainer, mvcApplication.Routes)
         {
-            _controllerProvider = controllerProvider;
+            _mvcApplication = mvcApplication;
         }
 
         public MvcHtmlString Action(string actionName, object routeValues)
         {
             var controllerName = ViewContext.RouteData.GetRequiredString("controller");
-            var controller = _controllerProvider.CreateController(controllerName);
-            var controllerType = controller.GetType();
+            var action = _mvcApplication.Action(controllerName, actionName);
+            action.Data(routeValues);
 
-            var controllerDescriptor = new ReflectedControllerDescriptor(controller.GetType());
-            var actionDescriptor = controllerDescriptor.FindAction(controller.ControllerContext, actionName);
-
-            var writer = new StringWriter();
-            var action = new DirectControllerAction(controller, actionDescriptor)
-            {
-                ControllerProvider = _controllerProvider,
-                Output = writer
-            }.Data(routeValues);
-
-            var result = action.Execute();
-            result.ExecuteResult();
-            return MvcHtmlString.Create(writer.ToString());
+            action.Execute().ExecuteResult();
+            return MvcHtmlString.Create(action.Output.ToString());
         }
     }
 }

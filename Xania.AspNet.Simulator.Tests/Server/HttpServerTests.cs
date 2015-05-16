@@ -9,6 +9,7 @@ using NUnit.Framework;
 
 namespace Xania.AspNet.Simulator.Tests.Server
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1001:TypesThatOwnDisposableFieldsShouldBeDisposable")]
     public class HttpServerTests
     {
         const string BaseUrl = "http://localhost:9989/";

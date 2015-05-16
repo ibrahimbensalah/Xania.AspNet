@@ -15,11 +15,6 @@ namespace Xania.AspNet.Simulator
 {
     public abstract class ControllerAction: IHttpRequest, IControllerAction
     {
-        protected ControllerAction()
-            : this(new RouteCollection())
-        {
-        }
-
         protected ControllerAction(RouteCollection routes)
         {
             FilterProviders = new FilterProviderCollection(System.Web.Mvc.FilterProviders.Providers);
@@ -27,35 +22,18 @@ namespace Xania.AspNet.Simulator
             Session = new Dictionary<string, object>();
             Files = new Dictionary<string, Stream>();
             Resolve = DependencyResolver.Current.GetService;
-            Routes = GetRoutes();
-        }
-
-        private static RouteCollection GetRoutes()
-        {
-            var routes = new RouteCollection(new ActionRouterPathProvider());
-
-            if (RouteTable.Routes.Any())
-                foreach (var r in RouteTable.Routes)
-                    routes.Add(r);
-            else
-                routes.MapRoute(
-                    "Default",
-                    "{controller}/{action}/{id}",
-                    new {controller = "Home", action = "Index", id = UrlParameter.Optional}
-                    );
-
-            return routes;
+            Routes = routes;
         }
 
         public FilterProviderCollection FilterProviders { get; private set; }
 
         public IPrincipal User { get; set; }
 
-        public virtual RouteCollection Routes { get; private set; }
+        public RouteCollection Routes { get; private set; }
 
-        public virtual IValueProvider ValueProvider { get; set; }
-        public virtual IContentProvider ContentProvider { get; set; }
-        public virtual IControllerProvider ControllerProvider { get; set; }
+        public IValueProvider ValueProvider { get; set; }
+
+        public IWebPageProvider WebPageProvider { get; set; }
 
         public ICollection<HttpCookie> Cookies { get; private set; }
         public IDictionary<string, object> Session { get; private set; }
@@ -66,17 +44,12 @@ namespace Xania.AspNet.Simulator
 
         public string UriPath { get; set; }
 
-        public abstract ActionContext GetActionContext(HttpContextBase httpContext = null);
+        public abstract ActionContext GetActionContext();
 
         protected virtual void Initialize(ControllerContext controllerContext)
         {
             HttpServerSimulator.PrintElapsedMilliseconds("initialize action");
             var controllerBase = controllerContext.Controller;
-
-            var applicationHost = new ApplicationHostSimulator(ControllerProvider, ContentProvider);
-            IViewEngine viewEngine = new RazorViewEngineSimulator(applicationHost, Routes);
-            // ViewEngines.Engines.Clear();
-            // ViewEngines.Engines.Add(viewEngine);
 
             // Use empty value provider by default to prevent use of ASP.NET MVC default value providers
             // Its not the purpose of this simulator framework to validate the ASP.NET MVC default value 
@@ -92,14 +65,16 @@ namespace Xania.AspNet.Simulator
             if (controller != null)
             {
                 controller.Url = new UrlHelper(controllerContext.RequestContext, Routes);
+
+                IViewEngine viewEngine = new RazorViewEngineSimulator(WebPageProvider);
                 controller.ViewEngineCollection = new ViewEngineCollection(new[] {viewEngine});
             }
             HttpServerSimulator.PrintElapsedMilliseconds("initialize action complete");
         }
 
-        public virtual ControllerActionResult Execute(HttpContextBase httpContext = null)
+        public virtual ControllerActionResult Execute()
         {
-            var actionContext = GetActionContext(httpContext ?? CreateHttpContext());
+            var actionContext = GetActionContext();
             return Execute(actionContext.ControllerContext, actionContext.ActionDescriptor);
         }
 
@@ -143,7 +118,7 @@ namespace Xania.AspNet.Simulator
 
         public virtual ActionResult Authorize()
         {
-            var actionContext = GetActionContext(CreateHttpContext());
+            var actionContext = GetActionContext();
             return Authorize(actionContext.ControllerContext, actionContext.ActionDescriptor);
         }
 
@@ -153,20 +128,40 @@ namespace Xania.AspNet.Simulator
 
             return GetActionInvoker(controllerContext, actionDescriptor).AuthorizeAction();
         }
-
-        public abstract HttpContextBase CreateHttpContext();
     }
 
-    public class ApplicationHostSimulator: IApplicationHostSimulator
+    public class MvcApplication: IMvcApplication
     {
-        private readonly IControllerProvider _controllerProvider;
+        private readonly IControllerFactory _controllerFactory;
         private readonly IContentProvider _contentProvider;
 
-        public ApplicationHostSimulator(IControllerProvider controllerProvider, IContentProvider contentProvider = null)
+        public MvcApplication(IControllerFactory controllerFactory, IContentProvider contentProvider = null)
         {
-            _controllerProvider = controllerProvider;
+            _controllerFactory = controllerFactory;
             _contentProvider = contentProvider ?? GetDefaultContentProvider();
+
+            Routes = GetRoutes();
         }
+
+        public RouteCollection Routes { get; private set; }
+
+        public static RouteCollection GetRoutes()
+        {
+            var routes = new RouteCollection(new ActionRouterPathProvider());
+
+            if (RouteTable.Routes.Any())
+                foreach (var r in RouteTable.Routes)
+                    routes.Add(r);
+            else
+                routes.MapRoute(
+                    "Default",
+                    "{controller}/{action}/{id}",
+                    new { controller = "Home", action = "Index", id = UrlParameter.Optional }
+                    );
+
+            return routes;
+        }
+
 
         private IContentProvider GetDefaultContentProvider()
         {
@@ -189,7 +184,7 @@ namespace Xania.AspNet.Simulator
 
         public ControllerBase CreateController(string controllerName)
         {
-            return _controllerProvider.CreateController(controllerName);
+            return _controllerFactory.CreateController(controllerName);
         }
 
         public Stream Open(string virtualPath)
@@ -197,9 +192,19 @@ namespace Xania.AspNet.Simulator
             return _contentProvider.Open(virtualPath);
         }
 
-        public WebViewPageSimulator Create(string virtualPath)
+        public WebViewPageSimulator Create(ViewContext viewContext, string virtualPath)
         {
-            return _contentProvider.Create(virtualPath);
+            var webViewPage = new WebViewPageFactory(this).Create(virtualPath);
+
+            webViewPage.VirtualPath = virtualPath;
+            webViewPage.ViewContext = viewContext;
+            webViewPage.ViewData = viewContext.ViewData;
+
+            webViewPage.Ajax = new AjaxHelper<object>(webViewPage.ViewContext, webViewPage, Routes);
+            webViewPage.Html = new HtmlHelperSimulator<object>(viewContext, webViewPage, this);
+            webViewPage.Url = new UrlHelper(webViewPage.ViewContext.RequestContext, Routes);
+
+            return webViewPage;
         }
     }
 
@@ -222,11 +227,6 @@ namespace Xania.AspNet.Simulator
             }
 
             throw new FileNotFoundException(String.Format("Path {0} not found in {1}", virtualPath, string.Join(",", _baseDirectories)));
-        }
-
-        public WebViewPageSimulator Create(string virtualPath)
-        {
-            return new WebViewPageFactory(this).Create(virtualPath);
         }
     }
 

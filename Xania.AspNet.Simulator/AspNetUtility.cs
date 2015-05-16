@@ -1,43 +1,25 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Security.Principal;
 using System.Web;
-using System.Web.Routing;
 
 namespace Xania.AspNet.Simulator
 {
     public class AspNetUtility
     {
-        internal static RequestContext CreateRequestContext(string actionName, string controllerName, string httpMethod, IPrincipal user)
+        internal static HttpContextBase GetContext(string url, string method, IPrincipal user)
         {
-            var httpContext = GetContext(String.Format("/{0}/{1}", controllerName, actionName), httpMethod, user);
-            return CreateRequestContext(httpContext, controllerName, actionName);
-        }
-
-        internal static RequestContext CreateRequestContext(HttpContextBase httpContext, string controllerName, string actionName)
-        {
-            var routeData = new RouteData {Values = {{"controller", controllerName}, {"action", actionName}}};
-            return new RequestContext(httpContext, routeData);
-        }
-
-        internal static HttpContextBase GetContext(string url, string method, IPrincipal user, TextWriter output = null)
-        {
-            return GetContext(new SimpleHttpRequest
+            var httpRequest = new SimpleHttpRequest
             {
                 UriPath = url,
                 User = user,
                 HttpMethod = method
-            }, output);
-        }
+            };
 
-        internal static HttpContextBase GetContext(IHttpRequest httpRequest, TextWriter output)
-        {
             var worker = new ActionRequestWrapper(httpRequest);
             var httpContext = new HttpContext(worker)
             {
-                User = httpRequest.User ?? CreateAnonymousUser(),
-                Response = { Output = output }
+                User = httpRequest.User ?? CreateAnonymousUser()
             };
 
             return new HttpContextSimulator(httpContext);

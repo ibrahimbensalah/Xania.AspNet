@@ -105,10 +105,22 @@ namespace Xania.AspNet.Simulator
 
         public void Dispose()
         {
-            if (_outputStream != null)
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
             {
                 _outputStream.Dispose();
+                _output.Dispose();
             }
+        }
+
+        ~HttpListenerResponseWrapper()
+        {
+            Dispose(false);
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Xania.AspNet.TagHelpers.Tests.Annotations;
 
 namespace Xania.AspNet.TagHelpers.Tests
 {

@@ -23,7 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
     <CodeAnalysisIgnoreGeneratedCode>true</CodeAnalysisIgnoreGeneratedCode>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
@@ -86,11 +86,13 @@
     <Compile Include="HttpListenerRequestWrapper.cs" />
     <Compile Include="HttpListenerResponseWrapper.cs" />
     <Compile Include="HttpServerSimulator.cs" />
+    <Compile Include="IMvcApplication.cs" />
     <Compile Include="IContentProvider.cs" />
     <Compile Include="IControllerAction.cs" />
     <Compile Include="LinqActionDescriptor.cs" />
     <Compile Include="ActionRouterPathProvider.cs" />
     <Compile Include="HttpServerExtensions.cs" />
+    <Compile Include="MvcApplicationExtensions.cs" />
     <Compile Include="RazorViewEngineSimulator.cs" />
     <Compile Include="RazorViewSimulator.cs" />
     <Compile Include="RouteDataValueProvider.cs" />
@@ -103,7 +105,7 @@
     <Compile Include="SimpleHttpRequest.cs" />
     <Compile Include="SimpleSessionState.cs" />
     <Compile Include="SimulatorExtensions.cs" />
-    <Compile Include="RouterAction.cs" />
+    <Compile Include="HttpControllerAction.cs" />
     <Compile Include="WebViewPageFactory.cs" />
   </ItemGroup>
   <ItemGroup>

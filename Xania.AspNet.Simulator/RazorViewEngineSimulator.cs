@@ -1,22 +1,15 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text.RegularExpressions;
 using System.Web.Mvc;
-using System.Web.Routing;
 
 namespace Xania.AspNet.Simulator
 {
     internal class RazorViewEngineSimulator : IViewEngine
     {
-        private readonly RouteCollection _routes;
-        private readonly IApplicationHostSimulator _applicationHost;
+        private readonly IWebPageProvider _webPageProvider;
 
-        public RazorViewEngineSimulator(IApplicationHostSimulator applicationHost, RouteCollection routes)
+        public RazorViewEngineSimulator(IWebPageProvider webPageProvider)
         {
-            _routes = routes;
-            _applicationHost = applicationHost;
-            // _contentProvider = contentProvider ?? GetDefaultContentProvider();
+            _webPageProvider = webPageProvider;
         }
 
         public ViewEngineResult FindPartialView(ControllerContext controllerContext, string partialViewName, bool useCache)
@@ -30,7 +23,7 @@ namespace Xania.AspNet.Simulator
             var controllerName = controllerContext.RouteData.GetRequiredString("controller");
             var virtualPath = String.Format(@"Views\{0}\{1}.cshtml", controllerName, viewName);
 
-            var view = new RazorViewSimulator(_applicationHost, virtualPath, _routes);
+            var view = new RazorViewSimulator(_webPageProvider, virtualPath);
 
             HttpServerSimulator.PrintElapsedMilliseconds("findview completed");
             return new ViewEngineResult(view, this);
@@ -38,9 +31,6 @@ namespace Xania.AspNet.Simulator
 
         public void ReleaseView(ControllerContext controllerContext, IView view)
         {
-            var viewSimulator = view as IDisposable;
-            if (viewSimulator != null)
-                viewSimulator.Dispose();
         }
     }
 

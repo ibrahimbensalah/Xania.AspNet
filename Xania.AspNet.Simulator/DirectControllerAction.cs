@@ -10,6 +10,7 @@ namespace Xania.AspNet.Simulator
     public class DirectControllerAction : ControllerAction
     {
         public DirectControllerAction(ControllerBase controller, ActionDescriptor actionDescriptor)
+            : base(MvcApplication.GetRoutes())
         {
             Controller = controller;
             ActionDescriptor = actionDescriptor;
@@ -18,11 +19,12 @@ namespace Xania.AspNet.Simulator
         public virtual ControllerBase Controller { get; private set; }
 
         public virtual ActionDescriptor ActionDescriptor { get; private set; }
+
         public virtual TextWriter Output { get; set; }
 
-        public override ActionContext GetActionContext(HttpContextBase httpContext = null)
+        public override ActionContext GetActionContext()
         {
-            var controllerContext = CreateControllerContext(httpContext ?? CreateHttpContext(), Controller,
+            var controllerContext = CreateControllerContext(CreateHttpContext(), Controller,
                 ActionDescriptor);
 
             Initialize(controllerContext);
@@ -33,7 +35,7 @@ namespace Xania.AspNet.Simulator
             };
         }
 
-        public override HttpContextBase CreateHttpContext()
+        private HttpContextBase CreateHttpContext()
         {
             return CreateHttpContext(this, ActionDescriptor);
         }
@@ -51,7 +53,7 @@ namespace Xania.AspNet.Simulator
             return controllerContext;
         }
 
-        public HttpContextBase CreateHttpContext(IControllerAction actionRequest, ActionDescriptor actionDescriptor)
+        private HttpContextBase CreateHttpContext(IControllerAction actionRequest, ActionDescriptor actionDescriptor)
         {
             var controllerDescriptor = actionDescriptor.ControllerDescriptor;
             var controllerName = controllerDescriptor.ControllerName;
@@ -59,16 +61,19 @@ namespace Xania.AspNet.Simulator
             var user = actionRequest.User ?? AspNetUtility.CreateAnonymousUser();
             var httpContext =
                 AspNetUtility.GetContext(String.Format("/{0}/{1}", controllerName, actionDescriptor.ActionName),
-                    actionRequest.HttpMethod, user, Output);
+                    actionRequest.HttpMethod, user);
+            httpContext.Response.Output = Output;
 
             return httpContext;
         }
 
-        protected virtual RequestContext GetRequestContext(HttpContextBase httpContext, ActionDescriptor actionDescriptor)
+        private RequestContext GetRequestContext(HttpContextBase httpContext, ActionDescriptor actionDescriptor)
         {
-            var requestContext = AspNetUtility.CreateRequestContext(httpContext,
-                actionDescriptor.ControllerDescriptor.ControllerName,
-                actionDescriptor.ActionName);
+            var controllerName = actionDescriptor.ControllerDescriptor.ControllerName;
+            var actionName = actionDescriptor.ActionName;
+            var routeData = new RouteData { Values = { { "controller", controllerName }, { "action", actionName } } };
+
+            var requestContext = new RequestContext(httpContext, routeData);
 
             foreach (var cookie in Cookies)
                 requestContext.HttpContext.Request.Cookies.Add(cookie);

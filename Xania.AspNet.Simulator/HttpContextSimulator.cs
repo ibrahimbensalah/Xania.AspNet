@@ -1,4 +1,3 @@
-using System.IO;
 using System.Web;
 
 namespace Xania.AspNet.Simulator

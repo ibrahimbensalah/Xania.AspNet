@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Mvc;
-using Moq;
-using NSubstitute;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 namespace Xania.AspNet.TagHelpers.Tests
 {

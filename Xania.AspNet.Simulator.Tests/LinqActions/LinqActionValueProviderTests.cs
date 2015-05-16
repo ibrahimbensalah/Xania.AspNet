@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
-using NSubstitute;
 using NUnit.Framework;
 
 namespace Xania.AspNet.Simulator.Tests.LinqActions
@@ -18,21 +13,21 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
         public void PrivitiveArgumentValueTest()
         {
             // arrange
-            Expression<Action<HomeController>> action = c => c.User(1);
+            Expression<Action<HomeController>> action = c => c.Get(1);
             var valueProvider = new LinqActionValueProvider(action.Body);
             // act
-            var result = valueProvider.GetValue("userId");
+            var result = valueProvider.GetValue("id");
             // assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(1, valueProvider.GetValue("userId").RawValue);
+            Assert.AreEqual(1, result.RawValue);
         }
 
         [Test]
         public void OverrideLinqArgumentTest()
         {
             // arrange
-            var action = new HomeController().Action(c => c.User(1));
-            action.Data(new {userId = 2});
+            var action = new HomeController().Action(c => c.Get(1));
+            action.Data(new {id = 2});
             // act
             var result = action.Execute();
             // assert
@@ -54,9 +49,9 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
 
         class HomeController : Controller
         {
-            public ActionResult User(int userId)
+            public ActionResult Get(int id)
             {
-                return Content(userId.ToString());
+                return Content(id.ToString());
             }
 
             public void Upload([Required]HttpPostedFileBase file)

@@ -22,7 +22,11 @@ namespace Xania.AspNet.TagHelpers
 
         protected override void Dispose(bool disposing)
         {
-            _output.Dispose();
+            if (disposing)
+            {
+                _output.Dispose();
+                _processor.Dispose();
+            }
         }
 
         public override void Close()

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using System.IO;
 
 namespace Xania.AspNet.TagHelpers.Tests

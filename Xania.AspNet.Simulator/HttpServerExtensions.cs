@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
 
 namespace Xania.AspNet.Simulator
 {
@@ -10,19 +9,15 @@ namespace Xania.AspNet.Simulator
             ViewEngines.Engines.Clear();
             ViewEngines.Engines.Add(new ControllerContextViewEngine());
 
+            var mvcApplication = new MvcApplication(controllerContainer);
+
             server.Use(context =>
             {
-                if (context.Request.Url == null) 
-                    return;
-
-                var path = context.Request.Url.AbsolutePath;
-                var action = new RouterAction(controllerContainer)
-                {
-                    UriPath = path
-                };
-                var result = action.Execute(context);
-                result.ExecuteResult();
+                new HttpControllerAction(mvcApplication, context)
+                    .Execute()
+                    .ExecuteResult();
             });
         }
+
     }
 }
