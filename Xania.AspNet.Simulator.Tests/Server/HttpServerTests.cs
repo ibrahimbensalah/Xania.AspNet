@@ -51,7 +51,9 @@ namespace Xania.AspNet.Simulator.Tests.Server
             using (var client = new HttpClient())
             {
                 // act
-                var result = client.GetStringAsync(BaseUrl + path).Result;
+                var result = client.GetStringAsync(BaseUrl + path).Result
+                    .Replace("\r\n", string.Empty)
+                    .Replace("\n", string.Empty);
 
                 // assert
                 result.Should().Be(content);

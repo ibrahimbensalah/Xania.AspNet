@@ -30,10 +30,9 @@ namespace Xania.AspNet.Simulator
                 throw new ArgumentNullException("writer");
 
             if (webPage == null)
-                throw new InvalidOperationException();
+                throw new ArgumentNullException("webPage");
 
-            webPage.ExecutePageHierarchy(
-                new WebPageContext(httpContext, (WebPageRenderingBase) null, (object) null), writer, null);
+            webPage.ExecutePageHierarchy(new WebPageContext(httpContext, null, null), writer, null);
         }
     }
 }

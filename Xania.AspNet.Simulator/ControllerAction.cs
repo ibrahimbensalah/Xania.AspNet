@@ -222,7 +222,8 @@ namespace Xania.AspNet.Simulator
 
         public object CreateInstance(string virtualPath)
         {
-            throw new NotImplementedException();
+            var relativePath = ToRelativePath(virtualPath);
+            return new WebViewPageFactory(this).Create(relativePath);
         }
     }
 

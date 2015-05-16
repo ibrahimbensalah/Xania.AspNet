@@ -89,32 +89,6 @@ namespace Xania.AspNet.Simulator
         {
             return path;
         }
-
-        public override void Write(HelperResult result)
-        {
-            try
-            {
-                base.Write(result);
-            }
-            catch
-            {
-                throw;
-            }
-        }
-
-        public override HelperResult RenderPage(string path, params object[] data)
-        {
-            return new HelperResult(writer =>
-            {
-                writer.Write(path);
-                //path = NormalizePath(path);
-                //WebPageBase subPage = this; // CreatePageFromVirtualPath(path, Context, VirtualPathFactory.Exists, DisplayModeProvider, DisplayMode);
-                //var pageContext = new WebPageContext(); // CreatePageContextFromParameters(isLayoutPage, data);
-
-                //// subPage.ConfigurePage(this);
-                //subPage.ExecutePageHierarchy(pageContext, writer);
-            });
-        }
     }
 
     public class HtmlHelperSimulator<T> : HtmlHelper<T>

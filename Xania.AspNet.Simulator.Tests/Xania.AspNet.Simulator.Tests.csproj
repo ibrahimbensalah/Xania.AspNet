@@ -126,11 +126,6 @@
     <Compile Include="RouterActions\ValidationTests.cs" />
     <Compile Include="Server\HttpServerTests.cs" />
     <Compile Include="TestController.cs" />
-    <Compile Include="Views\Shared\_Layout.generated.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>_Layout.cshtml</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
