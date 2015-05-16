@@ -49,5 +49,9 @@ namespace Xania.AspNet.Simulator.Tests
         {
             return View();
         }
+        public ViewResult ViewWithLayout()
+        {
+            return View();
+        }
     }
 }

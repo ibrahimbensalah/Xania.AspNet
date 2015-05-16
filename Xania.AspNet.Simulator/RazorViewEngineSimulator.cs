@@ -21,7 +21,7 @@ namespace Xania.AspNet.Simulator
         {
             HttpServerSimulator.PrintElapsedMilliseconds("findview started");
             var controllerName = controllerContext.RouteData.GetRequiredString("controller");
-            var virtualPath = String.Format(@"Views\{0}\{1}.cshtml", controllerName, viewName);
+            var virtualPath = String.Format(@"~/Views/{0}/{1}.cshtml", controllerName, viewName);
 
             var view = new RazorViewSimulator(_webPageProvider, virtualPath);
 

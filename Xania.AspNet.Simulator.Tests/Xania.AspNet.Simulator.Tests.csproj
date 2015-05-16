@@ -126,15 +126,28 @@
     <Compile Include="RouterActions\ValidationTests.cs" />
     <Compile Include="Server\HttpServerTests.cs" />
     <Compile Include="TestController.cs" />
+    <Compile Include="Views\Shared\_Layout.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>_Layout.cshtml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Views\Shared\_Layout.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>_Layout.generated.cs</LastGenOutput>
+    </None>
     <None Include="Views\Test\Index.cshtml" />
     <None Include="Views\Test\RazorView.cshtml" />
     <None Include="Views\Test\ViewWithChildAction.cshtml" />
+    <None Include="Views\Test\ViewWithLayout.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>ViewWithLayout.generated.cs</LastGenOutput>
+    </None>
     <None Include="Views\Test\ViewWithPartial.cshtml" />
     <None Include="Views\Test\_Partial.cshtml" />
   </ItemGroup>
@@ -147,6 +160,7 @@
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

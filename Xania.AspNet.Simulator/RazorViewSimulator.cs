@@ -32,16 +32,8 @@ namespace Xania.AspNet.Simulator
             if (webPage == null)
                 throw new InvalidOperationException();
 
-            try
-            {
-                webPage.ExecutePageHierarchy(
-                    new WebPageContext(httpContext, (WebPageRenderingBase) null, (object) null), writer, null);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-                throw;
-            }
+            webPage.ExecutePageHierarchy(
+                new WebPageContext(httpContext, (WebPageRenderingBase) null, (object) null), writer, null);
         }
     }
 }

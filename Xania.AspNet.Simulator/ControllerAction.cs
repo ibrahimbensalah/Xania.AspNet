@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
+using System.Web.WebPages;
 
 namespace Xania.AspNet.Simulator
 {
@@ -130,7 +131,7 @@ namespace Xania.AspNet.Simulator
         }
     }
 
-    public class MvcApplication: IMvcApplication
+    public class MvcApplication : IMvcApplication, IVirtualPathFactory
     {
         private readonly IControllerFactory _controllerFactory;
         private readonly IContentProvider _contentProvider;
@@ -194,7 +195,8 @@ namespace Xania.AspNet.Simulator
 
         public WebViewPageSimulator Create(ViewContext viewContext, string virtualPath)
         {
-            var webViewPage = new WebViewPageFactory(this).Create(virtualPath);
+            var relativePath = ToRelativePath(virtualPath);
+            var webViewPage = new WebViewPageFactory(this).Create(relativePath);
 
             webViewPage.VirtualPath = virtualPath;
             webViewPage.ViewContext = viewContext;
@@ -203,8 +205,24 @@ namespace Xania.AspNet.Simulator
             webViewPage.Ajax = new AjaxHelper<object>(webViewPage.ViewContext, webViewPage, Routes);
             webViewPage.Html = new HtmlHelperSimulator<object>(viewContext, webViewPage, this);
             webViewPage.Url = new UrlHelper(webViewPage.ViewContext.RequestContext, Routes);
+            webViewPage.VirtualPathFactory = this;
 
             return webViewPage;
+        }
+
+        private string ToRelativePath(string virtualPath)
+        {
+            return virtualPath.Substring(2).Replace("/", "\\");
+        }
+
+        public bool Exists(string virtualPath)
+        {
+            return true;
+        }
+
+        public object CreateInstance(string virtualPath)
+        {
+            throw new NotImplementedException();
         }
     }
 
@@ -217,16 +235,16 @@ namespace Xania.AspNet.Simulator
             _baseDirectories = baseDirectories;
         }
 
-        public Stream Open(string virtualPath)
+        public Stream Open(string relativePath)
         {
             foreach (var baseDirectory in _baseDirectories)
             {
-                var filePath = Path.Combine(baseDirectory, virtualPath);
+                var filePath = Path.Combine(baseDirectory, relativePath);
                 if (File.Exists(filePath))
                     return File.OpenRead(filePath);
             }
 
-            throw new FileNotFoundException(String.Format("Path {0} not found in {1}", virtualPath, string.Join(",", _baseDirectories)));
+            throw new FileNotFoundException(String.Format("Path {0} not found in {1}", relativePath, string.Join(",", _baseDirectories)));
         }
     }
 

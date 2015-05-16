@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Web.Mvc;
 using System.Web.Razor;
+using System.Web.WebPages;
 using Microsoft.CSharp;
 
 namespace Xania.AspNet.Simulator
@@ -17,9 +18,9 @@ namespace Xania.AspNet.Simulator
             _contentProvider = contentProvider;
         }
 
-        public WebViewPageSimulator Create(string virtualPath)
+        public WebViewPageSimulator Create(string relativePath)
         {
-            using (var stream = _contentProvider.Open(virtualPath))
+            using (var stream = _contentProvider.Open(relativePath))
             {
                 var _contentReader = new StreamReader(stream);
                 var host = new RazorEngineHost(new CSharpRazorCodeLanguage())
@@ -83,6 +84,37 @@ namespace Xania.AspNet.Simulator
     public abstract class WebViewPageSimulator: WebViewPage
     {
         public new HtmlHelperSimulator<object> Html { get; set; }
+
+        public override string NormalizePath(string path)
+        {
+            return path;
+        }
+
+        public override void Write(HelperResult result)
+        {
+            try
+            {
+                base.Write(result);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public override HelperResult RenderPage(string path, params object[] data)
+        {
+            return new HelperResult(writer =>
+            {
+                writer.Write(path);
+                //path = NormalizePath(path);
+                //WebPageBase subPage = this; // CreatePageFromVirtualPath(path, Context, VirtualPathFactory.Exists, DisplayModeProvider, DisplayMode);
+                //var pageContext = new WebPageContext(); // CreatePageContextFromParameters(isLayoutPage, data);
+
+                //// subPage.ConfigurePage(this);
+                //subPage.ExecutePageHierarchy(pageContext, writer);
+            });
+        }
     }
 
     public class HtmlHelperSimulator<T> : HtmlHelper<T>
