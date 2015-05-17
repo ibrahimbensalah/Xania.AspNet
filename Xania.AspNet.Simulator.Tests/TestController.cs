@@ -53,5 +53,10 @@ namespace Xania.AspNet.Simulator.Tests
         {
             return View();
         }
+
+        public ViewResult ViewWithModel(string id)
+        {
+            return View(model: id);
+        }
     }
 }

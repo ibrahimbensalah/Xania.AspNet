@@ -131,7 +131,7 @@ namespace Xania.AspNet.Simulator
         }
     }
 
-    public class MvcApplication : IMvcApplication, IVirtualPathFactory
+    public class MvcApplication : IMvcApplication
     {
         private readonly IControllerFactory _controllerFactory;
         private readonly IContentProvider _contentProvider;
@@ -193,19 +193,12 @@ namespace Xania.AspNet.Simulator
             return _contentProvider.Open(virtualPath);
         }
 
-        public WebViewPageSimulator Create(ViewContext viewContext, string virtualPath)
+        public IWebViewPage Create(ViewContext viewContext, string virtualPath)
         {
             var relativePath = ToRelativePath(virtualPath);
             var webViewPage = new WebViewPageFactory(this).Create(relativePath);
 
-            webViewPage.VirtualPath = virtualPath;
-            webViewPage.ViewContext = viewContext;
-            webViewPage.ViewData = viewContext.ViewData;
-
-            webViewPage.Ajax = new AjaxHelper<object>(webViewPage.ViewContext, webViewPage, Routes);
-            webViewPage.Html = new HtmlHelperSimulator<object>(viewContext, webViewPage, this);
-            webViewPage.Url = new UrlHelper(webViewPage.ViewContext.RequestContext, Routes);
-            webViewPage.VirtualPathFactory = this;
+            webViewPage.Initialize(viewContext, virtualPath, this);
 
             return webViewPage;
         }

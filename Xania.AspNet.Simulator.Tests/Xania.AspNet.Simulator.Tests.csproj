@@ -143,6 +143,7 @@
       <Generator>RazorGenerator</Generator>
       <LastGenOutput>ViewWithLayout.generated.cs</LastGenOutput>
     </None>
+    <None Include="Views\Test\ViewWithModel.cshtml" />
     <None Include="Views\Test\ViewWithPartial.cshtml" />
     <None Include="Views\Test\_Partial.cshtml" />
   </ItemGroup>

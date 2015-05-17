@@ -2,7 +2,9 @@ using System;
 using System.CodeDom.Compiler;
 using System.IO;
 using System.Linq;
+using System.Web;
 using System.Web.Mvc;
+using System.Web.Mvc.Razor;
 using System.Web.Razor;
 using System.Web.WebPages;
 using Microsoft.CSharp;
@@ -18,14 +20,13 @@ namespace Xania.AspNet.Simulator
             _contentProvider = contentProvider;
         }
 
-        public WebViewPageSimulator Create(string relativePath)
+        public IWebViewPage Create(string relativePath)
         {
             using (var stream = _contentProvider.Open(relativePath))
             {
-                var _contentReader = new StreamReader(stream);
-                var host = new RazorEngineHost(new CSharpRazorCodeLanguage())
+                var host = new MvcWebPageRazorHost("~/Views/Test/Index.cshtml", @"C:\Development\GitHub\asdfasdf.cshtml")
                 {
-                    DefaultBaseClass = typeof (WebViewPageSimulator).FullName,
+                    DefaultBaseClass = typeof(WebViewPageSimulator<>).FullName.TrimEnd('`', '1'),
                     NamespaceImports =
                     {
                         "System",
@@ -38,25 +39,31 @@ namespace Xania.AspNet.Simulator
                     }
                 };
 
-                var engine = new RazorTemplateEngine(host);
-                var provider = new CSharpCodeProvider();
+                var generatedCode =
+                    new RazorTemplateEngine(host).GenerateCode(new StreamReader(stream)).GeneratedCode;
 
-                var razorTemplate = engine.GenerateCode(_contentReader);
-                var parameters = CreateComplilerParameters();
+                var compilerResults = new CSharpCodeProvider().CompileAssemblyFromDom(GetCompilerParameters(), generatedCode);
 
-                var result = provider.CompileAssemblyFromDom(parameters, razorTemplate.GeneratedCode);
-
-                foreach (var err in result.Errors)
+                foreach (CompilerError err in compilerResults.Errors)
+                {
                     Console.WriteLine(err);
+                }
+
+                if (compilerResults.Errors.HasErrors)
+                {
+                    var writer = new StringWriter();
+                    new CSharpCodeProvider().GenerateCodeFromCompileUnit(generatedCode, writer, new CodeGeneratorOptions{});
+                    throw new Exception("Errors in razor file \r\n" + writer);
+                }
 
                 var compiledTemplateType =
-                    result.CompiledAssembly.GetTypes().SingleOrDefault(t => t.Name == "__CompiledTemplate");
+                    compilerResults.CompiledAssembly.GetTypes().SingleOrDefault(t => t.Name == host.DefaultClassName);
 
-                return (WebViewPageSimulator) Activator.CreateInstance(compiledTemplateType);
+                return (IWebViewPage) Activator.CreateInstance(compiledTemplateType);
             }
         }
 
-        private CompilerParameters CreateComplilerParameters()
+        private CompilerParameters GetCompilerParameters()
         {
             var parameters = new CompilerParameters
             {
@@ -81,13 +88,32 @@ namespace Xania.AspNet.Simulator
         }
     }
 
-    public abstract class WebViewPageSimulator: WebViewPage
+    public interface IWebViewPage
     {
-        public new HtmlHelperSimulator<object> Html { get; set; }
+        void Initialize(ViewContext viewContext, string virtualPath, IMvcApplication mvcApplication);
+        void Execute(HttpContextBase httpContext, TextWriter writer);
+    }
 
-        public override string NormalizePath(string path)
+    public abstract class WebViewPageSimulator<TModel> : WebViewPage<TModel>, IWebViewPage
+    {
+        public new HtmlHelperSimulator<TModel> Html { get; set; }
+
+        public virtual void Initialize(ViewContext viewContext, string virtualPath, IMvcApplication mvcApplication)
         {
-            return path;
+            VirtualPath = virtualPath;
+            ViewContext = viewContext;
+            ViewData = new ViewDataDictionary<TModel>(viewContext.ViewData);
+
+            Ajax = new AjaxHelper<TModel>(viewContext, this, mvcApplication.Routes);
+            Html = new HtmlHelperSimulator<TModel>(viewContext, this, mvcApplication);
+            Url = new UrlHelper(viewContext.RequestContext, mvcApplication.Routes);
+            VirtualPathFactory = mvcApplication;
+
+        }
+
+        public void Execute(HttpContextBase httpContext, TextWriter writer)
+        {
+            ExecutePageHierarchy(new WebPageContext(httpContext, null, null), writer, null);
         }
     }
 
