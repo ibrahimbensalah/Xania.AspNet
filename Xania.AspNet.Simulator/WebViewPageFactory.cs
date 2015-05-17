@@ -20,11 +20,11 @@ namespace Xania.AspNet.Simulator
             _contentProvider = contentProvider;
         }
 
-        public IWebViewPage Create(string relativePath)
+        public IWebViewPage Create(string virtualPath, string relativePath)
         {
             using (var stream = _contentProvider.Open(relativePath))
             {
-                var host = new MvcWebPageRazorHost("~/Views/Test/Index.cshtml", @"C:\Development\GitHub\asdfasdf.cshtml")
+                var host = new MvcWebPageRazorHost(virtualPath, relativePath)
                 {
                     DefaultBaseClass = typeof(WebViewPageSimulator<>).FullName.TrimEnd('`', '1'),
                     NamespaceImports =
@@ -104,11 +104,11 @@ namespace Xania.AspNet.Simulator
             ViewContext = viewContext;
             ViewData = new ViewDataDictionary<TModel>(viewContext.ViewData);
 
-            Ajax = new AjaxHelper<TModel>(viewContext, this, mvcApplication.Routes);
+            Ajax = new AjaxHelper<TModel>(viewContext, this, mvcApplication.Routes)
+                ;
             Html = new HtmlHelperSimulator<TModel>(viewContext, this, mvcApplication);
             Url = new UrlHelper(viewContext.RequestContext, mvcApplication.Routes);
             VirtualPathFactory = mvcApplication;
-
         }
 
         public void Execute(HttpContextBase httpContext, TextWriter writer)

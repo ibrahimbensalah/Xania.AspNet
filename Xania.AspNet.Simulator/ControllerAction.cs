@@ -195,9 +195,7 @@ namespace Xania.AspNet.Simulator
 
         public IWebViewPage Create(ViewContext viewContext, string virtualPath)
         {
-            var relativePath = ToRelativePath(virtualPath);
-            var webViewPage = new WebViewPageFactory(this).Create(relativePath);
-
+            var webViewPage = (IWebViewPage) CreateInstance(virtualPath);
             webViewPage.Initialize(viewContext, virtualPath, this);
 
             return webViewPage;
@@ -216,7 +214,7 @@ namespace Xania.AspNet.Simulator
         public object CreateInstance(string virtualPath)
         {
             var relativePath = ToRelativePath(virtualPath);
-            return new WebViewPageFactory(this).Create(relativePath);
+            return new WebViewPageFactory(_contentProvider).Create(virtualPath, relativePath);
         }
     }
 
