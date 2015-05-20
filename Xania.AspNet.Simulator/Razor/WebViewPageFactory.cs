@@ -13,7 +13,7 @@ namespace Xania.AspNet.Simulator.Razor
 {
     internal class WebViewPageFactory
     {
-        public IWebViewPage Create(string virtualPath, Stream stream)
+        public IWebViewPage Create(string virtualPath, TextReader reader)
         {
             var host = new MvcWebPageRazorHost(virtualPath, string.Empty)
             {
@@ -31,7 +31,7 @@ namespace Xania.AspNet.Simulator.Razor
             };
 
             var generatedCode =
-                new RazorTemplateEngine(host).GenerateCode(new StreamReader(stream)).GeneratedCode;
+                new RazorTemplateEngine(host).GenerateCode(reader).GeneratedCode;
 
             var compilerResults = new CSharpCodeProvider().CompileAssemblyFromDom(GetCompilerParameters(), generatedCode);
 
@@ -128,12 +128,10 @@ namespace Xania.AspNet.Simulator.Razor
 
     public class VirtualPathFactorySimulator : IVirtualPathFactory
     {
-        private readonly ViewContext _viewContext;
         private readonly IMvcApplication _mvcApplication;
 
-        public VirtualPathFactorySimulator(ViewContext viewContext, IMvcApplication mvcApplication)
+        public VirtualPathFactorySimulator(IMvcApplication mvcApplication)
         {
-            _viewContext = viewContext;
             _mvcApplication = mvcApplication;
         }
 
@@ -144,7 +142,7 @@ namespace Xania.AspNet.Simulator.Razor
 
         public object CreateInstance(string virtualPath)
         {
-            return _mvcApplication.CreateInstance(virtualPath);
+            return _mvcApplication.Create(virtualPath);
         }
     }
 

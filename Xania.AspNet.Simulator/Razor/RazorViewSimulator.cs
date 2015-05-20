@@ -16,9 +16,16 @@ namespace Xania.AspNet.Simulator.Razor
 
         public void Render(ViewContext viewContext, TextWriter writer)
         {
-            var webPage = _webPageProvider.Create(viewContext, _virtualPath);
-
+            var webPage = Create(viewContext);
             webPage.Execute(viewContext.HttpContext, writer);
+        }
+
+        private IWebViewPage Create(ViewContext viewContext)
+        {
+            using (var reader = _webPageProvider.OpenText(_virtualPath, true))
+            {
+                return _webPageProvider.Create(viewContext, _virtualPath, reader);
+            }
         }
     }
 }

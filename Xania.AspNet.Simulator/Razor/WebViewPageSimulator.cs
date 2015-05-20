@@ -23,7 +23,7 @@ namespace Xania.AspNet.Simulator.Razor
             Ajax = new AjaxHelper<TModel>(viewContext, this, mvcApplication.Routes);
             Html = new HtmlHelperSimulator<TModel>(viewContext, this, mvcApplication);
             Url = new UrlHelper(viewContext.RequestContext, mvcApplication.Routes);
-            VirtualPathFactory = new VirtualPathFactorySimulator(viewContext, mvcApplication);
+            VirtualPathFactory = new VirtualPathFactorySimulator(mvcApplication);
         }
 
         public void Execute(HttpContextBase httpContext, TextWriter writer)
@@ -50,7 +50,7 @@ namespace Xania.AspNet.Simulator.Razor
             Ajax = new AjaxHelper<object>(viewContext, this, mvcApplication.Routes);
             Html = new HtmlHelperSimulator<object>(viewContext, this, mvcApplication);
             Url = new UrlHelper(viewContext.RequestContext, mvcApplication.Routes);
-            VirtualPathFactory = new VirtualPathFactorySimulator(viewContext, mvcApplication);
+            VirtualPathFactory = new VirtualPathFactorySimulator(mvcApplication);
         }
 
         public void Execute(HttpContextBase httpContext, TextWriter writer)

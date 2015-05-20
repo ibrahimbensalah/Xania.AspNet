@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Web.Mvc;
 using System.Web.Routing;
@@ -68,30 +69,32 @@ namespace Xania.AspNet.Simulator
 
         public Stream Open(string virtualPath)
         {
-            return Open(virtualPath, false);
+            var relativePath = ToRelativePath(virtualPath);
+            return _contentProvider.Open(relativePath);
         }
 
-        public Stream Open(string virtualPath, bool includeStartPage)
+        public TextReader OpenText(string virtualPath, bool includeStartPage)
         {
             var relativePath = ToRelativePath(virtualPath);
             var contentStream = _contentProvider.Open(relativePath);
             const string startPagePath = @"Views\_ViewStart.cshtml";
 
-            return includeStartPage && !String.Equals(relativePath, startPagePath) && _contentProvider.Exists(startPagePath)
-                ? new ConcatenatedStream(_contentProvider.Open(@"Views\_ViewStart.cshtml"), contentStream)
-                : contentStream;
+            return includeStartPage && !String.Equals(relativePath, startPagePath) &&
+                   _contentProvider.Exists(startPagePath)
+                ? (TextReader) new ConcatenatedStream(_contentProvider.Open(@"Views\_ViewStart.cshtml"), contentStream)
+                : new StreamReader(contentStream);
         }
 
-        public IWebViewPage Create(ViewContext viewContext, string virtualPath)
-        {
-            using (var stream = Open(virtualPath, true))
-            {
-                var webViewPage = new WebViewPageFactory().Create(virtualPath, stream);
-                webViewPage.Initialize(viewContext, virtualPath, this);
+        //public IWebViewPage CreateWithStartPage(ViewContext viewContext, string virtualPath)
+        //{
+        //    using (var stream = OpenText(virtualPath, true))
+        //    {
+        //        var webViewPage = new WebViewPageFactory().Create(virtualPath, stream);
+        //        webViewPage.Initialize(viewContext, virtualPath, this);
 
-                return webViewPage;
-            }
-        }
+        //        return webViewPage;
+        //    }
+        //}
 
         private string ToRelativePath(string virtualPath)
         {
@@ -104,93 +107,48 @@ namespace Xania.AspNet.Simulator
             return _contentProvider.Exists(relativePath);
         }
 
-        public object CreateInstance(string virtualPath)
+        public IWebViewPage Create(string virtualPath)
         {
-            using (var stream = Open(virtualPath))
+            using (var reader = OpenText(virtualPath, false))
             {
-                return new WebViewPageFactory().Create(virtualPath, stream);
+                return new WebViewPageFactory().Create(virtualPath, reader);
             }
+        }
+
+        public IWebViewPage Create(ViewContext viewContext, string virtualPath, TextReader reader)
+        {
+            var webPage = new WebViewPageFactory().Create(virtualPath, reader);
+            webPage.Initialize(viewContext, virtualPath, this);
+
+            return webPage;
         }
     }
 
-    internal class ConcatenatedStream : Stream
+    internal class ConcatenatedStream : TextReader
     {
         private readonly IEnumerable<Stream> _streams;
-        private readonly IEnumerator<Stream> _enumerator;
+        private readonly IEnumerator<StreamReader> _enumerator;
 
         public ConcatenatedStream(params Stream[] streams)
         {
             _streams = streams;
-            _enumerator = _streams.GetEnumerator();
+            _enumerator = _streams.Select(e => new StreamReader(e)).GetEnumerator();
             _enumerator.MoveNext();
         }
 
-        public override bool CanRead
-        {
-            get { return true; }
-        }
-
-        public override int Read(byte[] buffer, int offset, int count)
+        public override int Read()
         {
             if (_enumerator.Current == null)
-                return 0;
+                return -1;
 
-            var bytesRead = _enumerator.Current.Read(buffer, offset, count);
-            if (bytesRead != 0) 
-                return bytesRead;
+            var ch = _enumerator.Current.Read();
+            if (ch != -1) 
+                return ch;
 
             if (!_enumerator.MoveNext())
-                return 0;
+                return -1;
 
-            bytesRead += Read(buffer, offset + bytesRead, count - bytesRead);
-            return bytesRead;
-        }
-
-        public override bool CanSeek
-        {
-            get { return false; }
-        }
-
-        public override bool CanWrite
-        {
-            get { return false; }
-        }
-
-        public override void Flush()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override long Length
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public override long Position
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public override long Seek(long offset, SeekOrigin origin)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void SetLength(long value)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Write(byte[] buffer, int offset, int count)
-        {
-            throw new NotImplementedException();
+            return '\n';
         }
 
         protected override void Dispose(bool disposing)
