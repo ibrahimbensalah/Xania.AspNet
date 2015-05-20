@@ -54,8 +54,18 @@ namespace Xania.AspNet.Simulator.Tests.Server
                 // act
                 var result = client.GetStringAsync(BaseUrl + path).Result
                     .Replace("\r\n", string.Empty)
-                    .Replace("\n", string.Empty);
+                    .Replace("\n", string.Empty)
+                    .Trim();
 
+                for (int i = 0; i < content.Length; i++)
+                {
+                    var a = content[i];
+                    var b = result[i];
+                    if (a != b)
+                    {
+                        Console.WriteLine("not equal at {0}, '{1}', '{2}'", i, a, b);
+                    }
+                }
                 // assert
                 result.Should().Be(content);
             }

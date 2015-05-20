@@ -6,11 +6,11 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.Principal;
-using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 using System.Web.WebPages;
+using Xania.AspNet.Simulator.Razor;
 
 namespace Xania.AspNet.Simulator
 {
@@ -131,93 +131,6 @@ namespace Xania.AspNet.Simulator
         }
     }
 
-    public class MvcApplication : IMvcApplication
-    {
-        private readonly IControllerFactory _controllerFactory;
-        private readonly IContentProvider _contentProvider;
-
-        public MvcApplication(IControllerFactory controllerFactory, IContentProvider contentProvider = null)
-        {
-            _controllerFactory = controllerFactory;
-            _contentProvider = contentProvider ?? GetDefaultContentProvider();
-
-            Routes = GetRoutes();
-        }
-
-        public RouteCollection Routes { get; private set; }
-
-        public static RouteCollection GetRoutes()
-        {
-            var routes = new RouteCollection(new ActionRouterPathProvider());
-
-            if (RouteTable.Routes.Any())
-                foreach (var r in RouteTable.Routes)
-                    routes.Add(r);
-            else
-                routes.MapRoute(
-                    "Default",
-                    "{controller}/{action}/{id}",
-                    new { controller = "Home", action = "Index", id = UrlParameter.Optional }
-                    );
-
-            return routes;
-        }
-
-
-        private IContentProvider GetDefaultContentProvider()
-        {
-            var directories = new List<string>();
-
-            var appDomainBaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            directories.Add(appDomainBaseDirectory);
-
-            var regex = new Regex(@"(.*)\\bin\\[^\\]*\\?$");
-
-            var match = regex.Match(appDomainBaseDirectory);
-            if (match.Success)
-            {
-                var sourceBaseDirectory = match.Groups[1].Value;
-                directories.Add(sourceBaseDirectory);
-            }
-
-            return new DirectoryContentProvider(directories.ToArray());
-        }
-
-        public ControllerBase CreateController(string controllerName)
-        {
-            return _controllerFactory.CreateController(controllerName);
-        }
-
-        public Stream Open(string virtualPath)
-        {
-            return _contentProvider.Open(virtualPath);
-        }
-
-        public IWebViewPage Create(ViewContext viewContext, string virtualPath)
-        {
-            var webViewPage = (IWebViewPage) CreateInstance(virtualPath);
-            webViewPage.Initialize(viewContext, virtualPath, this);
-
-            return webViewPage;
-        }
-
-        private string ToRelativePath(string virtualPath)
-        {
-            return virtualPath.Substring(2).Replace("/", "\\");
-        }
-
-        public bool Exists(string virtualPath)
-        {
-            return true;
-        }
-
-        public object CreateInstance(string virtualPath)
-        {
-            var relativePath = ToRelativePath(virtualPath);
-            return new WebViewPageFactory(_contentProvider).Create(virtualPath, relativePath);
-        }
-    }
-
     public class DirectoryContentProvider : IContentProvider
     {
         private readonly string[] _baseDirectories;
@@ -225,6 +138,13 @@ namespace Xania.AspNet.Simulator
         public DirectoryContentProvider(params string[] baseDirectories)
         {
             _baseDirectories = baseDirectories;
+        }
+
+        public bool Exists(string relativePath)
+        {
+            return _baseDirectories
+                .Select(baseDirectory => Path.Combine(baseDirectory, relativePath))
+                .Any(File.Exists);
         }
 
         public Stream Open(string relativePath)

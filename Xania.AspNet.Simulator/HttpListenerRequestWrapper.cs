@@ -77,5 +77,10 @@ namespace Xania.AspNet.Simulator
         {
             get { return true; }
         }
+
+        public override string MapPath(string virtualPath)
+        {
+            return @"C:\asdflaksdf\asdfa\asdfasdf.cshtml";
+        }
     }
 }

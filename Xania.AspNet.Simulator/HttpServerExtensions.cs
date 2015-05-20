@@ -10,7 +10,7 @@ namespace Xania.AspNet.Simulator
         public static void UseMvc(this HttpServerSimulator server, ControllerContainer controllerContainer)
         {
             ViewEngines.Engines.Clear();
-            ViewEngines.Engines.Add(new ControllerContextViewEngine());
+            ViewEngines.Engines.Add(new Razor.ControllerContextViewEngine());
 
             DisplayModeProvider.Instance.Modes.Clear();
             DisplayModeProvider.Instance.Modes.Add(new DisplayModeSimulator());

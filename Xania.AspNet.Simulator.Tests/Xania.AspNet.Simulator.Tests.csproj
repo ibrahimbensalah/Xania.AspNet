@@ -132,6 +132,10 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Views\Shared\_HelloLayout.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>_Layout.generated.cs</LastGenOutput>
+    </None>
     <None Include="Views\Shared\_Layout.cshtml">
       <Generator>RazorGenerator</Generator>
       <LastGenOutput>_Layout.generated.cs</LastGenOutput>
@@ -146,6 +150,7 @@
     <None Include="Views\Test\ViewWithModel.cshtml" />
     <None Include="Views\Test\ViewWithPartial.cshtml" />
     <None Include="Views\Test\_Partial.cshtml" />
+    <None Include="Views\_ViewStart.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Xania.AspNet.Simulator\Xania.AspNet.Simulator.csproj">

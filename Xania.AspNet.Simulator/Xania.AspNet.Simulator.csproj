@@ -86,15 +86,16 @@
     <Compile Include="HttpListenerRequestWrapper.cs" />
     <Compile Include="HttpListenerResponseWrapper.cs" />
     <Compile Include="HttpServerSimulator.cs" />
-    <Compile Include="IMvcApplication.cs" />
     <Compile Include="IContentProvider.cs" />
     <Compile Include="IControllerAction.cs" />
+    <Compile Include="IMvcApplication.cs" />
     <Compile Include="LinqActionDescriptor.cs" />
     <Compile Include="ActionRouterPathProvider.cs" />
     <Compile Include="HttpServerExtensions.cs" />
+    <Compile Include="MvcApplication.cs" />
     <Compile Include="MvcApplicationExtensions.cs" />
-    <Compile Include="RazorViewEngineSimulator.cs" />
-    <Compile Include="RazorViewSimulator.cs" />
+    <Compile Include="Razor\IWebViewPage.cs" />
+    <Compile Include="Razor\WebViewPageSimulator.cs" />
     <Compile Include="RouteDataValueProvider.cs" />
     <Compile Include="RouterExtensions.cs" />
     <Compile Include="ActionRequestWrapper.cs" />
@@ -106,7 +107,10 @@
     <Compile Include="SimpleSessionState.cs" />
     <Compile Include="SimulatorExtensions.cs" />
     <Compile Include="HttpControllerAction.cs" />
-    <Compile Include="WebViewPageFactory.cs" />
+    <Compile Include="Razor\IWebPageProvider.cs" />
+    <Compile Include="Razor\RazorViewEngineSimulator.cs" />
+    <Compile Include="Razor\RazorViewSimulator.cs" />
+    <Compile Include="Razor\WebViewPageFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

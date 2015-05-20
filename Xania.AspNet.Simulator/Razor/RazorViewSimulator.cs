@@ -1,10 +1,7 @@
-using System;
 using System.IO;
-using System.Web;
 using System.Web.Mvc;
-using System.Web.WebPages;
 
-namespace Xania.AspNet.Simulator
+namespace Xania.AspNet.Simulator.Razor
 {
     internal class RazorViewSimulator : IView
     {

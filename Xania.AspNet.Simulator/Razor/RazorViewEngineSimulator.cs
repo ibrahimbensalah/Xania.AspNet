@@ -1,7 +1,8 @@
 using System;
 using System.Web.Mvc;
+using Xania.AspNet.Simulator;
 
-namespace Xania.AspNet.Simulator
+namespace Xania.AspNet.Simulator.Razor
 {
     internal class RazorViewEngineSimulator : IViewEngine
     {
