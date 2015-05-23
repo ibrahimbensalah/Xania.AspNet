@@ -6,6 +6,7 @@ using System.Web;
 using FluentAssertions;
 using NUnit.Framework;
 using Xania.AspNet.Razor;
+using Xania.AspNet.Simulator.Tests.Controllers;
 
 namespace Xania.AspNet.Simulator.Tests.Server
 {

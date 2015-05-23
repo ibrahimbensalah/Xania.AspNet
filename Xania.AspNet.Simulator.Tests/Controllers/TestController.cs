@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Web.Mvc;
 
-namespace Xania.AspNet.Simulator.Tests
+namespace Xania.AspNet.Simulator.Tests.Controllers
 {
     [SuppressMessage("ReSharper", "Mvc.ViewNotResolved", Justification = "Views are not executed")]
     public class TestController : Controller

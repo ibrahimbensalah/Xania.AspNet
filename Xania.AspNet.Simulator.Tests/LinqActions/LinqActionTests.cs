@@ -1,5 +1,6 @@
 ﻿using System.Web.Mvc;
 using NUnit.Framework;
+using Xania.AspNet.Simulator.Tests.Controllers;
 
 namespace Xania.AspNet.Simulator.Tests.LinqActions
 {
