@@ -153,9 +153,13 @@
     <None Include="Views\_ViewStart.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Xania.AspNet.Mvc\Xania.AspNet.Core.csproj">
+    <ProjectReference Include="..\Xania.AspNet.Core\Xania.AspNet.Core.csproj">
       <Project>{F8ADA7A5-775A-4567-9587-D205119BA383}</Project>
       <Name>Xania.AspNet.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Xania.AspNet.Razor\Xania.AspNet.Razor.csproj">
+      <Project>{13966ce2-4fe0-432d-935d-6dfda4964b74}</Project>
+      <Name>Xania.AspNet.Razor</Name>
     </ProjectReference>
     <ProjectReference Include="..\Xania.AspNet.Simulator\Xania.AspNet.Simulator.csproj">
       <Project>{5c5ba4c8-3656-4159-8a0a-c3e6c60ab390}</Project>

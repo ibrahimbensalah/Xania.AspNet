@@ -45,29 +45,9 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Web" />
-    <Reference Include="System.Web.Helpers, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <Private>True</Private>
-      <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20710.0\lib\net40\System.Web.Helpers.dll</HintPath>
-    </Reference>
     <Reference Include="System.Web.Mvc, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <Private>True</Private>
       <HintPath>..\packages\Microsoft.AspNet.Mvc.4.0.30506.0\lib\net40\System.Web.Mvc.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web.Razor, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <Private>True</Private>
-      <HintPath>..\packages\Microsoft.AspNet.Razor.2.0.30506.0\lib\net40\System.Web.Razor.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web.WebPages, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <Private>True</Private>
-      <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20710.0\lib\net40\System.Web.WebPages.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web.WebPages.Deployment, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <Private>True</Private>
-      <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20710.0\lib\net40\System.Web.WebPages.Deployment.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web.WebPages.Razor, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <Private>True</Private>
-      <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20710.0\lib\net40\System.Web.WebPages.Razor.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -80,6 +60,7 @@
     <Compile Include="ControllerAction.cs" />
     <Compile Include="ActionRequestExtensions.cs" />
     <Compile Include="AspNetUtility.cs" />
+    <Compile Include="ControllerContextViewEngine.cs" />
     <Compile Include="DirectControllerAction.cs" />
     <Compile Include="HttpContextSimulator.cs" />
     <Compile Include="HttpListenerContextSimulator.cs" />
@@ -111,13 +92,9 @@
     <None Include="Xania.AspNet.Simulator.nuspec" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Xania.AspNet.Mvc\Xania.AspNet.Core.csproj">
+    <ProjectReference Include="..\Xania.AspNet.Core\Xania.AspNet.Core.csproj">
       <Project>{F8ADA7A5-775A-4567-9587-D205119BA383}</Project>
       <Name>Xania.AspNet.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Xania.AspNet.Razor\Xania.AspNet.Razor.csproj">
-      <Project>{13966ce2-4fe0-432d-935d-6dfda4964b74}</Project>
-      <Name>Xania.AspNet.Razor</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

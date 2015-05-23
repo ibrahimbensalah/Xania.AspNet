@@ -7,6 +7,5 @@ namespace Xania.AspNet.Core
     {
         IWebViewPage Create(ViewContext viewContext, string virtualPath, TextReader reader);
 
-        TextReader OpenText(string virtualPath, bool includeStartPage);
     }
 }

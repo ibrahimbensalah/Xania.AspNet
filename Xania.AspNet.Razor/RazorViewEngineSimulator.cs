@@ -2,15 +2,15 @@ using System;
 using System.Web.Mvc;
 using Xania.AspNet.Core;
 
-namespace Xania.AspNet.Simulator.Razor
+namespace Xania.AspNet.Razor
 {
     public class RazorViewEngineSimulator : IViewEngine
     {
-        private readonly IWebPageProvider _webPageProvider;
+        private readonly IMvcApplication _mvcApplication;
 
-        public RazorViewEngineSimulator(IWebPageProvider webPageProvider)
+        public RazorViewEngineSimulator(IMvcApplication mvcApplication)
         {
-            _webPageProvider = webPageProvider;
+            _mvcApplication = mvcApplication;
         }
 
         public ViewEngineResult FindPartialView(ControllerContext controllerContext, string partialViewName, bool useCache)
@@ -23,7 +23,7 @@ namespace Xania.AspNet.Simulator.Razor
             var controllerName = controllerContext.RouteData.GetRequiredString("controller");
             var virtualPath = String.Format(@"~/Views/{0}/{1}.cshtml", controllerName, viewName);
 
-            var view = new RazorViewSimulator(_webPageProvider, virtualPath);
+            var view = new RazorViewSimulator(_mvcApplication, virtualPath);
 
             return new ViewEngineResult(view, this);
         }

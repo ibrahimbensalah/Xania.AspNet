@@ -9,33 +9,34 @@ using System.Security.Principal;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
-using System.Web.WebPages;
 using Xania.AspNet.Core;
-using Xania.AspNet.Simulator.Razor;
 
 namespace Xania.AspNet.Simulator
 {
     public abstract class ControllerAction: IHttpRequest, IControllerAction
     {
         protected ControllerAction(RouteCollection routes)
+            : this(routes, new ViewEngineCollection())
         {
+        }
+
+        protected ControllerAction(RouteCollection routes, ViewEngineCollection viewEngines)
+        {
+            Routes = routes;
+            ViewEngines = viewEngines;
+
             FilterProviders = new FilterProviderCollection(System.Web.Mvc.FilterProviders.Providers);
             Cookies = new Collection<HttpCookie>();
             Session = new Dictionary<string, object>();
             Files = new Dictionary<string, Stream>();
             Resolve = DependencyResolver.Current.GetService;
-            Routes = routes;
         }
 
         public FilterProviderCollection FilterProviders { get; private set; }
 
         public IPrincipal User { get; set; }
 
-        public RouteCollection Routes { get; private set; }
-
         public IValueProvider ValueProvider { get; set; }
-
-        public IWebPageProvider WebPageProvider { get; set; }
 
         public ICollection<HttpCookie> Cookies { get; private set; }
         public IDictionary<string, object> Session { get; private set; }
@@ -46,30 +47,32 @@ namespace Xania.AspNet.Simulator
 
         public string UriPath { get; set; }
 
+        public RouteCollection Routes { get; private set; }
+
+        public ViewEngineCollection ViewEngines { get; private set; }
+
         public abstract ActionContext GetActionContext();
 
         protected virtual void Initialize(ControllerContext controllerContext)
         {
             HttpServerSimulator.PrintElapsedMilliseconds("initialize action");
-            var controllerBase = controllerContext.Controller;
+            var controller = controllerContext.Controller as Controller;
 
-            // Use empty value provider by default to prevent use of ASP.NET MVC default value providers
-            // Its not the purpose of this simulator framework to validate the ASP.NET MVC default value 
-            // providers. Either a value provider is not need in case model values are predefined or a 
-            // custom implementation is provided.
-            var valueProviders = new ValueProviderCollection();
-            if (ValueProvider != null)
-                valueProviders.Add(ValueProvider);
-            valueProviders.Add(new RouteDataValueProvider(controllerContext.RouteData, new CultureInfo("nl-NL")));
-            controllerBase.ValueProvider = valueProviders;
-            controllerBase.ControllerContext = controllerContext;
-            var controller = controllerBase as Controller;
             if (controller != null)
             {
-                controller.Url = new UrlHelper(controllerContext.RequestContext, Routes);
+                // Use empty value provider by default to prevent use of ASP.NET MVC default value providers
+                // Its not the purpose of this simulator framework to validate the ASP.NET MVC default value 
+                // providers. Either a value provider is not need in case model values are predefined or a 
+                // custom implementation is provided.
+                var valueProviders = new ValueProviderCollection();
+                if (ValueProvider != null)
+                    valueProviders.Add(ValueProvider);
+                valueProviders.Add(new RouteDataValueProvider(controllerContext.RouteData, new CultureInfo("nl-NL")));
 
-                IViewEngine viewEngine = new RazorViewEngineSimulator(WebPageProvider);
-                controller.ViewEngineCollection = new ViewEngineCollection(new[] {viewEngine});
+                controller.ValueProvider = valueProviders;
+                controller.ControllerContext = controllerContext;
+                controller.Url = new UrlHelper(controllerContext.RequestContext, Routes);
+                controller.ViewEngineCollection = ViewEngines;
             }
             HttpServerSimulator.PrintElapsedMilliseconds("initialize action complete");
         }

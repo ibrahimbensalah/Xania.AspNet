@@ -7,7 +7,8 @@ namespace Xania.AspNet.Simulator
     {
         public static HttpControllerAction Action(this ControllerContainer controllerContainer, string url)
         {
-            return new HttpControllerAction(controllerContainer) { UriPath = url };
+            var mvcApplication = new MvcApplication(controllerContainer);
+            return new HttpControllerAction(mvcApplication) { UriPath = url };
         }
 
         public static HttpControllerAction ParseAction(this ControllerContainer controllerContainer, string rawHttpRequest)
@@ -16,7 +17,7 @@ namespace Xania.AspNet.Simulator
             var first = lines.First();
 
             var parts = first.Split(' ');
-            return new HttpControllerAction(controllerContainer)
+            return new HttpControllerAction(new MvcApplication(controllerContainer))
             {
                 HttpMethod = parts[0],
                 UriPath = parts[1]

@@ -8,7 +8,6 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 using Xania.AspNet.Core;
-using Xania.AspNet.Simulator.Razor;
 
 namespace Xania.AspNet.Simulator
 {
@@ -23,7 +22,10 @@ namespace Xania.AspNet.Simulator
             _contentProvider = contentProvider ?? GetDefaultContentProvider();
 
             Routes = GetRoutes();
+            ViewEngines = new ViewEngineCollection();
         }
+
+        public ViewEngineCollection ViewEngines { get; private set; }
 
         public RouteCollection Routes { get; private set; }
 
@@ -86,18 +88,7 @@ namespace Xania.AspNet.Simulator
                 ? (TextReader) new ConcatenatedStream(_contentProvider.Open(@"Views\_ViewStart.cshtml"), contentStream)
                 : new StreamReader(contentStream);
         }
-
-        //public IWebViewPage CreateWithStartPage(ViewContext viewContext, string virtualPath)
-        //{
-        //    using (var stream = OpenText(virtualPath, true))
-        //    {
-        //        var webViewPage = new WebViewPageFactory().Create(virtualPath, stream);
-        //        webViewPage.Initialize(viewContext, virtualPath, this);
-
-        //        return webViewPage;
-        //    }
-        //}
-
+        
         private string ToRelativePath(string virtualPath)
         {
             return virtualPath.Substring(2).Replace("/", "\\");
@@ -107,14 +98,6 @@ namespace Xania.AspNet.Simulator
         {
             var relativePath = ToRelativePath(virtualPath);
             return _contentProvider.Exists(relativePath);
-        }
-
-        public IWebViewPage Create(string virtualPath)
-        {
-            using (var reader = OpenText(virtualPath, false))
-            {
-                return new WebViewPageFactory().Create(virtualPath, reader);
-            }
         }
 
         public IHtmlString Action(ViewContext viewContext, string actionName, object routeValues)
@@ -127,15 +110,6 @@ namespace Xania.AspNet.Simulator
             return MvcHtmlString.Create(action.Output.ToString());
 
         }
-
-        public IWebViewPage Create(ViewContext viewContext, string virtualPath, TextReader reader)
-        {
-            var webPage = new WebViewPageFactory().Create(virtualPath, reader);
-            webPage.Initialize(viewContext, virtualPath, this);
-
-            return webPage;
-        }
-
 
     }
 

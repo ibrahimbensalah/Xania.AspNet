@@ -3,15 +3,13 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Web;
-using System.Web.Mvc;
 using System.Web.Mvc.Razor;
 using System.Web.Razor;
 using System.Web.WebPages;
 using Microsoft.CSharp;
 using Xania.AspNet.Core;
 
-namespace Xania.AspNet.Simulator.Razor
+namespace Xania.AspNet.Razor
 {
     public class WebViewPageFactory
     {
@@ -80,87 +78,4 @@ namespace Xania.AspNet.Simulator.Razor
         }
     }
 
-    public class StartBaseSimulator : WebPageRenderingBase
-    {
-        public override void Execute()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Write(HelperResult result)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Write(object value)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void WriteLiteral(object value)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void ExecutePageHierarchy()
-        {
-        }
-
-        public override HelperResult RenderPage(string path, params object[] data)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override string Layout
-        {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
-        }
-
-        public override IDictionary<object, dynamic> PageData
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public override dynamic Page
-        {
-            get { throw new NotImplementedException(); }
-        }
-    }
-
-    public class VirtualPathFactorySimulator : IVirtualPathFactory
-    {
-        private readonly IMvcApplication _mvcApplication;
-
-        public VirtualPathFactorySimulator(IMvcApplication mvcApplication)
-        {
-            _mvcApplication = mvcApplication;
-        }
-
-        public bool Exists(string virtualPath)
-        {
-            return _mvcApplication.Exists(virtualPath);
-        }
-
-        public object CreateInstance(string virtualPath)
-        {
-            return _mvcApplication.Create(virtualPath);
-        }
-    }
-
-    public class HtmlHelperSimulator<T> : HtmlHelper<T>
-    {
-        private readonly IMvcApplication _mvcApplication;
-
-        internal HtmlHelperSimulator(ViewContext viewContext, IViewDataContainer viewDataContainer, IMvcApplication mvcApplication) 
-            : base(viewContext, viewDataContainer, mvcApplication.Routes)
-        {
-            _mvcApplication = mvcApplication;
-        }
-
-        public IHtmlString Action(string actionName, object routeValues)
-        {
-            return _mvcApplication.Action(ViewContext, actionName, routeValues);
-        }
-    }
 }

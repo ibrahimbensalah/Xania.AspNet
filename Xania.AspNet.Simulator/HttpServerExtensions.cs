@@ -1,19 +1,16 @@
 ﻿using System;
 using System.Web;
 using System.Web.Mvc;
-using System.Web.WebPages;
+using Xania.AspNet.Core;
 
 namespace Xania.AspNet.Simulator
 {
     public static class HttpServerExtensions
     {
-        public static void UseMvc(this HttpServerSimulator server, ControllerContainer controllerContainer)
+        public static IMvcApplication UseMvc(this HttpServerSimulator server, ControllerContainer controllerContainer)
         {
             ViewEngines.Engines.Clear();
-            ViewEngines.Engines.Add(new Razor.ControllerContextViewEngine());
-
-            DisplayModeProvider.Instance.Modes.Clear();
-            DisplayModeProvider.Instance.Modes.Add(new DisplayModeSimulator());
+            ViewEngines.Engines.Add(new ControllerContextViewEngine());
 
             var mvcApplication = new MvcApplication(controllerContainer);
 
@@ -27,25 +24,9 @@ namespace Xania.AspNet.Simulator
 
                 action.ExecuteResult();
             });
+
+            return mvcApplication;
         }
 
-    }
-
-    public class DisplayModeSimulator : IDisplayMode
-    {
-        public bool CanHandleContext(HttpContextBase httpContext)
-        {
-            return true;
-        }
-
-        public DisplayInfo GetDisplayInfo(HttpContextBase httpContext, string virtualPath, Func<string, bool> virtualPathExists)
-        {
-            return new DisplayInfo(virtualPath, this);
-        }
-
-        public string DisplayModeId
-        {
-            get { throw new NotImplementedException(); }
-        }
     }
 }

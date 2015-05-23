@@ -9,22 +9,26 @@ namespace Xania.AspNet.Simulator
     public class HttpControllerAction : ControllerAction
     {
         public HttpControllerAction(Core.IControllerFactory controllerFactory)
-            : base(MvcApplication.GetRoutes())
+            : this(new MvcApplication(controllerFactory))
         {
-            ControllerFactory = controllerFactory;
+        }
+
+        public HttpControllerAction(IMvcApplication mvcApplication)
+            : base(mvcApplication.Routes, mvcApplication.ViewEngines)
+        {
+            MvcApplication = mvcApplication;
         }
 
         private HttpContextBase HttpContext { get; set; }
 
-        public Core.IControllerFactory ControllerFactory { get; set; }
+        public IMvcApplication MvcApplication { get; set; }
 
         public HttpControllerAction(IMvcApplication mvcApplication, [NotNull] HttpContextBase context)
-            : base(mvcApplication.Routes)
+            : this(mvcApplication)
         {
-            if (context == null) throw new ArgumentNullException("context");
+            if (context == null) 
+                throw new ArgumentNullException("context");
 
-            ControllerFactory = mvcApplication;
-            WebPageProvider = mvcApplication;
             HttpContext = context;
         }
 
@@ -50,7 +54,7 @@ namespace Xania.AspNet.Simulator
 
             var controllerName = routeData.GetRequiredString("controller");
 
-            var controller = ControllerFactory.CreateController(controllerName);
+            var controller = MvcApplication.CreateController(controllerName);
             var requestContext = new RequestContext(httpContext, routeData);
 
             var controllerContext = new ControllerContext(requestContext, controller);

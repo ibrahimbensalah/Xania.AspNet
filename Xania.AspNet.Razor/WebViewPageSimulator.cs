@@ -4,7 +4,7 @@ using System.Web.Mvc;
 using System.Web.WebPages;
 using Xania.AspNet.Core;
 
-namespace Xania.AspNet.Simulator.Razor
+namespace Xania.AspNet.Razor
 {
     public abstract class WebViewPageSimulator<TModel> : WebViewPage<TModel>, IWebViewPage
     {

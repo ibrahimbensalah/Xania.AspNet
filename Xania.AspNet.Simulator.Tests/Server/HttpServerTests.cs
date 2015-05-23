@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 using FluentAssertions;
 using NUnit.Framework;
+using Xania.AspNet.Razor;
 
 namespace Xania.AspNet.Simulator.Tests.Server
 {
@@ -47,7 +47,8 @@ namespace Xania.AspNet.Simulator.Tests.Server
             var controllerContainer = new ControllerContainer()
                 .RegisterController("test", new TestController());
 
-            _server.UseMvc(controllerContainer);
+            _server.UseMvc(controllerContainer)
+                .EnableRazor();
 
             using (var client = new HttpClient())
             {

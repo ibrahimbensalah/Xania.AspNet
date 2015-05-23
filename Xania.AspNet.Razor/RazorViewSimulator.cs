@@ -2,16 +2,16 @@ using System.IO;
 using System.Web.Mvc;
 using Xania.AspNet.Core;
 
-namespace Xania.AspNet.Simulator.Razor
+namespace Xania.AspNet.Razor
 {
     internal class RazorViewSimulator : IView
     {
-        private readonly IWebPageProvider _webPageProvider;
+        private readonly IMvcApplication _mvcApplication;
         private readonly string _virtualPath;
 
-        public RazorViewSimulator(IWebPageProvider webPageProvider, string virtualPath)
+        public RazorViewSimulator(IMvcApplication mvcApplication, string virtualPath)
         {
-            _webPageProvider = webPageProvider;
+            _mvcApplication = mvcApplication;
             _virtualPath = virtualPath;
         }
 
@@ -23,9 +23,9 @@ namespace Xania.AspNet.Simulator.Razor
 
         private IWebViewPage Create(ViewContext viewContext)
         {
-            using (var reader = _webPageProvider.OpenText(_virtualPath, true))
+            using (var reader = _mvcApplication.OpenText(_virtualPath, true))
             {
-                return _webPageProvider.Create(viewContext, _virtualPath, reader);
+                return _mvcApplication.Create(viewContext, _virtualPath, reader);
             }
         }
     }
