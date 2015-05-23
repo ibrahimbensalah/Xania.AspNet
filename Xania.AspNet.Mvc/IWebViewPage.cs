@@ -2,7 +2,7 @@ using System.IO;
 using System.Web;
 using System.Web.Mvc;
 
-namespace Xania.AspNet.Simulator.Razor
+namespace Xania.AspNet.Core
 {
     public interface IWebViewPage
     {

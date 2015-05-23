@@ -153,6 +153,10 @@
     <None Include="Views\_ViewStart.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Xania.AspNet.Mvc\Xania.AspNet.Core.csproj">
+      <Project>{F8ADA7A5-775A-4567-9587-D205119BA383}</Project>
+      <Name>Xania.AspNet.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Xania.AspNet.Simulator\Xania.AspNet.Simulator.csproj">
       <Project>{5c5ba4c8-3656-4159-8a0a-c3e6c60ab390}</Project>
       <Name>Xania.AspNet.Simulator</Name>

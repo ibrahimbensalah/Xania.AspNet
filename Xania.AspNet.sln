@@ -20,6 +20,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xania.AspNet.TagHelpers.Tes
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{3FC8FA3B-0EE8-413C-9840-7F2108306AAB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xania.AspNet.Razor", "Xania.AspNet.Razor\Xania.AspNet.Razor.csproj", "{13966CE2-4FE0-432D-935D-6DFDA4964B74}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xania.AspNet.Core", "Xania.AspNet.Mvc\Xania.AspNet.Core.csproj", "{F8ADA7A5-775A-4567-9587-D205119BA383}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,6 +46,14 @@ Global
 		{FDAF5A31-8117-4A01-ABE2-69B6362086C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FDAF5A31-8117-4A01-ABE2-69B6362086C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FDAF5A31-8117-4A01-ABE2-69B6362086C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{13966CE2-4FE0-432D-935D-6DFDA4964B74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13966CE2-4FE0-432D-935D-6DFDA4964B74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13966CE2-4FE0-432D-935D-6DFDA4964B74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13966CE2-4FE0-432D-935D-6DFDA4964B74}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8ADA7A5-775A-4567-9587-D205119BA383}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8ADA7A5-775A-4567-9587-D205119BA383}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8ADA7A5-775A-4567-9587-D205119BA383}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8ADA7A5-775A-4567-9587-D205119BA383}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

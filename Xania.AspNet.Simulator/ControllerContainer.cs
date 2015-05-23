@@ -5,7 +5,7 @@ using System.Web.Mvc;
 
 namespace Xania.AspNet.Simulator
 {
-    public class ControllerContainer : IControllerFactory
+    public class ControllerContainer : Core.IControllerFactory
     {
         private readonly Dictionary<string, ControllerBase> _controllerMap;
 

@@ -1,14 +1,14 @@
 using System;
-using System.IO;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
+using Xania.AspNet.Core;
 
 namespace Xania.AspNet.Simulator
 {
     public class HttpControllerAction : ControllerAction
     {
-        public HttpControllerAction(IControllerFactory controllerFactory)
+        public HttpControllerAction(Core.IControllerFactory controllerFactory)
             : base(MvcApplication.GetRoutes())
         {
             ControllerFactory = controllerFactory;
@@ -16,7 +16,7 @@ namespace Xania.AspNet.Simulator
 
         private HttpContextBase HttpContext { get; set; }
 
-        public IControllerFactory ControllerFactory { get; set; }
+        public Core.IControllerFactory ControllerFactory { get; set; }
 
         public HttpControllerAction(IMvcApplication mvcApplication, [NotNull] HttpContextBase context)
             : base(mvcApplication.Routes)
@@ -71,10 +71,5 @@ namespace Xania.AspNet.Simulator
             var actionDescriptor = controllerDescriptor.FindAction(controller.ControllerContext, actionName);
             return actionDescriptor;
         }
-    }
-
-    public interface IControllerFactory
-    {
-        ControllerBase CreateController(string controllerName);
     }
 }

@@ -1,6 +1,6 @@
 using System.IO;
 
-namespace Xania.AspNet.Simulator
+namespace Xania.AspNet.Core
 {
     public interface IContentProvider
     {

@@ -4,18 +4,20 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
+using Xania.AspNet.Core;
 using Xania.AspNet.Simulator.Razor;
 
 namespace Xania.AspNet.Simulator
 {
     public class MvcApplication : IMvcApplication
     {
-        private readonly IControllerFactory _controllerFactory;
+        private readonly Core.IControllerFactory _controllerFactory;
         private readonly IContentProvider _contentProvider;
 
-        public MvcApplication(IControllerFactory controllerFactory, IContentProvider contentProvider = null)
+        public MvcApplication(Core.IControllerFactory controllerFactory, IContentProvider contentProvider = null)
         {
             _controllerFactory = controllerFactory;
             _contentProvider = contentProvider ?? GetDefaultContentProvider();
@@ -43,7 +45,7 @@ namespace Xania.AspNet.Simulator
         }
 
 
-        private IContentProvider GetDefaultContentProvider()
+        private Core.IContentProvider GetDefaultContentProvider()
         {
             var directories = new List<string>();
 
@@ -115,6 +117,17 @@ namespace Xania.AspNet.Simulator
             }
         }
 
+        public IHtmlString Action(ViewContext viewContext, string actionName, object routeValues)
+        {
+            var controllerName = viewContext.RouteData.GetRequiredString("controller");
+            var action = this.Action(controllerName, actionName);
+            action.Data(routeValues);
+
+            action.Execute().ExecuteResult();
+            return MvcHtmlString.Create(action.Output.ToString());
+
+        }
+
         public IWebViewPage Create(ViewContext viewContext, string virtualPath, TextReader reader)
         {
             var webPage = new WebViewPageFactory().Create(virtualPath, reader);
@@ -122,6 +135,8 @@ namespace Xania.AspNet.Simulator
 
             return webPage;
         }
+
+
     }
 
     internal class ConcatenatedStream : TextReader

@@ -2,16 +2,12 @@ using System.IO;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.WebPages;
+using Xania.AspNet.Core;
 
 namespace Xania.AspNet.Simulator.Razor
 {
     public abstract class WebViewPageSimulator<TModel> : WebViewPage<TModel>, IWebViewPage
     {
-
-        protected WebViewPageSimulator()
-        {
-        }
-
         public new HtmlHelperSimulator<TModel> Html { get; set; }
 
         public virtual void Initialize(ViewContext viewContext, string virtualPath, IMvcApplication mvcApplication)

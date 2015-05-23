@@ -3,15 +3,17 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Web;
 using System.Web.Mvc;
 using System.Web.Mvc.Razor;
 using System.Web.Razor;
 using System.Web.WebPages;
 using Microsoft.CSharp;
+using Xania.AspNet.Core;
 
 namespace Xania.AspNet.Simulator.Razor
 {
-    internal class WebViewPageFactory
+    public class WebViewPageFactory
     {
         public IWebViewPage Create(string virtualPath, TextReader reader)
         {
@@ -156,14 +158,9 @@ namespace Xania.AspNet.Simulator.Razor
             _mvcApplication = mvcApplication;
         }
 
-        public MvcHtmlString Action(string actionName, object routeValues)
+        public IHtmlString Action(string actionName, object routeValues)
         {
-            var controllerName = ViewContext.RouteData.GetRequiredString("controller");
-            var action = _mvcApplication.Action(controllerName, actionName);
-            action.Data(routeValues);
-
-            action.Execute().ExecuteResult();
-            return MvcHtmlString.Create(action.Output.ToString());
+            return _mvcApplication.Action(ViewContext, actionName, routeValues);
         }
     }
 }

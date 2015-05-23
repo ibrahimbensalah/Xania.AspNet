@@ -1,8 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Web.Mvc;
-using System.Web.Routing;
-using Xania.AspNet.Simulator.Razor;
+using Xania.AspNet.Core;
 
 namespace Xania.AspNet.Simulator
 {

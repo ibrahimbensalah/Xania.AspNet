@@ -1,5 +1,6 @@
 using System.IO;
 using System.Web.Mvc;
+using Xania.AspNet.Core;
 
 namespace Xania.AspNet.Simulator.Razor
 {
