@@ -19,10 +19,13 @@ namespace Xania.AspNet.Simulator
                 var action = new HttpControllerAction(mvcApplication, context)
                     .Execute();
 
-                if (action == null)
-                    throw new HttpException(404, context.Request.Url.ToString());
+                if (action != null)
+                {
+                    action.ExecuteResult();
+                    return true;
+                }
 
-                action.ExecuteResult();
+                return false;
             });
 
             return mvcApplication;

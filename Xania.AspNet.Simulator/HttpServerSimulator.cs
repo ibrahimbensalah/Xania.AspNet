@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web;
@@ -9,6 +11,8 @@ namespace Xania.AspNet.Simulator
     public class HttpServerSimulator : IDisposable
     {
         private readonly HttpListener _listener;
+        private readonly ConcurrentBag<Func<HttpContextBase, bool>> _handlers = new ConcurrentBag<Func<HttpContextBase, bool>>();
+        private bool _running;
 
         private static readonly Stopwatch Stopwatch = new Stopwatch();
 
@@ -65,13 +69,21 @@ namespace Xania.AspNet.Simulator
             }
         }
 
-        public async void Use(Action<HttpContextBase> handler)
+        public void Use(Func<HttpContextBase, bool> handler)
         {
-            bool running = true;
+            _handlers.Add(handler);
+            EnsureStarted();
+        }
 
-            while (running)
+        private async void EnsureStarted()
+        {
+            if (_running)
+                return;
+            _running = true;
+
+            while (_running)
             {
-                running = await GetContextAsync().ContinueWith(task =>
+                _running = await GetContextAsync().ContinueWith(task =>
                 {
                     var context = task.Result;
                     if (context == null)
@@ -79,11 +91,27 @@ namespace Xania.AspNet.Simulator
 
                     try
                     {
-                        PrintElapsedMilliseconds("handler started");
-                        handler(context);
-                        PrintElapsedMilliseconds("handler complete");
+                        if (!_handlers.Any(h => h(context)))
+                        {
+                            // not served
+                            context.Response.StatusCode = (int) HttpStatusCode.NotFound;
+                            context.Response.StatusDescription = "Resource not found";
+                        }
 
                         Stopwatch.Reset();
+                    }
+                    catch (HttpException ex)
+                    {
+                        context.Response.StatusCode = ex.GetHttpCode();
+                        context.Response.StatusDescription = ex.Message;
+                        context.Response.Write(ex.Message);
+                        var htmlErrorMessage = ex.GetHtmlErrorMessage();
+
+                        if (htmlErrorMessage != null)
+                        {
+                            context.Response.Write("\n");
+                            context.Response.Write(htmlErrorMessage);
+                        }
                     }
                     catch (Exception ex)
                     {

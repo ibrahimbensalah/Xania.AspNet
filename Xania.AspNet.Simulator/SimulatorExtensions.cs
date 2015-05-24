@@ -119,12 +119,12 @@ namespace Xania.AspNet.Simulator
             return resolver.GetService<TController>().Execute(actionExpression);
         }
 
-        public static ControllerContainer RegisterControllers(this ControllerContainer application, params Assembly[] assemblies)
+        public static ControllerContainer RegisterControllers(this ControllerContainer container, params Assembly[] assemblies)
         {
-            return RegisterControllers(application, null, assemblies);
+            return RegisterControllers(container, null, assemblies);
         }
 
-        public static ControllerContainer RegisterControllers(this ControllerContainer application,
+        public static ControllerContainer RegisterControllers(this ControllerContainer container,
             IDependencyResolver dependencyResolver, params Assembly[] assemblies)
         {
             const string controllerPostFix = "Controller";
@@ -137,15 +137,18 @@ namespace Xania.AspNet.Simulator
 
             foreach (var type in controllerTypes)
             {
-                var name = type.Name.Substring(0, type.Name.Length - controllerPostFix.Length);
-                var instance = (dependencyResolver == null)
-                    ? Activator.CreateInstance(type)
-                    : dependencyResolver.GetService(type);
+                var controllerType = type;
+                var name = controllerType.Name.Substring(0, controllerType.Name.Length - controllerPostFix.Length);
 
-                application.RegisterController(name, (ControllerBase) instance);
+                Func<ControllerBase> factory =
+                    () => (dependencyResolver == null)
+                        ? (ControllerBase)Activator.CreateInstance(controllerType)
+                        : (ControllerBase)dependencyResolver.GetService(controllerType);
+
+                container.RegisterController(name, factory);
             }
 
-            return application;
+            return container;
         }
 
         private static IEnumerable<Type> ScanTypes(params Assembly[] assemblies)

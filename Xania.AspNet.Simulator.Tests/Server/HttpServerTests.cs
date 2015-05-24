@@ -84,10 +84,12 @@ namespace Xania.AspNet.Simulator.Tests.Server
             }
         }
 
-        void Echo(HttpContextBase contextBase)
+        bool Echo(HttpContextBase contextBase)
         {
             var message = contextBase.Request.Params["message"];
             contextBase.Response.Output.Write(message);
+
+            return true;
         }
     }
 }
