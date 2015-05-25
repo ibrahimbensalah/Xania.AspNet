@@ -77,7 +77,7 @@ namespace Xania.AspNet.Simulator.Tests.Server
             using (var client = new HttpClient())
             {
                 // act
-                var result = client.GetByteArrayAsync(BaseUrl + path + "?dummy query").Result;
+                var result = client.GetByteArrayAsync(BaseUrl + path).Result;
 
                 // assert
                 var mem = new MemoryStream();

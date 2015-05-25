@@ -157,7 +157,7 @@
       <Project>{F8ADA7A5-775A-4567-9587-D205119BA383}</Project>
       <Name>Xania.AspNet.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Xania.AspNet.Razor2\Xania.AspNet.Razor2.csproj">
+    <ProjectReference Include="..\Xania.AspNet.Razor\Xania.AspNet.Razor.csproj">
       <Project>{13966ce2-4fe0-432d-935d-6dfda4964b74}</Project>
       <Name>Xania.AspNet.Razor</Name>
     </ProjectReference>
