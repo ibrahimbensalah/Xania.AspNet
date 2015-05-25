@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
@@ -61,6 +62,28 @@ namespace Xania.AspNet.Simulator.Tests.Server
 
                 // assert
                 result.Should().Be(content);
+            }
+        }
+
+        [TestCase("app.config")]
+        [TestCase("packages.config")]
+        [TestCase("Views/_ViewStart.cshtml")]
+        public void StaticModuleTest(string path)
+        {
+            // arrange
+            var contentProvider = DirectoryContentProvider.GetDefault();
+            _server.UseStatic(contentProvider);
+
+            using (var client = new HttpClient())
+            {
+                // act
+                var result = client.GetByteArrayAsync(BaseUrl + path + "?dummy query").Result;
+
+                // assert
+                var mem = new MemoryStream();
+                contentProvider.Open(path).CopyTo(mem);
+                var content = mem.ToArray();
+                Assert.AreEqual(content, result);
             }
         }
 

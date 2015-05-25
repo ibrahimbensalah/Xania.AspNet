@@ -16,10 +16,13 @@ namespace Xania.AspNet.Simulator
         private readonly Core.IControllerFactory _controllerFactory;
         private readonly IContentProvider _contentProvider;
 
-        public MvcApplication(Core.IControllerFactory controllerFactory, IContentProvider contentProvider = null)
+        public MvcApplication([NotNull] Core.IControllerFactory controllerFactory, IContentProvider contentProvider = null)
         {
+            if (controllerFactory == null) 
+                throw new ArgumentNullException("controllerFactory");
+
             _controllerFactory = controllerFactory;
-            _contentProvider = contentProvider ?? GetDefaultContentProvider();
+            _contentProvider = contentProvider ?? DirectoryContentProvider.GetDefault();
 
             Routes = GetRoutes();
             ViewEngines = new ViewEngineCollection();
@@ -46,25 +49,6 @@ namespace Xania.AspNet.Simulator
             return routes;
         }
 
-
-        private Core.IContentProvider GetDefaultContentProvider()
-        {
-            var directories = new List<string>();
-
-            var appDomainBaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            directories.Add(appDomainBaseDirectory);
-
-            var regex = new Regex(@"(.*)\\bin\\[^\\]*\\?$");
-
-            var match = regex.Match(appDomainBaseDirectory);
-            if (match.Success)
-            {
-                var sourceBaseDirectory = match.Groups[1].Value;
-                directories.Add(sourceBaseDirectory);
-            }
-
-            return new DirectoryContentProvider(directories.ToArray());
-        }
 
         public ControllerBase CreateController(string controllerName)
         {

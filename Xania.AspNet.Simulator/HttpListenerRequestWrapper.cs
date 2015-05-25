@@ -57,6 +57,11 @@ namespace Xania.AspNet.Simulator
             get { return "~" + _request.RawUrl; }
         }
 
+        public override string FilePath
+        {
+            get { return _request.Url.AbsolutePath; }
+        }
+
         public override string ApplicationPath
         {
             get

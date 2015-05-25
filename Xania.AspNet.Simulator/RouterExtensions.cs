@@ -7,7 +7,7 @@ namespace Xania.AspNet.Simulator
     {
         public static HttpControllerAction Action(this ControllerContainer controllerContainer, string url)
         {
-            var mvcApplication = new MvcApplication(controllerContainer);
+            var mvcApplication = new MvcApplication(controllerContainer, DirectoryContentProvider.GetDefault());
             return new HttpControllerAction(mvcApplication) { UriPath = url };
         }
 
