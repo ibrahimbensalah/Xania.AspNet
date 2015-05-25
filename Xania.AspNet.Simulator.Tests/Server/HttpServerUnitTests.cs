@@ -12,23 +12,8 @@ using Xania.AspNet.Simulator.Tests.Controllers;
 namespace Xania.AspNet.Simulator.Tests.Server
 {
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1001:TypesThatOwnDisposableFieldsShouldBeDisposable")]
-    public class HttpServerTests
+    public class HttpServerUnitTests : HttpServerTestBase
     {
-        const string BaseUrl = "http://localhost:9989/";
-        private HttpServerSimulator _server;
-
-        [SetUp]
-        public void StartServer()
-        {
-            _server = new HttpServerSimulator(BaseUrl);
-        }
-
-        [TearDown]
-        public void StopServer()
-        {
-            _server.Dispose();
-        }
-
         [TestCase("test/echo/hello", "hello")]
         [TestCase("test/echo/simulator", "simulator")]
         [TestCase("test/actionusingurl", "/test")]
@@ -49,7 +34,7 @@ namespace Xania.AspNet.Simulator.Tests.Server
             var controllerContainer = new ControllerContainer()
                 .RegisterController("test", new TestController());
 
-            _server.UseMvc(controllerContainer)
+            Server.UseMvc(controllerContainer)
                 .EnableRazor();
 
             using (var client = new HttpClient())
@@ -72,7 +57,7 @@ namespace Xania.AspNet.Simulator.Tests.Server
         {
             // arrange
             var contentProvider = DirectoryContentProvider.GetDefault();
-            _server.UseStatic(contentProvider);
+            Server.UseStatic(contentProvider);
 
             using (var client = new HttpClient())
             {
@@ -90,7 +75,7 @@ namespace Xania.AspNet.Simulator.Tests.Server
         [Test]
         public void SimultanousRequestsTest()
         {
-            _server.Use(Echo);
+            Server.Use(Echo);
 
             using (var client = new HttpClient())
             {

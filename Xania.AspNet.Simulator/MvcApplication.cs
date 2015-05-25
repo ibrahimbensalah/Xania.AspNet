@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Optimization;
 using System.Web.Routing;
 using Xania.AspNet.Core;
 
@@ -26,11 +28,14 @@ namespace Xania.AspNet.Simulator
 
             Routes = GetRoutes();
             ViewEngines = new ViewEngineCollection();
+            Bundles = new BundleCollection();
         }
 
         public ViewEngineCollection ViewEngines { get; private set; }
 
         public RouteCollection Routes { get; private set; }
+
+        public BundleCollection Bundles { get; private set; }
 
         public static RouteCollection GetRoutes()
         {
@@ -82,6 +87,12 @@ namespace Xania.AspNet.Simulator
         {
             var relativePath = ToRelativePath(virtualPath);
             return _contentProvider.Exists(relativePath);
+        }
+
+        public string GetPhysicalPath(string virtualPath)
+        {
+            var relativePath = ToRelativePath(virtualPath);
+            return _contentProvider.GetPhysicalPath(relativePath);
         }
 
         public IHtmlString Action(ViewContext viewContext, string actionName, object routeValues)

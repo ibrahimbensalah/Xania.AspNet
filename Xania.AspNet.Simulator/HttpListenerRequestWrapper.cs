@@ -8,6 +8,7 @@ namespace Xania.AspNet.Simulator
     internal class HttpListenerRequestWrapper: HttpRequestBase
     {
         private readonly HttpListenerRequest _request;
+        private readonly string _physicalApplicationPath;
         private NameValueCollection _params;
         private NameValueCollection _serverVariables;
         private readonly HttpCookieCollection _cookies;
@@ -15,6 +16,7 @@ namespace Xania.AspNet.Simulator
         public HttpListenerRequestWrapper(HttpListenerRequest request)
         {
             _request = request;
+            _physicalApplicationPath = null;
             _cookies = new HttpCookieCollection();
         }
 
@@ -57,6 +59,11 @@ namespace Xania.AspNet.Simulator
             get { return "~" + _request.RawUrl; }
         }
 
+        public override string PhysicalApplicationPath
+        {
+            get { return _physicalApplicationPath; }
+        }
+
         public override string FilePath
         {
             get { return _request.Url.AbsolutePath; }
@@ -81,6 +88,11 @@ namespace Xania.AspNet.Simulator
         public override bool IsLocal
         {
             get { return true; }
+        }
+
+        public override bool IsAuthenticated
+        {
+            get { return _request.IsAuthenticated; }
         }
 
         public override string MapPath(string virtualPath)

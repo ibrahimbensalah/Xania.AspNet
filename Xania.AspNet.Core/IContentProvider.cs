@@ -6,5 +6,6 @@ namespace Xania.AspNet.Core
     {
         Stream Open(string relativePath);
         bool Exists(string relativePath);
+        string GetPhysicalPath(string relativePath);
     }
 }

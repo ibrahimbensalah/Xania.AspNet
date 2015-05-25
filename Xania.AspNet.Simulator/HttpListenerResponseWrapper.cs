@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Net;
@@ -67,6 +68,11 @@ namespace Xania.AspNet.Simulator
         public override Stream OutputStream
         {
             get { return _outputStream; }
+        }
+
+        public override NameValueCollection Headers
+        {
+            get { return _listenerResponse.Headers; }
         }
 
         public override string ApplyAppPathModifier(string virtualPath)

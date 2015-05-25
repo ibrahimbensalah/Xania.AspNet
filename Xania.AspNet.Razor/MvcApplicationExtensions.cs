@@ -1,5 +1,7 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Web.Mvc;
+using System.Web.Optimization;
 using System.Web.WebPages;
 using Xania.AspNet.Core;
 
@@ -29,6 +31,14 @@ namespace Xania.AspNet.Razor
             DisplayModeProvider.Instance.Modes.Add(new DisplayModeSimulator());
 
             mvcApplication.ViewEngines.Add(new RazorViewEngineSimulator(mvcApplication));
+
+            BundleTable.MapPathMethod = virtualPath =>
+            {
+                var path = mvcApplication.GetPhysicalPath(virtualPath);
+                Console.WriteLine("map path {0} => {1}", virtualPath, path);
+
+                return path;
+            };
 
             return mvcApplication;
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -11,7 +12,7 @@ namespace Xania.AspNet.Simulator
     public class HttpServerSimulator : IDisposable
     {
         private readonly HttpListener _listener;
-        private readonly ConcurrentBag<Func<HttpContextBase, bool>> _handlers = new ConcurrentBag<Func<HttpContextBase, bool>>();
+        private readonly List<Func<HttpContextBase, bool>> _handlers = new List<Func<HttpContextBase, bool>>();
         private bool _running;
 
         private static readonly Stopwatch Stopwatch = new Stopwatch();

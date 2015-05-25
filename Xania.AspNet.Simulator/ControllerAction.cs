@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -6,6 +7,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.Principal;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
@@ -139,21 +141,33 @@ namespace Xania.AspNet.Simulator
     public class DirectoryContentProvider : IContentProvider
     {
         private readonly string[] _baseDirectories;
+        private readonly IDictionary<string, string> _registeredContent;
 
         public DirectoryContentProvider(params string[] baseDirectories)
         {
             _baseDirectories = baseDirectories;
+            _registeredContent = new ConcurrentDictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
         }
 
         public bool Exists(string relativePath)
         {
-            return _baseDirectories
-                .Select(baseDirectory => Path.Combine(baseDirectory, relativePath))
+            return _registeredContent.ContainsKey(relativePath) || 
+                _baseDirectories.Select(baseDirectory => Path.Combine(baseDirectory, relativePath))
                 .Any(File.Exists);
+        }
+
+        public string GetPhysicalPath(string relativePath)
+        {
+            return _baseDirectories.Select(baseDirectory => Path.Combine(baseDirectory, relativePath))
+                .FirstOrDefault(p => Directory.Exists(p) || File.Exists(p)) ?? string.Empty;
         }
 
         public Stream Open(string relativePath)
         {
+            string content;
+            if (_registeredContent.TryGetValue(relativePath, out content))
+                return new MemoryStream(Encoding.Default.GetBytes(content));
+
             foreach (var baseDirectory in _baseDirectories)
             {
                 var filePath = Path.Combine(baseDirectory, relativePath);
@@ -164,7 +178,13 @@ namespace Xania.AspNet.Simulator
             throw new FileNotFoundException(String.Format("Path {0} not found in {1}", relativePath, string.Join(",", _baseDirectories)));
         }
 
-        public static IContentProvider GetDefault()
+        public DirectoryContentProvider RegisterPage(string path, string content)
+        {
+            _registeredContent.Add(path, content);
+            return this;
+        }
+
+        public static DirectoryContentProvider GetDefault()
         {
             var directories = new List<string>();
 

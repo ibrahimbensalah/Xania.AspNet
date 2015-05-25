@@ -24,6 +24,10 @@ namespace Xania.AspNet.Simulator
 
                 if (action != null)
                 {
+                    // Content-Type: text/html; charset=utf-8
+                    context.Response.Headers.Add("Content-Type", "text/html; charset=utf-8");
+                    context.Response.Headers.Add("Cache-Control", "private");
+
                     action.ExecuteResult();
                     return true;
                 }
