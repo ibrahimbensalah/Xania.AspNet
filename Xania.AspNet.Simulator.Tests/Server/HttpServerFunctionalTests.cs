@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Net.Http;
-using System.Threading;
-using System.Web.Optimization;
 using FluentAssertions;
 using NUnit.Framework;
 using OpenQA.Selenium.Chrome;

@@ -32,13 +32,7 @@ namespace Xania.AspNet.Razor
 
             mvcApplication.ViewEngines.Add(new RazorViewEngineSimulator(mvcApplication));
 
-            BundleTable.MapPathMethod = virtualPath =>
-            {
-                var path = mvcApplication.GetPhysicalPath(virtualPath);
-                Console.WriteLine("map path {0} => {1}", virtualPath, path);
-
-                return path;
-            };
+            BundleTable.MapPathMethod = mvcApplication.GetPhysicalPath;
 
             return mvcApplication;
         }
