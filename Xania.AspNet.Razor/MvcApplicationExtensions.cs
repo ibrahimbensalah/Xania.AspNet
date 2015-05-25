@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Web;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.WebPages;
@@ -35,6 +39,31 @@ namespace Xania.AspNet.Razor
             BundleTable.MapPathMethod = mvcApplication.GetPhysicalPath;
 
             return mvcApplication;
+        }
+
+        public static void RegisterBundles(this IMvcApplication mvcApplication, Action<BundleCollection> cfg)
+        {
+            var startTime = DateTime.Now;
+            var bundles = new BundleCollection();
+            cfg(bundles);
+
+            var baseDirectory = mvcApplication.GetPhysicalPath("~/");
+
+            foreach (var bundle in bundles)
+            {
+                var bundle1 = bundle;
+                Func<HttpContextBase, IEnumerable<string>> factory = context =>
+                {
+                    var bundleContext = new BundleContext(context, bundles, bundle1.Path);
+                    return from f in bundle1.EnumerateFiles(bundleContext)
+                        select f.FullName.Substring(baseDirectory.Length).Replace("\\", "/");
+                };
+
+
+                mvcApplication.Bundles.Add(new Core.Bundle(bundle1.Path, factory));
+            }
+            var endTime = DateTime.Now;
+            Console.WriteLine("RegisterBundles " + (endTime - startTime).TotalMilliseconds);
         }
     }
 }

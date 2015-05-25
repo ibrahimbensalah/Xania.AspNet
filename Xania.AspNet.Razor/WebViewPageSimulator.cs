@@ -21,7 +21,7 @@ namespace Xania.AspNet.Razor
         public virtual void Initialize(ViewContext viewContext, string virtualPath, IMvcApplication mvcApplication)
         {
             Styles = new StyleBundles(viewContext.HttpContext, mvcApplication);
-            Scripts = new ScriptBundles(mvcApplication.Bundles);
+            Scripts = new ScriptBundles(viewContext.HttpContext, mvcApplication);
 
             VirtualPath = virtualPath;
             ViewContext = viewContext;
@@ -49,7 +49,7 @@ namespace Xania.AspNet.Razor
         public void Initialize(ViewContext viewContext, string virtualPath, IMvcApplication mvcApplication)
         {
             Styles = new StyleBundles(viewContext.HttpContext,  mvcApplication);
-            Scripts = new ScriptBundles(mvcApplication.Bundles);
+            Scripts = new ScriptBundles(viewContext.HttpContext, mvcApplication);
 
             VirtualPath = virtualPath;
             ViewContext = viewContext;
@@ -93,13 +93,8 @@ namespace Xania.AspNet.Razor
 
         private IEnumerable<string> GetBundleContents(string path)
         {
-            var baseDirectory = _mvcApplication.GetPhysicalPath("~/");
-
-            return from bundle in _mvcApplication.Bundles
-                where bundle.Path == path
-                let context = new BundleContext(_context, _mvcApplication.Bundles, path)
-                from f in bundle.EnumerateFiles(context)
-                select f.FullName.Substring(baseDirectory.Length).Replace("\\", "/");
+            return _mvcApplication.Bundles.Where(e => e.Path == path)
+                .SelectMany(e => e.GetItems(_context));
         }
 
         public IHtmlString Url(string virtualPath)
@@ -109,11 +104,13 @@ namespace Xania.AspNet.Razor
     }
     public class ScriptBundles
     {
-        private ScriptBundle[] _scripts;
+        private readonly HttpContextBase _context;
+        private readonly IMvcApplication _mvcApplication;
 
-        public ScriptBundles(BundleCollection bundles)
+        public ScriptBundles(HttpContextBase context, IMvcApplication mvcApplication)
         {
-            _scripts = bundles.OfType<ScriptBundle>().ToArray();
+            _context = context;
+            _mvcApplication = mvcApplication;
         }
 
         public IHtmlString Render(params string[] paths)

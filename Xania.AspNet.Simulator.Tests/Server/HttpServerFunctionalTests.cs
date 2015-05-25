@@ -1,5 +1,4 @@
-﻿using System;
-using FluentAssertions;
+﻿using FluentAssertions;
 using NUnit.Framework;
 using OpenQA.Selenium.Chrome;
 using Xania.AspNet.Razor;
@@ -26,19 +25,19 @@ namespace Xania.AspNet.Simulator.Tests.Server
             var mvcApp = Server.UseMvc(controllerContainer, contentProvider)
                 .EnableRazor();
 
-            BundleConfig.RegisterBundles(mvcApp.Bundles);
+            mvcApp.RegisterBundles(BundleConfig.RegisterBundles);
         }
 
         [TestFixtureSetUp]
         public static void StartWebDriver()
         {
-            _driver = new ChromeDriver();
+            var options = new ChromeOptions();
+            _driver = new ChromeDriver(options);
         }
 
         [TestFixtureTearDown]
         public static void StopWebDriver()
         {
-            _driver.Close();
             _driver.Dispose();
         }
 
@@ -49,8 +48,8 @@ namespace Xania.AspNet.Simulator.Tests.Server
         {
             // arrange
             _driver.Navigate().GoToUrl(BaseUrl + path);
-            Console.WriteLine(_driver.PageSource);
 
+            // assert
             _driver.FindElementById("menu").Should().NotBeNull();
         }
     }
