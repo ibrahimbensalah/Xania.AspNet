@@ -21,7 +21,7 @@ namespace Xania.AspNet.Razor
         public virtual void Initialize(ViewContext viewContext, string virtualPath, IMvcApplication mvcApplication)
         {
             Styles = new StyleBundles(viewContext.HttpContext, mvcApplication);
-            Scripts = new ScriptBundles(mvcApplication.Bundles);
+            Scripts = new ScriptBundles(viewContext.HttpContext, mvcApplication);
 
             VirtualPath = virtualPath;
             ViewContext = viewContext;
@@ -49,7 +49,7 @@ namespace Xania.AspNet.Razor
         public void Initialize(ViewContext viewContext, string virtualPath, IMvcApplication mvcApplication)
         {
             Styles = new StyleBundles(viewContext.HttpContext,  mvcApplication);
-            Scripts = new ScriptBundles(mvcApplication.Bundles);
+            Scripts = new ScriptBundles(viewContext.HttpContext, mvcApplication);
 
             VirtualPath = virtualPath;
             ViewContext = viewContext;
@@ -107,11 +107,13 @@ namespace Xania.AspNet.Razor
     }
     public class ScriptBundles
     {
-        private ScriptBundle[] _scripts;
+        private readonly HttpContextBase _context;
+        private readonly IMvcApplication _mvcApplication;
 
-        public ScriptBundles(BundleCollection bundles)
+        public ScriptBundles(HttpContextBase context, IMvcApplication mvcApplication)
         {
-            _scripts = bundles.OfType<ScriptBundle>().ToArray();
+            _context = context;
+            _mvcApplication = mvcApplication;
         }
 
         public IHtmlString Render(params string[] paths)

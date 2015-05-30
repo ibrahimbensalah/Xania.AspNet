@@ -7,7 +7,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
-using System.Web.Optimization;
 using System.Web.Routing;
 using Xania.AspNet.Core;
 
@@ -28,14 +27,14 @@ namespace Xania.AspNet.Simulator
 
             Routes = GetRoutes();
             ViewEngines = new ViewEngineCollection();
-            Bundles = new BundleCollection();
+            Bundles = new Collection<Bundle>();
         }
 
         public ViewEngineCollection ViewEngines { get; private set; }
 
         public RouteCollection Routes { get; private set; }
 
-        public BundleCollection Bundles { get; private set; }
+        public ICollection<Bundle> Bundles { get; private set; }
 
         public static RouteCollection GetRoutes()
         {
