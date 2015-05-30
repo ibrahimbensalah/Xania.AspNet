@@ -25,7 +25,7 @@ namespace Xania.AspNet.Simulator.Tests.Server
             var mvcApp = Server.UseMvc(controllerContainer, contentProvider)
                 .EnableRazor();
 
-            mvcApp.RegisterBundles(BundleConfig.RegisterBundles);
+            BundleConfig.RegisterBundles(mvcApp.Bundles);
         }
 
         [TestFixtureSetUp]
