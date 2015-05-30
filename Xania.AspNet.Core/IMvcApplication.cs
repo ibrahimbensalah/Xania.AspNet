@@ -19,5 +19,7 @@ namespace Xania.AspNet.Core
         TextReader OpenText(string virtualPath, bool includeStartPage);
 
         BundleCollection Bundles { get; }
+
+        string MapUrl(FileInfo file);
     }
 }

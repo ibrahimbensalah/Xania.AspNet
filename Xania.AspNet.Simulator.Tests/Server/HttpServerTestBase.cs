@@ -9,7 +9,7 @@ namespace Xania.AspNet.Simulator.Tests.Server
 {
     public class HttpServerTestBase
     {
-        private int _port = 1234;
+        private int _port = 4040;
 
         protected string BaseUrl;
         protected HttpServerSimulator Server { get; private set; }

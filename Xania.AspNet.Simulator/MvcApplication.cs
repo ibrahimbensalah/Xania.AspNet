@@ -95,6 +95,17 @@ namespace Xania.AspNet.Simulator
             return _contentProvider.GetPhysicalPath(relativePath);
         }
 
+        public string MapUrl(FileInfo file)
+        {
+            var relativePath = _contentProvider.GetRelativePath(file.FullName);
+            return String.Format("/{0}", relativePath.Replace("\\", "/"));
+        }
+
+        string IContentProvider.GetRelativePath(string physicalPath)
+        {
+            return _contentProvider.GetRelativePath(physicalPath);
+        }
+
         public IHtmlString Action(ViewContext viewContext, string actionName, object routeValues)
         {
             var controllerName = viewContext.RouteData.GetRequiredString("controller");

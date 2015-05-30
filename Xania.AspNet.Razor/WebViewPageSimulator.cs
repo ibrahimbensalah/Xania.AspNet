@@ -93,13 +93,11 @@ namespace Xania.AspNet.Razor
 
         private IEnumerable<string> GetBundleContents(string path)
         {
-            var baseDirectory = _mvcApplication.GetPhysicalPath("~/");
-
             return from bundle in _mvcApplication.Bundles
                 where bundle.Path == path
                 let context = new BundleContext(_context, _mvcApplication.Bundles, path)
                 from f in bundle.EnumerateFiles(context)
-                select f.FullName.Substring(baseDirectory.Length).Replace("\\", "/");
+                select _mvcApplication.MapUrl(f);
         }
 
         public IHtmlString Url(string virtualPath)
