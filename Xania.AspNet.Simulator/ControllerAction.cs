@@ -58,7 +58,6 @@ namespace Xania.AspNet.Simulator
 
         protected virtual void Initialize(ControllerContext controllerContext)
         {
-            HttpServerSimulator.PrintElapsedMilliseconds("initialize action");
             var controller = controllerContext.Controller as Controller;
 
             if (controller != null)
@@ -77,7 +76,6 @@ namespace Xania.AspNet.Simulator
                 controller.Url = new UrlHelper(controllerContext.RequestContext, Routes);
                 controller.ViewEngineCollection = ViewEngines;
             }
-            HttpServerSimulator.PrintElapsedMilliseconds("initialize action complete");
         }
 
         public virtual ControllerActionResult Execute()
