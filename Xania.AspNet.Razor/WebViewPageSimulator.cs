@@ -13,6 +13,7 @@ namespace Xania.AspNet.Razor
 {
     public abstract class WebViewPageSimulator<TModel> : WebViewPage<TModel>, IWebViewPage
     {
+        private IMvcApplication _mvcApplication;
         public new HtmlHelperSimulator<TModel> Html { get; set; }
         public StyleBundles Styles { get; private set; }
         public ScriptBundles Scripts { get; private set; }
@@ -20,6 +21,8 @@ namespace Xania.AspNet.Razor
 
         public virtual void Initialize(ViewContext viewContext, string virtualPath, IMvcApplication mvcApplication)
         {
+            _mvcApplication = mvcApplication;
+
             Styles = new StyleBundles(viewContext.HttpContext, mvcApplication);
             Scripts = new ScriptBundles(viewContext.HttpContext, mvcApplication);
 
@@ -37,10 +40,15 @@ namespace Xania.AspNet.Razor
         {
             ExecutePageHierarchy(new WebPageContext(httpContext, null, null), writer);
         }
+        public override string Href(string path, params object[] pathParts)
+        {
+            return _mvcApplication.ToAbsoluteUrl(path);
+        }
     }
 
     public abstract class WebViewPageSimulator : WebViewPage, IWebViewPage
     {
+        private IMvcApplication _mvcApplication;
         public new HtmlHelperSimulator<object> Html { get; set; }
 
         public StyleBundles Styles { get; private set; }
@@ -48,7 +56,9 @@ namespace Xania.AspNet.Razor
 
         public void Initialize(ViewContext viewContext, string virtualPath, IMvcApplication mvcApplication)
         {
-            Styles = new StyleBundles(viewContext.HttpContext,  mvcApplication);
+            _mvcApplication = mvcApplication;
+
+            Styles = new StyleBundles(viewContext.HttpContext, mvcApplication);
             Scripts = new ScriptBundles(viewContext.HttpContext, mvcApplication);
 
             VirtualPath = virtualPath;
@@ -64,6 +74,11 @@ namespace Xania.AspNet.Razor
         public void Execute(HttpContextBase httpContext, TextWriter writer)
         {
             ExecutePageHierarchy(new WebPageContext(httpContext, null, null), writer);
+        }
+
+        public override string Href(string path, params object[] pathParts)
+        {
+            return _mvcApplication.ToAbsoluteUrl(path);
         }
     }
 
