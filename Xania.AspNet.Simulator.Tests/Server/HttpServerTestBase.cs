@@ -17,7 +17,7 @@ namespace Xania.AspNet.Simulator.Tests.Server
         [SetUp]
         public virtual void StartServer()
         {
-            _port ++;
+            // _port ++;
             BaseUrl = String.Format("http://localhost:{0}/", _port);
             Server = new HttpServerSimulator(BaseUrl);
         }

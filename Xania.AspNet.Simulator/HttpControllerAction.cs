@@ -8,9 +8,9 @@ namespace Xania.AspNet.Simulator
 {
     public class HttpControllerAction : ControllerAction
     {
-        public HttpControllerAction(Core.IControllerFactory controllerFactory)
-            : this(new MvcApplication(controllerFactory))
-        {
+        public HttpControllerAction(Core.IControllerFactory controllerContainer)
+            : this(new MvcApplication(controllerContainer, new EmptyContentProvider()))
+        {            
         }
 
         public HttpControllerAction(IMvcApplication mvcApplication)
@@ -54,7 +54,7 @@ namespace Xania.AspNet.Simulator
 
             var controllerName = routeData.GetRequiredString("controller");
 
-            var controller = MvcApplication.CreateController(controllerName);
+            var controller = MvcApplication.ControllerFactory.CreateController(controllerName);
             var requestContext = new RequestContext(httpContext, routeData);
 
             var controllerContext = new ControllerContext(requestContext, controller);

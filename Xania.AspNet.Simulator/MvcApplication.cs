@@ -10,21 +10,21 @@ using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
 using Xania.AspNet.Core;
+using IControllerFactory = Xania.AspNet.Core.IControllerFactory;
 
 namespace Xania.AspNet.Simulator
 {
     public class MvcApplication : IMvcApplication
     {
-        private readonly Core.IControllerFactory _controllerFactory;
-        private readonly IContentProvider _contentProvider;
-
-        public MvcApplication([NotNull] Core.IControllerFactory controllerFactory, IContentProvider contentProvider = null)
+        public MvcApplication([NotNull] Core.IControllerFactory controllerFactory, IContentProvider contentProvider)
         {
             if (controllerFactory == null) 
                 throw new ArgumentNullException("controllerFactory");
+            if (contentProvider == null) 
+                throw new ArgumentNullException("contentProvider");
 
-            _controllerFactory = controllerFactory;
-            _contentProvider = contentProvider ?? DirectoryContentProvider.GetDefault();
+            ControllerFactory = controllerFactory;
+            ContentProvider = contentProvider;
 
             Routes = GetRoutes();
             ViewEngines = new ViewEngineCollection();
@@ -36,6 +36,10 @@ namespace Xania.AspNet.Simulator
         public RouteCollection Routes { get; private set; }
 
         public BundleCollection Bundles { get; private set; }
+
+        public IContentProvider ContentProvider { get; private set; }
+
+        public IControllerFactory ControllerFactory { get; private set; }
 
         public static RouteCollection GetRoutes()
         {
@@ -57,59 +61,60 @@ namespace Xania.AspNet.Simulator
 
         public ControllerBase CreateController(string controllerName)
         {
-            return _controllerFactory.CreateController(controllerName);
+            return ControllerFactory.CreateController(controllerName);
         }
 
         public Stream Open(string virtualPath)
         {
-            var relativePath = ToRelativePath(virtualPath);
-            return _contentProvider.Open(relativePath);
+            var filePath = ToFilePath(virtualPath);
+            return ContentProvider.Open(filePath);
         }
 
         public TextReader OpenText(string virtualPath, bool includeStartPage)
         {
-            var relativePath = ToRelativePath(virtualPath);
-            var contentStream = _contentProvider.Open(relativePath);
+            var relativePath = ToFilePath(virtualPath);
+            var contentStream = ContentProvider.Open(relativePath);
             const string startPagePath = @"Views\_ViewStart.cshtml";
 
             return includeStartPage && !String.Equals(relativePath, startPagePath) &&
-                   _contentProvider.Exists(startPagePath)
-                ? (TextReader) new ConcatenatedStream(_contentProvider.Open(@"Views\_ViewStart.cshtml"), contentStream)
+                   ContentProvider.Exists(startPagePath)
+                ? (TextReader) new ConcatenatedStream(ContentProvider.Open(@"Views\_ViewStart.cshtml"), contentStream)
                 : new StreamReader(contentStream);
         }
-        
-        private string ToRelativePath(string virtualPath)
+        private string ToFilePath(string virtualPath)
         {
             return virtualPath.Substring(2).Replace("/", "\\");
         }
 
         public bool Exists(string virtualPath)
         {
-            var relativePath = ToRelativePath(virtualPath);
-            return _contentProvider.Exists(relativePath);
+            var relativePath = ToFilePath(virtualPath);
+            return ContentProvider.Exists(relativePath);
         }
 
-        public string GetPhysicalPath(string virtualPath)
+        public string MapPath(string virtualPath)
         {
-            var relativePath = ToRelativePath(virtualPath);
-            return _contentProvider.GetPhysicalPath(relativePath);
+            var relativePath = ToFilePath(virtualPath);
+            return ContentProvider.GetPhysicalPath(relativePath);
+        }
+
+        public string ToAbsoluteUrl(string path)
+        {
+            if (path.StartsWith("~"))
+                return path.Substring(1);
+            return path;
         }
 
         public string MapUrl(FileInfo file)
         {
-            var relativePath = _contentProvider.GetRelativePath(file.FullName);
+            var relativePath = ContentProvider.GetRelativePath(file.FullName);
             return String.Format("/{0}", relativePath.Replace("\\", "/"));
-        }
-
-        string IContentProvider.GetRelativePath(string physicalPath)
-        {
-            return _contentProvider.GetRelativePath(physicalPath);
         }
 
         public IHtmlString Action(ViewContext viewContext, string actionName, object routeValues)
         {
             var controllerName = viewContext.RouteData.GetRequiredString("controller");
-            var action = this.Action(controllerName, actionName);
+            var action = ControllerFactory.Action(controllerName, actionName);
             action.Data(routeValues);
 
             action.Execute().ExecuteResult();

@@ -80,7 +80,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DisplayModeSimulator.cs" />
+    <Compile Include="SimpleDisplayMode.cs" />
     <Compile Include="HtmlHelperSimulator.cs" />
     <Compile Include="MvcApplicationExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

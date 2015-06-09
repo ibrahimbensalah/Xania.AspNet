@@ -9,11 +9,15 @@ using System.Web.Routing;
 
 namespace Xania.AspNet.Core
 {
-    public interface IMvcApplication : IControllerFactory, IContentProvider
+    public interface IMvcApplication
     {
         RouteCollection Routes { get; }
 
         ViewEngineCollection ViewEngines { get; }
+
+        IContentProvider ContentProvider { get; }
+
+        IControllerFactory ControllerFactory { get; }
 
         IHtmlString Action(ViewContext viewContext, string actionName, object routeValues);
 
@@ -22,5 +26,11 @@ namespace Xania.AspNet.Core
         BundleCollection Bundles { get; }
 
         string MapUrl(FileInfo file);
+
+        bool Exists(string virtualPath);
+
+        string MapPath(string virtualPath);
+
+        string ToAbsoluteUrl(string path);
     }
 }

@@ -4,7 +4,7 @@ using System.Web.WebPages;
 
 namespace Xania.AspNet.Razor
 {
-    public class DisplayModeSimulator : IDisplayMode
+    public class SimpleDisplayMode : IDisplayMode
     {
         public bool CanHandleContext(HttpContextBase httpContext)
         {
@@ -18,7 +18,7 @@ namespace Xania.AspNet.Razor
 
         public string DisplayModeId
         {
-            get { throw new NotImplementedException(); }
+            get { return "SimpleDisplayMode"; }
         }
     }
 }

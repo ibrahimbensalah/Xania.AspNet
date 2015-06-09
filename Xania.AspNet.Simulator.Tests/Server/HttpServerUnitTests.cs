@@ -34,7 +34,8 @@ namespace Xania.AspNet.Simulator.Tests.Server
             var controllerContainer = new ControllerContainer()
                 .RegisterController("test", new TestController());
 
-            Server.UseMvc(controllerContainer)
+            Server.UseStatic(TestHelper.SimulatorTests);
+            Server.UseMvc(controllerContainer, TestHelper.SimulatorTests)
                 .EnableRazor();
 
             using (var client = new HttpClient())
@@ -56,7 +57,7 @@ namespace Xania.AspNet.Simulator.Tests.Server
         public void StaticModuleTest(string path)
         {
             // arrange
-            var contentProvider = DirectoryContentProvider.GetDefault();
+            var contentProvider = new DirectoryContentProvider(TestHelper.SimulatorTests);
             Server.UseStatic(contentProvider);
 
             using (var client = new HttpClient())

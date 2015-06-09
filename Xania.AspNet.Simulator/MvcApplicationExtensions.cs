@@ -1,13 +1,12 @@
 ﻿using System;
 using System.IO;
 using System.Web.Mvc;
-using Xania.AspNet.Core;
 
 namespace Xania.AspNet.Simulator
 {
     internal static class MvcApplicationExtensions
     {
-        public static DirectControllerAction Action(this IMvcApplication mvcApplication, string controllerName, string actionName)
+        public static DirectControllerAction Action(this Core.IControllerFactory mvcApplication, string controllerName, string actionName)
         {
             var controller = mvcApplication.CreateController(controllerName);
 

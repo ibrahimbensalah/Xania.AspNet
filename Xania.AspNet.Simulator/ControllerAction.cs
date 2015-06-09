@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -7,12 +6,9 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.Principal;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
-using Xania.AspNet.Core;
 
 namespace Xania.AspNet.Simulator
 {
@@ -133,107 +129,6 @@ namespace Xania.AspNet.Simulator
             Initialize(controllerContext);
 
             return GetActionInvoker(controllerContext, actionDescriptor).AuthorizeAction();
-        }
-    }
-
-    public class DirectoryContentProvider : IContentProvider
-    {
-        private readonly string[] _baseDirectories;
-        private readonly IDictionary<string, string> _registeredContent;
-
-        public DirectoryContentProvider(params string[] baseDirectories)
-        {
-            _baseDirectories = baseDirectories;
-            _registeredContent = new ConcurrentDictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
-        }
-
-        public bool Exists(string relativePath)
-        {
-            return _registeredContent.ContainsKey(relativePath) || 
-                _baseDirectories.Select(baseDirectory => Path.Combine(baseDirectory, relativePath))
-                .Any(File.Exists);
-        }
-
-        public string GetPhysicalPath(string relativePath)
-        {
-            return _baseDirectories.Select(baseDirectory => Path.Combine(baseDirectory, relativePath))
-                .FirstOrDefault(p => Directory.Exists(p) || File.Exists(p)) ?? string.Empty;
-        }
-
-        public string GetRelativePath(string physicalPath)
-        {
-            return _baseDirectories
-                .Select(dir => GetRelativePath(new DirectoryInfo(dir), new FileInfo(physicalPath)))
-                .FirstOrDefault(relativePath => relativePath != null);
-        }
-
-        private string GetRelativePath(DirectoryInfo directoryInfo, FileInfo fileInfo)
-        {
-            var baseDirs = GetDirectories(directoryInfo).Reverse().ToArray();
-            var fileDirs = GetDirectories(fileInfo.Directory).Reverse().ToArray();
-
-
-            if (baseDirs.Length > fileDirs.Length)
-                return null;
-
-            for (var i = 0; i < baseDirs.Length; i++)
-            {
-                if (!String.Equals(baseDirs[i], fileDirs[i]))
-                    return null;
-            }
-
-            return String.Join("/", fileDirs.Skip(baseDirs.Length)) + "/" + fileInfo.Name;
-        }
-
-        private IEnumerable<string> GetDirectories(DirectoryInfo dir)
-        {
-            do
-            {
-                yield return dir.Name;
-                dir = dir.Parent;
-
-            } while (dir != null);
-        }
-
-        public Stream Open(string relativePath)
-        {
-            string content;
-            if (_registeredContent.TryGetValue(relativePath, out content))
-                return new MemoryStream(Encoding.Default.GetBytes(content));
-
-            foreach (var baseDirectory in _baseDirectories)
-            {
-                var filePath = Path.Combine(baseDirectory, relativePath);
-                if (File.Exists(filePath))
-                    return File.OpenRead(filePath);
-            }
-
-            throw new FileNotFoundException(String.Format("Path {0} not found in {1}", relativePath, string.Join(",", _baseDirectories)));
-        }
-
-        public DirectoryContentProvider RegisterPage(string path, string content)
-        {
-            _registeredContent.Add(path, content);
-            return this;
-        }
-
-        public static DirectoryContentProvider GetDefault()
-        {
-            var directories = new List<string>();
-
-            var appDomainBaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            directories.Add(appDomainBaseDirectory);
-
-            var regex = new Regex(@"(.*)\\bin\\[^\\]*\\?$");
-
-            var match = regex.Match(appDomainBaseDirectory);
-            if (match.Success)
-            {
-                var sourceBaseDirectory = match.Groups[1].Value;
-                directories.Add(sourceBaseDirectory);
-            }
-
-            return new DirectoryContentProvider(directories.ToArray());
         }
     }
 

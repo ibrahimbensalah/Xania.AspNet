@@ -69,6 +69,7 @@
     <Compile Include="AspNetUtility.cs" />
     <Compile Include="ControllerContextViewEngine.cs" />
     <Compile Include="DirectControllerAction.cs" />
+    <Compile Include="DirectoryContentProvider.cs" />
     <Compile Include="HttpContextSimulator.cs" />
     <Compile Include="HttpListenerContextSimulator.cs" />
     <Compile Include="HttpListenerRequestWrapper.cs" />

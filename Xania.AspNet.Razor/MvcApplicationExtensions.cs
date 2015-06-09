@@ -31,12 +31,18 @@ namespace Xania.AspNet.Razor
 
         public static IMvcApplication EnableRazor(this IMvcApplication mvcApplication)
         {
-            DisplayModeProvider.Instance.Modes.Clear();
-            DisplayModeProvider.Instance.Modes.Add(new DisplayModeSimulator());
-
             mvcApplication.ViewEngines.Add(new RazorViewEngineSimulator(mvcApplication));
 
-            BundleTable.MapPathMethod = mvcApplication.GetPhysicalPath;
+            BundleTable.MapPathMethod = mvcApplication.MapPath;
+            DisplayModeProvider.Instance.Modes.Clear();
+            DisplayModeProvider.Instance.Modes.Add(new SimpleDisplayMode());
+
+            return mvcApplication;
+        }
+
+        public static IMvcApplication WithBundles(this IMvcApplication mvcApplication, Action<BundleCollection> registerBundles)
+        {
+            registerBundles(mvcApplication.Bundles);
 
             return mvcApplication;
         }
