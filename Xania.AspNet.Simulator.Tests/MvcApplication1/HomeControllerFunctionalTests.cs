@@ -45,7 +45,7 @@ namespace Xania.AspNet.Simulator.Tests.MvcApplication1
         public void HomeControllerTest(string path)
         {
             // arrange
-            _driver.Navigate().GoToUrl(BaseUrl + path);
+            _driver.Navigate().GoToUrl(GetUrl(path));
 
             // assert
             _driver.FindElement(By.Id("menu")).Should().NotBeNull();

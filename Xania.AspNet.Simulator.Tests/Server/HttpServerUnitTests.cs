@@ -41,7 +41,7 @@ namespace Xania.AspNet.Simulator.Tests.Server
             using (var client = new HttpClient())
             {
                 // act
-                var result = client.GetStringAsync(BaseUrl + path).Result
+                var result = client.GetStringAsync(GetUrl(path)).Result
                     .Replace("\r\n", string.Empty)
                     .Replace("\n", string.Empty)
                     .Trim();
@@ -63,7 +63,7 @@ namespace Xania.AspNet.Simulator.Tests.Server
             using (var client = new HttpClient())
             {
                 // act
-                var result = client.GetByteArrayAsync(BaseUrl + path).Result;
+                var result = client.GetByteArrayAsync(GetUrl(path)).Result;
 
                 // assert
                 var mem = new MemoryStream();
@@ -84,7 +84,7 @@ namespace Xania.AspNet.Simulator.Tests.Server
                 for (int i = 0; i < 100; i++)
                 {
                     var message = "msg-" + i;
-                    tasks.Add(client.GetStringAsync(BaseUrl + "?message=" + message).ContinueWith(t =>
+                    tasks.Add(client.GetStringAsync(GetUrl("") + "?message=" + message).ContinueWith(t =>
                     {
                         t.Result.Should().Be(message);
                     }));

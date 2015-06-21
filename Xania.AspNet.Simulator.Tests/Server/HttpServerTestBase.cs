@@ -11,21 +11,29 @@ namespace Xania.AspNet.Simulator.Tests.Server
     {
         private int _port = 4040;
 
-        protected string BaseUrl;
+        private string _baseUrl;
         protected HttpServerSimulator Server { get; private set; }
 
         [SetUp]
         public virtual void StartServer()
         {
-            // _port ++;
-            BaseUrl = String.Format("http://localhost:{0}/", _port);
-            Server = new HttpServerSimulator(BaseUrl);
+            _baseUrl = String.Format("http://localhost:{0}/", _port);
+            Server = new HttpServerSimulator(_baseUrl);
         }
 
         [TearDown]
         public virtual void StopServer()
         {
             Server.Dispose();
+            _port++;
+        }
+
+        protected string GetUrl(string path)
+        {
+            if (path.StartsWith("/"))
+                throw new ArgumentException("path should not start with '/'");
+
+            return _baseUrl + path;
         }
 
     }

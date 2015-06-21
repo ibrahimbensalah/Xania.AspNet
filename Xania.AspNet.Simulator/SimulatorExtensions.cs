@@ -121,11 +121,11 @@ namespace Xania.AspNet.Simulator
 
         public static ControllerContainer RegisterControllers(this ControllerContainer container, params Assembly[] assemblies)
         {
-            return RegisterControllers(container, null, assemblies);
+            return RegisterControllers(container, type => (ControllerBase)Activator.CreateInstance(type), assemblies);
         }
 
         public static ControllerContainer RegisterControllers(this ControllerContainer container,
-            IDependencyResolver dependencyResolver, params Assembly[] assemblies)
+            Func<Type, ControllerBase> factory, params Assembly[] assemblies)
         {
             const string controllerPostFix = "Controller";
             var controllerTypes =
@@ -140,12 +140,7 @@ namespace Xania.AspNet.Simulator
                 var controllerType = type;
                 var name = controllerType.Name.Substring(0, controllerType.Name.Length - controllerPostFix.Length);
 
-                Func<ControllerBase> factory =
-                    () => (dependencyResolver == null)
-                        ? (ControllerBase)Activator.CreateInstance(controllerType)
-                        : (ControllerBase)dependencyResolver.GetService(controllerType);
-
-                container.RegisterController(name, factory);
+                container.RegisterController(name, () => factory(controllerType));
             }
 
             return container;

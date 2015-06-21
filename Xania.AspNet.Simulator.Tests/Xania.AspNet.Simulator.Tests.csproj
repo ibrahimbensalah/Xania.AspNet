@@ -126,6 +126,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controllers\TestController.cs" />
     <Compile Include="LinqActions\AuthorizationTests.cs" />
     <Compile Include="LinqActions\LinqActionFilterProvidersTests.cs" />
     <Compile Include="LinqActions\LinqActionValidationTests.cs" />
@@ -142,7 +143,6 @@
     <Compile Include="MvcApplication1\HomeControllerFunctionalTests.cs" />
     <Compile Include="Server\HttpServerTestBase.cs" />
     <Compile Include="Server\HttpServerUnitTests.cs" />
-    <Compile Include="Controllers\TestController.cs" />
     <Compile Include="TestHelper.cs" />
     <Compile Include="Views\Test\ViewWithLayout.generated.cs">
       <AutoGen>True</AutoGen>
@@ -203,74 +203,6 @@
       <Link>IEDriverServer.exe</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="Content\Site.css" />
-    <None Include="Content\themes\base\images\ui-bg_flat_0_aaaaaa_40x100.png" />
-    <None Include="Content\themes\base\images\ui-bg_flat_75_ffffff_40x100.png" />
-    <None Include="Content\themes\base\images\ui-bg_glass_55_fbf9ee_1x400.png" />
-    <None Include="Content\themes\base\images\ui-bg_glass_65_ffffff_1x400.png" />
-    <None Include="Content\themes\base\images\ui-bg_glass_75_dadada_1x400.png" />
-    <None Include="Content\themes\base\images\ui-bg_glass_75_e6e6e6_1x400.png" />
-    <None Include="Content\themes\base\images\ui-bg_glass_95_fef1ec_1x400.png" />
-    <None Include="Content\themes\base\images\ui-bg_highlight-soft_75_cccccc_1x100.png" />
-    <None Include="Content\themes\base\images\ui-icons_222222_256x240.png" />
-    <None Include="Content\themes\base\images\ui-icons_2e83ff_256x240.png" />
-    <None Include="Content\themes\base\images\ui-icons_454545_256x240.png" />
-    <None Include="Content\themes\base\images\ui-icons_888888_256x240.png" />
-    <None Include="Content\themes\base\images\ui-icons_cd0a0a_256x240.png" />
-    <None Include="Content\themes\base\jquery-ui.css" />
-    <None Include="Content\themes\base\jquery.ui.accordion.css" />
-    <None Include="Content\themes\base\jquery.ui.all.css" />
-    <None Include="Content\themes\base\jquery.ui.autocomplete.css" />
-    <None Include="Content\themes\base\jquery.ui.base.css" />
-    <None Include="Content\themes\base\jquery.ui.button.css" />
-    <None Include="Content\themes\base\jquery.ui.core.css" />
-    <None Include="Content\themes\base\jquery.ui.datepicker.css" />
-    <None Include="Content\themes\base\jquery.ui.dialog.css" />
-    <None Include="Content\themes\base\jquery.ui.progressbar.css" />
-    <None Include="Content\themes\base\jquery.ui.resizable.css" />
-    <None Include="Content\themes\base\jquery.ui.selectable.css" />
-    <None Include="Content\themes\base\jquery.ui.slider.css" />
-    <None Include="Content\themes\base\jquery.ui.tabs.css" />
-    <None Include="Content\themes\base\jquery.ui.theme.css" />
-    <None Include="Content\themes\base\minified\images\ui-bg_flat_0_aaaaaa_40x100.png" />
-    <None Include="Content\themes\base\minified\images\ui-bg_flat_75_ffffff_40x100.png" />
-    <None Include="Content\themes\base\minified\images\ui-bg_glass_55_fbf9ee_1x400.png" />
-    <None Include="Content\themes\base\minified\images\ui-bg_glass_65_ffffff_1x400.png" />
-    <None Include="Content\themes\base\minified\images\ui-bg_glass_75_dadada_1x400.png" />
-    <None Include="Content\themes\base\minified\images\ui-bg_glass_75_e6e6e6_1x400.png" />
-    <None Include="Content\themes\base\minified\images\ui-bg_glass_95_fef1ec_1x400.png" />
-    <None Include="Content\themes\base\minified\images\ui-bg_highlight-soft_75_cccccc_1x100.png" />
-    <None Include="Content\themes\base\minified\images\ui-icons_222222_256x240.png" />
-    <None Include="Content\themes\base\minified\images\ui-icons_2e83ff_256x240.png" />
-    <None Include="Content\themes\base\minified\images\ui-icons_454545_256x240.png" />
-    <None Include="Content\themes\base\minified\images\ui-icons_888888_256x240.png" />
-    <None Include="Content\themes\base\minified\images\ui-icons_cd0a0a_256x240.png" />
-    <None Include="Content\themes\base\minified\jquery-ui.min.css" />
-    <None Include="Content\themes\base\minified\jquery.ui.accordion.min.css" />
-    <None Include="Content\themes\base\minified\jquery.ui.autocomplete.min.css" />
-    <None Include="Content\themes\base\minified\jquery.ui.button.min.css" />
-    <None Include="Content\themes\base\minified\jquery.ui.core.min.css" />
-    <None Include="Content\themes\base\minified\jquery.ui.datepicker.min.css" />
-    <None Include="Content\themes\base\minified\jquery.ui.dialog.min.css" />
-    <None Include="Content\themes\base\minified\jquery.ui.progressbar.min.css" />
-    <None Include="Content\themes\base\minified\jquery.ui.resizable.min.css" />
-    <None Include="Content\themes\base\minified\jquery.ui.selectable.min.css" />
-    <None Include="Content\themes\base\minified\jquery.ui.slider.min.css" />
-    <None Include="Content\themes\base\minified\jquery.ui.tabs.min.css" />
-    <None Include="Content\themes\base\minified\jquery.ui.theme.min.css" />
-    <None Include="Images\accent.png" />
-    <None Include="Images\bullet.png" />
-    <None Include="Images\heroAccent.png" />
-    <None Include="Images\orderedList0.png" />
-    <None Include="Images\orderedList1.png" />
-    <None Include="Images\orderedList2.png" />
-    <None Include="Images\orderedList3.png" />
-    <None Include="Images\orderedList4.png" />
-    <None Include="Images\orderedList5.png" />
-    <None Include="Images\orderedList6.png" />
-    <None Include="Images\orderedList7.png" />
-    <None Include="Images\orderedList8.png" />
-    <None Include="Images\orderedList9.png" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
