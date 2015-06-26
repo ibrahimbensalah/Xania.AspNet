@@ -95,6 +95,11 @@ namespace Xania.AspNet.Simulator
             get { return _request.IsAuthenticated; }
         }
 
+        public override string HttpMethod
+        {
+            get { return _request.HttpMethod; }
+        }
+
         public override string MapPath(string virtualPath)
         {
             return @"C:\asdflaksdf\asdfa\asdfasdf.cshtml";

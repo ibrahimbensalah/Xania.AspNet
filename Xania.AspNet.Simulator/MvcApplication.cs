@@ -113,8 +113,20 @@ namespace Xania.AspNet.Simulator
 
         public IHtmlString Action(ViewContext viewContext, string actionName, object routeValues)
         {
+            const string parentActionViewContextToken = "ParentActionViewContext";
+
             var controllerName = viewContext.RouteData.GetRequiredString("controller");
-            var action = ControllerFactory.Action(controllerName, actionName);
+            var controller = ControllerFactory.CreateController(controllerName);
+
+            var routeData = new RouteData
+            {
+                Values = {{"controller", controllerName}, {"action", actionName}},
+                DataTokens = {{parentActionViewContextToken, viewContext}}
+            };
+
+            controller.ControllerContext = new ControllerContext(viewContext.HttpContext, routeData, controller);
+
+            var action = controller.Action(this, actionName);
             action.Data(routeValues);
 
             action.Execute().ExecuteResult();

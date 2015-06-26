@@ -9,14 +9,19 @@ using DotNetOpenAuth.AspNet;
 using Microsoft.Web.WebPages.OAuth;
 using MvcApplication1.Filters;
 using MvcApplication1.Models;
-using WebMatrix.WebData;
 
 namespace MvcApplication1.Controllers
 {
     [Authorize]
-    [InitializeSimpleMembership]
     public class AccountController : Controller
     {
+        private readonly IWebSecurity WebSecurity;
+
+        public AccountController(IWebSecurity webSecurity)
+        {
+            WebSecurity = webSecurity;
+        }
+
         //
         // GET: /Account/Login
 

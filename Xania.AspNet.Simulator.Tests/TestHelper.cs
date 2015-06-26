@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Xania.AspNet.Simulator.Tests
 {
-    class TestHelper
+    class SystemUnderTest
     {
         public static string MvcApplication1
         {

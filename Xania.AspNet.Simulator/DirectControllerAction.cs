@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
+using Xania.AspNet.Core;
 
 namespace Xania.AspNet.Simulator
 {
@@ -11,6 +12,12 @@ namespace Xania.AspNet.Simulator
     {
         public DirectControllerAction(ControllerBase controller, ActionDescriptor actionDescriptor)
             : base(MvcApplication.GetRoutes())
+        {
+            Controller = controller;
+            ActionDescriptor = actionDescriptor;
+        }
+        public DirectControllerAction(IMvcApplication mvcApplication, ControllerBase controller, ActionDescriptor actionDescriptor)
+            : base(mvcApplication.Routes, mvcApplication.ViewEngines)
         {
             Controller = controller;
             ActionDescriptor = actionDescriptor;
@@ -24,7 +31,7 @@ namespace Xania.AspNet.Simulator
 
         public override ActionContext GetActionContext()
         {
-            var controllerContext = CreateControllerContext(CreateHttpContext(), Controller,
+            var controllerContext = Controller.ControllerContext ?? CreateControllerContext(CreateHttpContext(), Controller,
                 ActionDescriptor);
 
             Initialize(controllerContext);

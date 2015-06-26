@@ -1,6 +1,7 @@
 using System;
 using System.CodeDom;
 using System.CodeDom.Compiler;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -23,7 +24,7 @@ namespace Xania.AspNet.Razor
 
             Assembly assembly;
 
-            if (File.Exists(cacheFile))
+            if (false)
             {
                 Console.WriteLine("load from cache file");
                 assembly = Assembly.LoadFrom(cacheFile);
@@ -92,10 +93,21 @@ namespace Xania.AspNet.Razor
             {
                 var writer = new StringWriter();
                 new CSharpCodeProvider().GenerateCodeFromCompileUnit(generatedCode, writer, new CodeGeneratorOptions {});
+
+                writer.WriteLine("Referenced assemblies: ");
+                foreach (var refas in compilerParameters.ReferencedAssemblies)
+                {
+                    writer.WriteLine("\t{0}", refas);
+                }
+
                 throw new Exception("Errors in razor file \r\n" + writer);
             }
+            else
+            {
+                new CSharpCodeProvider().GenerateCodeFromCompileUnit(generatedCode, Console.Out, new CodeGeneratorOptions { });
+            }
 
-            File.Copy(compilerResults.PathToAssembly, output);
+            File.Copy(compilerResults.PathToAssembly, output, true);
             
             return compilerResults.CompiledAssembly;
         }

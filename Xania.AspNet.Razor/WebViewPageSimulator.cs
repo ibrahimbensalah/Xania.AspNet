@@ -44,6 +44,11 @@ namespace Xania.AspNet.Razor
         {
             return _mvcApplication.ToAbsoluteUrl(path);
         }
+
+        public override void WriteLiteral(object value)
+        {
+            base.WriteLiteral(value);
+        }
     }
 
     public abstract class WebViewPageSimulator : WebViewPage, IWebViewPage

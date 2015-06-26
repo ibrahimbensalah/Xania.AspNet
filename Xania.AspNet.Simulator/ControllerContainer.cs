@@ -12,7 +12,7 @@ namespace Xania.AspNet.Simulator
 
         public ControllerContainer()
         {
-            _controllerMap = new Dictionary<String, IValueProvider<ControllerBase>>();
+            _controllerMap = new Dictionary<String, IValueProvider<ControllerBase>>(StringComparer.InvariantCultureIgnoreCase);
         }
 
         public virtual ControllerContainer RegisterController(string name, ControllerBase controller)
@@ -20,7 +20,7 @@ namespace Xania.AspNet.Simulator
             if (name == null)
                 throw new ArgumentNullException("name");
 
-            _controllerMap.Add(name.ToLower(CultureInfo.InvariantCulture), new LiteralValueProvider<ControllerBase>(controller));
+            _controllerMap.Add(name, new LiteralValueProvider<ControllerBase>(controller));
 
             return this;
         }
@@ -30,7 +30,7 @@ namespace Xania.AspNet.Simulator
             if (name == null)
                 throw new ArgumentNullException("name");
 
-            _controllerMap.Add(name.ToLower(CultureInfo.InvariantCulture), new FactoryValueProvider<ControllerBase>(controllerFactory));
+            _controllerMap.Add(name, new FactoryValueProvider<ControllerBase>(controllerFactory));
 
             return this;
         }
@@ -38,7 +38,7 @@ namespace Xania.AspNet.Simulator
         public virtual ControllerBase CreateController(string controllerName)
         {
             IValueProvider<ControllerBase> controllerProvider;
-            if (_controllerMap.TryGetValue(controllerName.ToLower(CultureInfo.InvariantCulture), out controllerProvider))
+            if (_controllerMap.TryGetValue(controllerName, out controllerProvider))
                 return controllerProvider.Value;
 
             throw new HttpException(404, "Controller '" + controllerName + "' not found");
