@@ -27,14 +27,13 @@ namespace Xania.AspNet.Simulator
 
         public virtual ActionDescriptor ActionDescriptor { get; private set; }
 
-        public virtual TextWriter Output { get; set; }
-
         public override ActionContext GetActionContext()
         {
             var controllerContext = Controller.ControllerContext ?? CreateControllerContext(CreateHttpContext(), Controller,
                 ActionDescriptor);
 
             Initialize(controllerContext);
+
             return new ActionContext
             {
                 ControllerContext = controllerContext,
@@ -69,7 +68,6 @@ namespace Xania.AspNet.Simulator
             var httpContext =
                 AspNetUtility.GetContext(String.Format("/{0}/{1}", controllerName, actionDescriptor.ActionName),
                     actionRequest.HttpMethod, user);
-            httpContext.Response.Output = Output;
 
             return httpContext;
         }

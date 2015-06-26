@@ -1,7 +1,5 @@
-﻿using System;
-using System.Net.Http;
-using System.Web.Security;
-using FluentAssertions;
+﻿using FluentAssertions;
+using Microsoft.Web.WebPages.OAuth;
 using NUnit.Framework;
 using OpenQA.Selenium;
 

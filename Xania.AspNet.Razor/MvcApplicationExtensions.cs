@@ -17,13 +17,13 @@ namespace Xania.AspNet.Razor
         {
             using (var reader = mvcApplication.OpenText(virtualPath, false))
             {
-                return new WebViewPageFactory().Create(virtualPath, reader);
+                return new WebViewPageFactory(mvcApplication.Assemblies).Create(virtualPath, reader);
             }
         }
 
         public static IWebViewPage Create(this IMvcApplication mvcApplication, ViewContext viewContext, string virtualPath, TextReader reader)
         {
-            var webPage = new WebViewPageFactory().Create(virtualPath, reader);
+            var webPage = new WebViewPageFactory(mvcApplication.Assemblies).Create(virtualPath, reader);
             webPage.Initialize(viewContext, virtualPath, mvcApplication);
 
             return webPage;

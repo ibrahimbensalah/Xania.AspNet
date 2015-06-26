@@ -25,6 +25,8 @@ namespace Xania.AspNet.Core
 
         BundleCollection Bundles { get; }
 
+        IEnumerable<string> Assemblies { get; }
+
         string MapUrl(FileInfo file);
 
         bool Exists(string virtualPath);

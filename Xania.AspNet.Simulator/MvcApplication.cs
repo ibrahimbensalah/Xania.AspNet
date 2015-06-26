@@ -1,14 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
+using System.Web.Security;
 using Xania.AspNet.Core;
 using IControllerFactory = Xania.AspNet.Core.IControllerFactory;
 
@@ -36,6 +34,46 @@ namespace Xania.AspNet.Simulator
         public RouteCollection Routes { get; private set; }
 
         public BundleCollection Bundles { get; private set; }
+
+        public IEnumerable<string> Assemblies
+        {
+            get
+            {
+                var result = new Dictionary<string, string>();
+                AddAssembly<Uri>(result);
+                AddAssembly<Microsoft.CSharp.RuntimeBinder.CSharpArgumentInfo>(result);
+                AddAssembly<EnumerableQuery>(result);
+                AddAssembly<CookieProtection>(result);
+
+                foreach (var assemblyPath in ContentProvider.GetFiles("bin\\*.dll"))
+                {
+                    var i = assemblyPath.LastIndexOf('\\') + 1;
+                    var fullName = assemblyPath.Substring(i);
+
+                    result.Add(fullName, assemblyPath);
+                }
+
+                var runtimeAssemblies = AppDomain.CurrentDomain.GetAssemblies()
+                    .Where(a => !a.IsDynamic)
+                    .GroupBy(a => a.FullName)
+                    .Select(grp => grp.First())
+                    .Select(a => new { Name = a.GetName().Name + ".dll", a.Location})
+                    .Where(a => !result.ContainsKey(a.Name) && !string.IsNullOrWhiteSpace(a.Location))
+                    .ToArray();
+
+                foreach (var assembly in runtimeAssemblies)
+                {
+                    result.Add(assembly.Name, assembly.Location);
+                }
+
+                return result.Values;
+            }
+        }
+
+        private static void AddAssembly<T>(Dictionary<string, string> result)
+        {
+            result.Add(typeof(T).Assembly.GetName().Name + ".dll", typeof(T).Assembly.Location);
+        }
 
         public IContentProvider ContentProvider { get; private set; }
 
@@ -123,18 +161,39 @@ namespace Xania.AspNet.Simulator
                 Values = {{"controller", controllerName}, {"action", actionName}},
                 DataTokens = {{parentActionViewContextToken, viewContext}}
             };
+            foreach (var kvp in new RouteValueDictionary(routeValues))
+            {
+                if (routeData.Values.ContainsKey(kvp.Key))
+                    continue;
 
-            controller.ControllerContext = new ControllerContext(viewContext.HttpContext, routeData, controller);
+                routeData.Values.Add(kvp.Key, kvp.Value);
+            }
 
-            var action = controller.Action(this, actionName);
-            action.Data(routeValues);
+            var httpContext = viewContext.HttpContext;
+            var mainOutput = httpContext.Response.Output;
+            try
+            {
+                var partialOutput = new StringWriter();
+                httpContext.Response.Output = partialOutput;
+               
+                controller.ControllerContext = new ControllerContext(httpContext, routeData, controller);
 
-            action.Execute().ExecuteResult();
-            return MvcHtmlString.Create(action.Output.ToString());
+                var action = controller.Action(this, actionName);
+                action.Data(routeValues);
+
+                action.Execute().ExecuteResult();
+
+                return MvcHtmlString.Create(partialOutput.ToString());
+            }
+            finally
+            {
+                httpContext.Response.Output = mainOutput;
+            }
 
         }
 
     }
+
 
     internal class ConcatenatedStream : TextReader
     {

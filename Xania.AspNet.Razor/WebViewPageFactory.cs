@@ -1,7 +1,7 @@
 using System;
 using System.CodeDom;
 using System.CodeDom.Compiler;
-using System.Globalization;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -16,6 +16,14 @@ namespace Xania.AspNet.Razor
 {
     public class WebViewPageFactory
     {
+        private readonly IEnumerable<string> _assemblies;
+
+        public WebViewPageFactory(IEnumerable<string> assemblies)
+        {
+            _assemblies = assemblies;
+        }
+
+
         public IWebViewPage Create(string virtualPath, TextReader reader)
         {
             var content = reader.ReadToEnd();
@@ -24,7 +32,7 @@ namespace Xania.AspNet.Razor
 
             Assembly assembly;
 
-            if (false)
+            if (File.Exists(cacheFile))
             {
                 Console.WriteLine("load from cache file");
                 assembly = Assembly.LoadFrom(cacheFile);
@@ -36,6 +44,8 @@ namespace Xania.AspNet.Razor
 
                 var generatedCode = GetGeneratedCode(virtualPath, new StringReader(content));
                 assembly = Compile(generatedCode, GetCompilerParameters(), cacheFile);
+
+                File.Copy(assembly.Location, cacheFile, true);
             }
 
             var pageType = GetPageType(assembly);
@@ -95,16 +105,16 @@ namespace Xania.AspNet.Razor
                 new CSharpCodeProvider().GenerateCodeFromCompileUnit(generatedCode, writer, new CodeGeneratorOptions {});
 
                 writer.WriteLine("Referenced assemblies: ");
-                foreach (var refas in compilerParameters.ReferencedAssemblies)
+                var q = from string assembly in compilerParameters.ReferencedAssemblies
+                    let i = assembly.LastIndexOf('\\') + 1
+                    select new {Name = assembly.Substring(i), Path = assembly};
+
+                foreach (var refas in q.OrderBy(e => e.Name))
                 {
-                    writer.WriteLine("\t{0}", refas);
+                    writer.WriteLine("{0} ({1})", refas.Name, refas.Path);
                 }
 
                 throw new Exception("Errors in razor file \r\n" + writer);
-            }
-            else
-            {
-                new CSharpCodeProvider().GenerateCodeFromCompileUnit(generatedCode, Console.Out, new CodeGeneratorOptions { });
             }
 
             File.Copy(compilerResults.PathToAssembly, output, true);
@@ -125,7 +135,8 @@ namespace Xania.AspNet.Razor
                     "System.Web.Mvc",
                     "System.Web.Mvc.Ajax",
                     "System.Web.Mvc.Html",
-                    "System.Web.Routing"
+                    "System.Web.Routing",
+                    "Microsoft.Web.WebPages.OAuth"
                 }
             };
 
@@ -144,16 +155,7 @@ namespace Xania.AspNet.Razor
                 CompilerOptions = "/target:library /optimize",
             };
 
-            var assemblies = AppDomain.CurrentDomain
-                .GetAssemblies()
-                .Where(a => !a.IsDynamic)
-                .GroupBy(a => a.FullName)
-                .Select(grp => grp.First())
-                .Select(a => a.Location)
-                .Where(a => !String.IsNullOrWhiteSpace(a))
-                .ToArray();
-
-            parameters.ReferencedAssemblies.AddRange(assemblies);
+            parameters.ReferencedAssemblies.AddRange(_assemblies.ToArray());
 
             return parameters;
         }

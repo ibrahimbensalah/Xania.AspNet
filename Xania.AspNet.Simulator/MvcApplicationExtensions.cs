@@ -16,7 +16,6 @@ namespace Xania.AspNet.Simulator
 
             return new DirectControllerAction(mvcApplication, controller, actionDescriptor)
             {
-                Output = new StringWriter()
             };
         }
     }

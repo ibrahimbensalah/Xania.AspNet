@@ -43,6 +43,12 @@ namespace Xania.AspNet.Simulator
                 .FirstOrDefault(relativePath => relativePath != null);
         }
 
+        public IEnumerable<string> GetFiles(string searchPattern)
+        {
+            return _baseDirectories.SelectMany(baseDirectory => Directory.EnumerateFiles(baseDirectory, searchPattern))
+                .Where(File.Exists);
+        }
+
         private string GetRelativePath(DirectoryInfo directoryInfo, FileInfo fileInfo)
         {
             var baseDirs = GetDirectories(directoryInfo).Reverse().ToArray();

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Xania.AspNet.Core;
@@ -47,6 +48,11 @@ namespace Xania.AspNet.Simulator
         public string GetRelativePath(string physicalPath)
         {
             throw new InvalidOperationException();
+        }
+
+        public IEnumerable<string> GetFiles(string searchPattern)
+        {
+            throw new NotImplementedException();
         }
     }
 }
