@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Web;
 using MvcApplication1.Data;
 
@@ -49,6 +50,7 @@ namespace MvcApplication1.Controllers
         {
             _users.Add(new ApplicationUser()
             {
+                UserId = _users.Any() ? _users.Max(e=> e.UserId) + 1 : 1,
                 UserName = userName,
                 Password = password
             });
@@ -56,7 +58,8 @@ namespace MvcApplication1.Controllers
 
         public int GetUserId(string userName)
         {
-            throw new System.NotImplementedException();
+            var user = _users.Single(u => u.UserName.Equals(userName, StringComparison.InvariantCulture));
+            return user.UserId;
         }
 
         public bool ChangePassword(string userName, string oldPassword, string newPassword)

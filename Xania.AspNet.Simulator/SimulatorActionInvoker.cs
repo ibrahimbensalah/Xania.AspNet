@@ -17,7 +17,7 @@ namespace Xania.AspNet.Simulator
         public SimulatorActionInvoker(ControllerContext controllerContext, ActionDescriptor actionDescriptor, IEnumerable<Filter> filters, RouteCollection routes)
         {
             var enumerable = filters as Filter[] ?? filters.ToArray();
-            SimulatorHelper.Manipulate(enumerable);
+            SimulatorHelper.InitializeFilters(enumerable);
 
             _controllerContext = controllerContext;
             _actionDescriptor = actionDescriptor;
@@ -37,7 +37,7 @@ namespace Xania.AspNet.Simulator
             ActionDescriptor actionDescriptor)
         {
             var authorizationContext = base.InvokeAuthorizationFilters(controllerContext, filters, actionDescriptor);
-            SimulatorHelper.Manipulate(authorizationContext.Result, _routes);
+            SimulatorHelper.InitizializeActionResults(authorizationContext.Result, _routes);
             return authorizationContext;
         }
 
@@ -55,7 +55,7 @@ namespace Xania.AspNet.Simulator
             if (actionExecutedContext == null)
                 throw new Exception("InvokeActionMethodWithFilters returned null");
 
-            SimulatorHelper.Manipulate(actionExecutedContext.Result, _routes);
+            SimulatorHelper.InitizializeActionResults(actionExecutedContext.Result, _routes);
             return actionExecutedContext.Result;
         }
 

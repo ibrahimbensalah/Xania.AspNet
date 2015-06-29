@@ -134,6 +134,10 @@ namespace Xania.AspNet.Simulator
             {
                 context.User = new GenericPrincipal(new GenericIdentity(cookie.Value, "simulator"), new string[0]);
             }
+            else
+            {
+                context.User = new GenericPrincipal(new GenericIdentity(string.Empty, "simulator"), new string[0]);
+            }
         }
     }
 }

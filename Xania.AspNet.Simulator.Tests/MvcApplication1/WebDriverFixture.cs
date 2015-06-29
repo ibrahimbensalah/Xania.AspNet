@@ -11,11 +11,6 @@ namespace Xania.AspNet.Simulator.Tests.MvcApplication1
         [ThreadStatic]
         private static IWebDriver _driver;
 
-        [SetUp]
-        public void StartDriver()
-        {
-        }
-
         [TearDown]
         public void StopDriver()
         {

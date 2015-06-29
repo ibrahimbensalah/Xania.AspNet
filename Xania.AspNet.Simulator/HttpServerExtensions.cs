@@ -42,6 +42,8 @@ namespace Xania.AspNet.Simulator
 
         private static void UseMvc(HttpServerSimulator server, IMvcApplication mvcApplication)
         {
+            SimulatorHelper.InitializeMembership();
+
             server.Use(context =>
             {
                 var action = new HttpControllerAction(mvcApplication, context)
