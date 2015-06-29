@@ -1,5 +1,8 @@
-﻿using MvcApplication1;
+﻿using System.Collections;
+using System.Collections.Generic;
+using MvcApplication1;
 using MvcApplication1.Controllers;
+using MvcApplication1.Data;
 using NUnit.Framework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
@@ -11,16 +14,20 @@ namespace Xania.AspNet.Simulator.Tests.MvcApplication1
 {
     public class MvcApplication1TestBase: HttpServerTestBase
     {
+        protected ICollection<ApplicationUser> Users { get; private set; }
+
         public override void StartServer()
         {
             base.StartServer();
+
+            Users = new List<ApplicationUser>();
 
             var contentProvider = SystemUnderTest.GetMvcApp1ContentProvider();
             Server.UseStatic(contentProvider);
 
             var controllers = new ControllerContainer()
                 .RegisterController("home", ctx => new HomeController())
-                .RegisterController("account", ctx => new AccountController(new WebSecurityImpl(ctx)));
+                .RegisterController("account", ctx => new AccountController(new WebSecurityImpl(ctx, Users)));
 
             Server.UseMvc(controllers, contentProvider)
                 .EnableRazor()

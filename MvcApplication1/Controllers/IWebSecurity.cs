@@ -1,5 +1,8 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Web;
+using MvcApplication1.Data;
 
 namespace MvcApplication1.Controllers
 {
@@ -16,10 +19,12 @@ namespace MvcApplication1.Controllers
     public class WebSecurityImpl : IWebSecurity
     {
         private readonly HttpContextBase _httpContext;
+        private readonly ICollection<ApplicationUser> _users;
 
-        public WebSecurityImpl(HttpContextBase httpContext)
+        public WebSecurityImpl(HttpContextBase httpContext, ICollection<Data.ApplicationUser> users)
         {
             _httpContext = httpContext;
+            _users = users;
         }
 
         public bool Login(string userName, string password, bool persistCookie = true)
@@ -42,7 +47,11 @@ namespace MvcApplication1.Controllers
 
         public void CreateUserAndAccount(string userName, string password)
         {
-            throw new System.NotImplementedException();
+            _users.Add(new ApplicationUser()
+            {
+                UserName = userName,
+                Password = password
+            });
         }
 
         public int GetUserId(string userName)

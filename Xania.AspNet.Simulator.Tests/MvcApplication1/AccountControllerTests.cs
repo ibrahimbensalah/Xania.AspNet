@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using FluentAssertions;
 using Microsoft.Web.WebPages.OAuth;
@@ -38,6 +39,25 @@ namespace Xania.AspNet.Simulator.Tests.MvcApplication1
             Driver.FindElement(By.LinkText("Log off")).Click();
             // assert user is logged off
             Driver.FindElement(By.Id("registerLink")).Should().NotBeNull();
+        }
+
+        [Test]
+        public void RegisterTest()
+        {
+            // go to index page
+            Driver.Navigate().GoToUrl(GetUrl("account/register"));
+            // fill form
+            Driver.FindElement(By.Name("UserName")).SendKeys("userName1");
+            Driver.FindElement(By.Name("Password")).SendKeys("password1");
+            Driver.FindElement(By.Name("ConfirmPassword")).SendKeys("password1");
+            // submit
+            Driver.FindElement(By.CssSelector("[type=submit]")).Click();
+            // assert user is logged in
+            var userElement = Driver.FindElement(By.CssSelector("a[class=username]"));
+            userElement.Text.Should().Be("userName1");
+            // and the fun part, assert user is added to an in memory repository
+            var user = Users.SingleOrDefault(u => u.UserName.Equals("userName1"));
+            user.Should().NotBeNull();
         }
     }
 }

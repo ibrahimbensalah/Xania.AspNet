@@ -142,6 +142,11 @@ namespace Xania.AspNet.Simulator
             get { return _request.HttpMethod; }
         }
 
+        public override string RawUrl
+        {
+            get { return _request.RawUrl; }
+        }
+
         public override string MapPath(string virtualPath)
         {
             return @"C:\asdflaksdf\asdfa\asdfasdf.cshtml";
