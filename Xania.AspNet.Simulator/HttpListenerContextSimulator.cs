@@ -20,7 +20,7 @@ namespace Xania.AspNet.Simulator
         public HttpListenerContextSimulator(HttpListenerContext listenerContext)
         {
             _listenerContext = listenerContext;
-            _response = new HttpListenerResponseWrapper(listenerContext.Response);
+            _response = new HttpListenerResponseWrapper(listenerContext.Response, this);
             _request = new HttpListenerRequestWrapper(listenerContext.Request, this);
             _items = new Dictionary<object, object>();
             _cache = null;

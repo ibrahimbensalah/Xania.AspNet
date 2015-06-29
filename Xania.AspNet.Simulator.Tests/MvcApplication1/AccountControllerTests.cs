@@ -14,8 +14,9 @@ namespace Xania.AspNet.Simulator.Tests.MvcApplication1
         {
             // goto login page
             Driver.Navigate().GoToUrl(GetUrl("account/login"));
-            // fill form
+            // assert page is loaded correctly
             Driver.FindElement(By.Id("menu")).Should().NotBeNull();
+            // fill form
             Driver.FindElement(By.Id("UserName")).SendKeys("me");
             Driver.FindElement(By.Id("Password")).SendKeys("p@ssw");
             // submit
@@ -23,6 +24,20 @@ namespace Xania.AspNet.Simulator.Tests.MvcApplication1
             // assert user is logged in
             var userElement = Driver.FindElement(By.CssSelector("a[class=username]"));
             userElement.Text.Should().Be("me");
+        }
+
+        [Test]
+        public void LogoutTest()
+        {
+            // go to index page
+            Driver.Navigate().GoToUrl(GetUrl("home/index"));
+            // set authentication cookie
+            Driver.Manage().Cookies.AddCookie(new Cookie("__AUTH", "me", "/", DateTime.MaxValue));
+            Driver.Navigate().Refresh();
+            // log off
+            Driver.FindElement(By.LinkText("Log off")).Click();
+            // assert user is logged off
+            Driver.FindElement(By.Id("registerLink")).Should().NotBeNull();
         }
     }
 }

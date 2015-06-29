@@ -9,23 +9,28 @@ using System.Runtime.Remoting;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using System.Web.Caching;
 
 namespace Xania.AspNet.Simulator
 {
     internal class HttpListenerResponseWrapper : HttpResponseBase, IDisposable
     {
         private readonly HttpListenerResponse _listenerResponse;
+        private readonly HttpContextBase _context;
         private TextWriter _output;
         private readonly MemoryStream _outputStream;
         private bool _closed = false;
         private readonly HttpCookieCollection _cookies;
+        private readonly HttpCachePolicyBase _cache;
 
-        public HttpListenerResponseWrapper(HttpListenerResponse listenerResponse)
+        public HttpListenerResponseWrapper(HttpListenerResponse listenerResponse, HttpContextBase context)
         {
             _listenerResponse = listenerResponse;
+            _context = context;
             _outputStream = new MemoryStream();
             _output = new StreamWriter(_outputStream);
             _cookies = new HttpCookieCollection();
+            _cache = new HttpCachePolicySimulator(context.Cache);
         }
 
         public override string ContentType { get; set; }
@@ -79,6 +84,11 @@ namespace Xania.AspNet.Simulator
             get { return _listenerResponse.Headers; }
         }
 
+        public override HttpCachePolicyBase Cache
+        {
+            get { return _cache; }
+        }
+
         public override string ApplyAppPathModifier(string virtualPath)
         {
             return virtualPath;
@@ -112,10 +122,7 @@ namespace Xania.AspNet.Simulator
         {
             if (!_closed)
             {
-                foreach (var cookie in from string cookieName in _cookies.Keys select _cookies[cookieName])
-                {
-                    _listenerResponse.Cookies.Add(new Cookie(cookie.Name, cookie.Value, cookie.Path, cookie.Domain));
-                }
+                FlushCookies();
 
                 _closed = true;
                 _output.Flush();
@@ -125,6 +132,17 @@ namespace Xania.AspNet.Simulator
                 var output = _listenerResponse.OutputStream;
                 output.Write(buffer, 0, buffer.Length);
                 output.Close();
+            }
+        }
+
+        private void FlushCookies()
+        {
+            foreach (var cookie in from string cookieName in _cookies.Keys select _cookies[cookieName])
+            {
+                _listenerResponse.Cookies.Add(new Cookie(cookie.Name, cookie.Value, cookie.Path, cookie.Domain)
+                {
+                    Expires = cookie.Expires
+                });
             }
         }
 
@@ -146,6 +164,26 @@ namespace Xania.AspNet.Simulator
         ~HttpListenerResponseWrapper()
         {
             Dispose(false);
+        }
+    }
+
+    internal class HttpCachePolicySimulator : HttpCachePolicyBase
+    {
+        private readonly Cache _cache;
+        private TimeSpan _delta;
+
+        public HttpCachePolicySimulator(Cache cache)
+        {
+            _cache = cache;
+        }
+
+        public override void SetProxyMaxAge(TimeSpan delta)
+        {
+            _delta = delta;
+        }
+
+        public override void AddValidationCallback(HttpCacheValidateHandler handler, object data)
+        {
         }
     }
 }

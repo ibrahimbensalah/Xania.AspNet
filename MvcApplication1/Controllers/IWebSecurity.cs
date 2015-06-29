@@ -1,3 +1,4 @@
+using System;
 using System.Web;
 
 namespace MvcApplication1.Controllers
@@ -31,7 +32,12 @@ namespace MvcApplication1.Controllers
 
         public void Logout()
         {
-            throw new System.NotImplementedException();
+            var httpCookie = new HttpCookie("__AUTH", _httpContext.User.Identity.Name)
+            {
+                Expires = DateTime.Today
+            };
+
+            _httpContext.Response.Cookies.Add(httpCookie);
         }
 
         public void CreateUserAndAccount(string userName, string password)
