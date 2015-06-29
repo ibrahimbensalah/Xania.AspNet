@@ -180,6 +180,7 @@
     <Compile Include="LinqActions\LinqActionTests.cs" />
     <Compile Include="MvcApplication1\AccountControllerTests.cs" />
     <Compile Include="MvcApplication1\MvcApplication1TestBase.cs" />
+    <Compile Include="MvcApplication1\WebDriverFixture.cs" />
     <Compile Include="PropertiesFile.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

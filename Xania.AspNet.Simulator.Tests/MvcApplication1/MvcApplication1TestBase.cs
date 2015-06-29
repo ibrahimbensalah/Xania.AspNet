@@ -2,6 +2,7 @@
 using MvcApplication1.Controllers;
 using NUnit.Framework;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
 using SimpleBrowser.WebDriver;
 using Xania.AspNet.Razor;
 using Xania.AspNet.Simulator.Tests.Server;
@@ -18,27 +19,24 @@ namespace Xania.AspNet.Simulator.Tests.MvcApplication1
             Server.UseStatic(contentProvider);
 
             var controllers = new ControllerContainer()
-                .RegisterController("home", () => new HomeController())
-                .RegisterController("account", () => new AccountController(new WebSecurity()));
+                .RegisterController("home", ctx => new HomeController())
+                .RegisterController("account", ctx => new AccountController(new WebSecurityImpl(ctx)));
 
             Server.UseMvc(controllers, contentProvider)
                 .EnableRazor()
                 .WithBundles(BundleConfig.RegisterBundles);
         }
 
-        [SetUp]
-        public void StartDriver()
+        public override void StopServer()
         {
-            Driver = new SimpleBrowserDriver();
+            base.StopServer();
+
+            Driver.Manage().Cookies.DeleteAllCookies();
         }
 
-        [TearDown]
-        public void StopDriver()
+        public IWebDriver Driver
         {
-            Driver.Close();
-            Driver.Dispose();
+            get { return WebDriverFixture.Driver; }
         }
-
-        public SimpleBrowserDriver Driver { get; private set; }
     }
 }

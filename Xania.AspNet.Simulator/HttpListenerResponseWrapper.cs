@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Runtime.Remoting;
 using System.Text;
@@ -96,10 +98,25 @@ namespace Xania.AspNet.Simulator
             Output.Write(s);
         }
 
+        public override void Redirect(string url)
+        {
+            _listenerResponse.Redirect(url);
+        }
+
+        public override void Redirect(string url, bool endResponse)
+        {
+            _listenerResponse.Redirect(url);
+        }
+
         public override void Close()
         {
             if (!_closed)
             {
+                foreach (var cookie in from string cookieName in _cookies.Keys select _cookies[cookieName])
+                {
+                    _listenerResponse.Cookies.Add(new Cookie(cookie.Name, cookie.Value, cookie.Path, cookie.Domain));
+                }
+
                 _closed = true;
                 _output.Flush();
 

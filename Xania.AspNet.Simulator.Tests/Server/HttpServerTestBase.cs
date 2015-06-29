@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
@@ -9,7 +10,7 @@ namespace Xania.AspNet.Simulator.Tests.Server
 {
     public class HttpServerTestBase
     {
-        private int _port = 8080;
+        private static int _port = 8080;
 
         private string _baseUrl;
         protected HttpServerSimulator Server { get; private set; }
@@ -17,7 +18,7 @@ namespace Xania.AspNet.Simulator.Tests.Server
         [SetUp]
         public virtual void StartServer()
         {
-            _baseUrl = String.Format("http://localhost:{0}/", _port);
+            _baseUrl = String.Format("http://localhost:{0}/", _port++);
             Server = new HttpServerSimulator(_baseUrl);
         }
 
@@ -25,7 +26,6 @@ namespace Xania.AspNet.Simulator.Tests.Server
         public virtual void StopServer()
         {
             Server.Dispose();
-            _port++;
         }
 
         protected string GetUrl(string path)

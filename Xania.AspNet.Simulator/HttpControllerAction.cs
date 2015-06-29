@@ -54,7 +54,7 @@ namespace Xania.AspNet.Simulator
 
             var controllerName = routeData.GetRequiredString("controller");
 
-            var controller = MvcApplication.ControllerFactory.CreateController(controllerName);
+            var controller = MvcApplication.ControllerFactory.CreateController(HttpContext, controllerName);
             var requestContext = new RequestContext(httpContext, routeData);
 
             var controllerContext = new ControllerContext(requestContext, controller);

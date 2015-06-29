@@ -65,7 +65,7 @@ namespace Xania.AspNet.Simulator
                 var valueProviders = new ValueProviderCollection();
                 if (ValueProvider != null)
                     valueProviders.Add(ValueProvider);
-                valueProviders.Add(new RouteDataValueProvider(controllerContext.RouteData, new CultureInfo("nl-NL")));
+                valueProviders.Add(new SimulatorValueProvider(controllerContext, new CultureInfo("nl-NL")));
 
                 controller.ValueProvider = valueProviders;
                 controller.ControllerContext = controllerContext;
@@ -96,7 +96,7 @@ namespace Xania.AspNet.Simulator
             
             var filters = FilterProviders.GetFilters(controllerContext, actionDescriptor).Select(BuildUp);
 
-            return new SimulatorActionInvoker(controllerContext, actionDescriptor, filters);
+            return new SimulatorActionInvoker(controllerContext, actionDescriptor, filters, Routes);
         }
 
         protected virtual Filter BuildUp(Filter filter)

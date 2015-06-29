@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Security.Principal;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -14,13 +15,6 @@ namespace Xania.AspNet.Simulator
         private readonly HttpListener _listener;
         private readonly List<Func<HttpContextBase, bool>> _handlers = new List<Func<HttpContextBase, bool>>();
         private bool _running;
-
-        private static readonly Stopwatch Stopwatch = new Stopwatch();
-
-        static HttpServerSimulator()
-        {
-            Stopwatch.Start();
-        }
 
         public HttpServerSimulator(params string[] prefixes)
         {
@@ -92,14 +86,14 @@ namespace Xania.AspNet.Simulator
 
                     try
                     {
+                        OnEnter(context);
+
                         if (!_handlers.Any(h => h(context)))
                         {
                             // not served
                             context.Response.StatusCode = (int) HttpStatusCode.NotFound;
                             context.Response.StatusDescription = "Resource not found";
                         }
-
-                        Stopwatch.Reset();
                     }
                     catch (HttpException ex)
                     {
@@ -133,9 +127,13 @@ namespace Xania.AspNet.Simulator
             }
         }
 
-        public static void PrintElapsedMilliseconds(string category)
+        private void OnEnter(HttpContextBase context)
         {
-            Console.WriteLine("{0,-10} {1}", Stopwatch.ElapsedMilliseconds, category);
+            var cookie = context.Request.Cookies["__AUTH"];
+            if (cookie != null)
+            {
+                context.User = new GenericPrincipal(new GenericIdentity(cookie.Value, "simulator"), new string[0]);
+            }
         }
     }
 }

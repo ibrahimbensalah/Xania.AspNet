@@ -8,11 +8,11 @@ namespace Xania.AspNet.Simulator
 {
     public class ControllerContainer : Core.IControllerFactory
     {
-        private readonly Dictionary<string, IValueProvider<ControllerBase>> _controllerMap;
+        private readonly Dictionary<string, IValueProvider<HttpContextBase, ControllerBase>> _controllerMap;
 
         public ControllerContainer()
         {
-            _controllerMap = new Dictionary<String, IValueProvider<ControllerBase>>(StringComparer.InvariantCultureIgnoreCase);
+            _controllerMap = new Dictionary<String, IValueProvider<HttpContextBase, ControllerBase>>(StringComparer.InvariantCultureIgnoreCase);
         }
 
         public virtual ControllerContainer RegisterController(string name, ControllerBase controller)
@@ -25,7 +25,7 @@ namespace Xania.AspNet.Simulator
             return this;
         }
 
-        public virtual ControllerContainer RegisterController(string name, Func<ControllerBase> controllerFactory)
+        public virtual ControllerContainer RegisterController(string name, Func<HttpContextBase, ControllerBase> controllerFactory)
         {
             if (name == null)
                 throw new ArgumentNullException("name");
@@ -35,43 +35,48 @@ namespace Xania.AspNet.Simulator
             return this;
         }
 
-        public virtual ControllerBase CreateController(string controllerName)
+        public virtual ControllerBase CreateController(HttpContextBase context, String controllerName)
         {
-            IValueProvider<ControllerBase> controllerProvider;
+            IValueProvider<HttpContextBase, ControllerBase> controllerProvider;
             if (_controllerMap.TryGetValue(controllerName, out controllerProvider))
-                return controllerProvider.Value;
+                return controllerProvider.GetValue(context);
 
             throw new HttpException(404, "Controller '" + controllerName + "' not found");
         }
 
-        interface IValueProvider<out TValue>
+        interface IValueProvider<in TContext, out TValue>
         {
-            TValue Value { get; }
+            TValue GetValue(TContext context);
         }
 
-        class FactoryValueProvider<TValue> : IValueProvider<TValue>
+        class FactoryValueProvider<TValue> : IValueProvider<HttpContextBase, TValue>
         {
-            private readonly Func<TValue> _factory;
+            private readonly Func<HttpContextBase, TValue> _factory;
 
-            public FactoryValueProvider(Func<TValue> factory)
+            public FactoryValueProvider(Func<HttpContextBase, TValue> factory)
             {
                 _factory = factory;
             }
 
-            public TValue Value
+            public TValue GetValue(HttpContextBase context)
             {
-                get { return _factory(); }
+                return _factory(context);
             }
         }
 
-        class LiteralValueProvider<TValue> : IValueProvider<TValue>
+        class LiteralValueProvider<TValue> : IValueProvider<HttpContextBase, TValue>
         {
+            private readonly TValue _instance;
+
             public LiteralValueProvider(TValue value)
             {
-                Value = value;
+                _instance = value;
             }
 
-            public TValue Value { get; private set; }
+            public TValue GetValue(HttpContextBase context)
+            {
+                return _instance;
+            }
         }
     }
 }

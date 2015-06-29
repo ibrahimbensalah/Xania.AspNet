@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Specialized;
+using System.Diagnostics;
+using System.IO;
 using System.Net;
 using System.Web;
 
@@ -7,17 +9,54 @@ namespace Xania.AspNet.Simulator
 {
     internal class HttpListenerRequestWrapper: HttpRequestBase
     {
+        private readonly HttpContextBase _context;
         private readonly HttpListenerRequest _request;
         private readonly string _physicalApplicationPath;
         private NameValueCollection _params;
         private NameValueCollection _serverVariables;
         private readonly HttpCookieCollection _cookies;
+        private NameValueCollection _form;
 
-        public HttpListenerRequestWrapper(HttpListenerRequest request)
+        public HttpListenerRequestWrapper(HttpListenerRequest request, HttpContextBase context)
         {
+            _context = context;
             _request = request;
             _physicalApplicationPath = null;
             _cookies = new HttpCookieCollection();
+            foreach (Cookie cookie in _request.Cookies)
+            {
+                Debug.Assert(cookie != null, "cookie != null");
+                _cookies.Add(new HttpCookie(cookie.Name, cookie.Value)
+                {
+                    Path = cookie.Path,
+                    Domain = cookie.Domain
+                });
+            }
+        }
+
+        public override NameValueCollection Headers
+        {
+            get { return _request.Headers; }
+        }
+
+        public override NameValueCollection Form
+        {
+            get
+            {
+                if (_form == null)
+                {
+                    using (var reader = new StreamReader(_request.InputStream))
+                    {
+                        _form = HttpUtility.ParseQueryString(reader.ReadToEnd());
+                    }
+                }
+                return _form;
+            }
+        }
+
+        public override NameValueCollection QueryString
+        {
+            get { return _request.QueryString; }
         }
 
         public override NameValueCollection Params
@@ -92,7 +131,10 @@ namespace Xania.AspNet.Simulator
 
         public override bool IsAuthenticated
         {
-            get { return _request.IsAuthenticated; }
+            get
+            {
+                return (_context.User != null && _context.User.Identity != null && _context.User.Identity.IsAuthenticated);
+            }
         }
 
         public override string HttpMethod

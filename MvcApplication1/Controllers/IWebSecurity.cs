@@ -1,3 +1,5 @@
+using System.Web;
+
 namespace MvcApplication1.Controllers
 {
     public interface IWebSecurity
@@ -10,11 +12,21 @@ namespace MvcApplication1.Controllers
         void CreateAccount(string userName, string newPassword);
     }
 
-    public class WebSecurity : IWebSecurity
+    public class WebSecurityImpl : IWebSecurity
     {
+        private readonly HttpContextBase _httpContext;
+
+        public WebSecurityImpl(HttpContextBase httpContext)
+        {
+            _httpContext = httpContext;
+        }
+
         public bool Login(string userName, string password, bool persistCookie = true)
         {
-            throw new System.NotImplementedException();
+            var httpCookie = new HttpCookie("__AUTH", userName);
+            _httpContext.Response.Cookies.Add(httpCookie);
+
+            return true;
         }
 
         public void Logout()

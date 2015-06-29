@@ -97,9 +97,9 @@ namespace Xania.AspNet.Simulator
         }
 
 
-        public ControllerBase CreateController(string controllerName)
+        public ControllerBase CreateController(HttpContextBase context, string controllerName)
         {
-            return ControllerFactory.CreateController(controllerName);
+            return ControllerFactory.CreateController(context, controllerName);
         }
 
         public Stream Open(string virtualPath)
@@ -154,7 +154,7 @@ namespace Xania.AspNet.Simulator
             const string parentActionViewContextToken = "ParentActionViewContext";
 
             var controllerName = viewContext.RouteData.GetRequiredString("controller");
-            var controller = ControllerFactory.CreateController(controllerName);
+            var controller = ControllerFactory.CreateController(viewContext.HttpContext, controllerName);
 
             var routeData = new RouteData
             {

@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web.Mvc;
+using System.Web.Routing;
 
 namespace Xania.AspNet.Simulator
 {
@@ -9,13 +11,18 @@ namespace Xania.AspNet.Simulator
     {
         private readonly ControllerContext _controllerContext;
         private readonly ActionDescriptor _actionDescriptor;
+        private readonly RouteCollection _routes;
         private readonly FilterInfo _filterInfo;
 
-        public SimulatorActionInvoker(ControllerContext controllerContext, ActionDescriptor actionDescriptor, IEnumerable<Filter> filters)
+        public SimulatorActionInvoker(ControllerContext controllerContext, ActionDescriptor actionDescriptor, IEnumerable<Filter> filters, RouteCollection routes)
         {
+            var enumerable = filters as Filter[] ?? filters.ToArray();
+            SimulatorHelper.Manipulate(enumerable);
+
             _controllerContext = controllerContext;
             _actionDescriptor = actionDescriptor;
-            _filterInfo = new FilterInfo(filters);
+            _routes = routes;
+            _filterInfo = new FilterInfo(enumerable);
         }
 
         public virtual ActionResult AuthorizeAction()
@@ -24,6 +31,14 @@ namespace Xania.AspNet.Simulator
                 _filterInfo.AuthorizationFilters, _actionDescriptor);
 
             return authorizationContext.Result;
+        }
+
+        protected override AuthorizationContext InvokeAuthorizationFilters(ControllerContext controllerContext, IList<IAuthorizationFilter> filters,
+            ActionDescriptor actionDescriptor)
+        {
+            var authorizationContext = base.InvokeAuthorizationFilters(controllerContext, filters, actionDescriptor);
+            SimulatorHelper.Manipulate(authorizationContext.Result, _routes);
+            return authorizationContext;
         }
 
         public virtual ActionResult InvokeAction()
@@ -40,6 +55,7 @@ namespace Xania.AspNet.Simulator
             if (actionExecutedContext == null)
                 throw new Exception("InvokeActionMethodWithFilters returned null");
 
+            SimulatorHelper.Manipulate(actionExecutedContext.Result, _routes);
             return actionExecutedContext.Result;
         }
 

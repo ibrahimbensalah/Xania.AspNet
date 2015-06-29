@@ -21,7 +21,7 @@ namespace Xania.AspNet.Simulator
         {
             _listenerContext = listenerContext;
             _response = new HttpListenerResponseWrapper(listenerContext.Response);
-            _request = new HttpListenerRequestWrapper(listenerContext.Request);
+            _request = new HttpListenerRequestWrapper(listenerContext.Request, this);
             _items = new Dictionary<object, object>();
             _cache = null;
             _applicationInstance = null;
@@ -42,11 +42,7 @@ namespace Xania.AspNet.Simulator
             get { return _items; }
         }
 
-        public override IPrincipal User
-        {
-            get { return _listenerContext.User; }
-            set { throw new NotSupportedException("Cannot set User"); }
-        }
+        public override IPrincipal User { get; set; }
 
         public override Cache Cache
         {

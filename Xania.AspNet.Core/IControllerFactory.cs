@@ -1,9 +1,10 @@
+using System.Web;
 using System.Web.Mvc;
 
 namespace Xania.AspNet.Core
 {
     public interface IControllerFactory
     {
-        ControllerBase CreateController(string controllerName);
+        ControllerBase CreateController(HttpContextBase context, string controllerName);
     }
 }

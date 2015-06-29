@@ -79,9 +79,10 @@
     <Compile Include="LinqActionDescriptor.cs" />
     <Compile Include="ActionRouterPathProvider.cs" />
     <Compile Include="HttpServerExtensions.cs" />
+    <Compile Include="SimulatorHelper.cs" />
     <Compile Include="MvcApplication.cs" />
     <Compile Include="MvcApplicationExtensions.cs" />
-    <Compile Include="RouteDataValueProvider.cs" />
+    <Compile Include="SimulatorValueProvider.cs" />
     <Compile Include="RouterExtensions.cs" />
     <Compile Include="ActionRequestWrapper.cs" />
     <Compile Include="ControllerActionResult.cs" />

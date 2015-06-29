@@ -140,7 +140,7 @@ namespace Xania.AspNet.Simulator
                 var controllerType = type;
                 var name = controllerType.Name.Substring(0, controllerType.Name.Length - controllerPostFix.Length);
 
-                container.RegisterController(name, () => factory(controllerType));
+                container.RegisterController(name, ctx => factory(controllerType));
             }
 
             return container;
