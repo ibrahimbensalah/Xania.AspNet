@@ -78,5 +78,14 @@ namespace Xania.AspNet.Simulator
                 return _instance;
             }
         }
+
+        public static implicit operator ControllerContainer(ControllerBase controller)
+        {
+            var controllerType = controller.GetType();
+            var name = controllerType.Name.Substring(0, controllerType.Name.Length - "Controller".Length);
+
+            return new ControllerContainer()
+                .RegisterController(name, controller);
+        }
     }
 }

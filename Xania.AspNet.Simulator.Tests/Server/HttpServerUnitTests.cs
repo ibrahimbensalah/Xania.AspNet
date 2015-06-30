@@ -34,9 +34,7 @@ namespace Xania.AspNet.Simulator.Tests.Server
             var contentProvider = SystemUnderTest.GetSimulatorTestsContentProvider();
             Server.UseStatic(contentProvider);
 
-            var controllerContainer = new ControllerContainer()
-                .RegisterController("test", new TestController());
-            Server.UseMvc(controllerContainer, contentProvider)
+            Server.UseMvc(new TestController(), contentProvider)
                 .EnableRazor();
 
             using (var client = new HttpClient())
