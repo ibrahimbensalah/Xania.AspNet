@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
@@ -49,6 +50,29 @@ namespace Xania.AspNet.Simulator.Tests.Server
 
                 // assert
                 result.Should().Be(content);
+            }
+        }
+
+        [TestCase("1234", "value1")]
+        [TestCase("any-sessionId", "")]
+        public void MvcSessionTest(string sessionId, string expectedResult)
+        {
+            Server.AddSession("1234", "name1", "value1");
+            Server.UseMvc(new TestController())
+                .EnableRazor();
+
+            var baseAddress = new Uri(GetUrl(string.Empty));
+            var cookieContainer = new CookieContainer();
+            using (var handler = new HttpClientHandler() { CookieContainer = cookieContainer })
+            using (var client = new HttpClient(handler) { })
+            {
+                cookieContainer.Add(baseAddress, new Cookie("ASP.NET_SessionId", sessionId));
+
+                // act
+                var result = client.GetStringAsync(GetUrl("test/ActionUsingSession/name1")).Result;
+
+                // assert
+                result.Should().Be(expectedResult);
             }
         }
 

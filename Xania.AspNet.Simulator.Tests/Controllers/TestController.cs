@@ -29,6 +29,12 @@ namespace Xania.AspNet.Simulator.Tests.Controllers
             return Url.Action("Index");
         }
 
+        public String ActionUsingSession(string id)
+        {
+            var value = Session[id];
+            return value == null ? null : value.ToString();
+        }
+
         public ViewResult RazorView()
         {
             return View();

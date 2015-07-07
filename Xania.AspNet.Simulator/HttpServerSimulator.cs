@@ -26,6 +26,8 @@ namespace Xania.AspNet.Simulator
             if (prefixes == null || prefixes.Length == 0)
                 throw new ArgumentException("prefixes");
 
+            Sessions = new Dictionary<string, HttpSessionStateBase>(StringComparer.InvariantCultureIgnoreCase);
+
             _listener = new HttpListener();
 
             foreach (var prefix in prefixes)
@@ -33,6 +35,23 @@ namespace Xania.AspNet.Simulator
                 _listener.Prefixes.Add(prefix);
             }
             _listener.Start();
+        }
+
+        /// <summary>
+        /// Session object stores states accross requests. There
+        /// </summary>
+        public IDictionary<string, HttpSessionStateBase> Sessions { get; private set; }
+
+        public void AddSession(string sessionId, string paramName, object value)
+        {
+            HttpSessionStateBase session;
+            if (!Sessions.TryGetValue(sessionId, out session))
+            {
+                session = new SimpleSessionState(sessionId);
+                Sessions.Add(sessionId, session);
+            }
+
+            session[paramName] = value;
         }
 
         public Task<HttpContextBase> GetContextAsync()
@@ -44,8 +63,22 @@ namespace Xania.AspNet.Simulator
                         if (task.IsFaulted)
                             return null;
 
-                        task.Result.Response.AppendHeader("Server", "Xania");
-                        return (HttpContextBase) new HttpListenerContextSimulator(task.Result);
+                        var listenerContext = task.Result;
+                        listenerContext.Response.AppendHeader("Server", "Xania");
+
+                        HttpSessionStateBase session = null;
+                        var sessionCookie = listenerContext.Request.Cookies["ASP.NET_SessionId"];
+                        if (sessionCookie == null)
+                        {
+                            session = new SimpleSessionState();
+                        }
+                        else if(!Sessions.TryGetValue(sessionCookie.Value, out session))
+                        {
+                            session = new SimpleSessionState(sessionCookie.Value);
+                            Sessions.Add(sessionCookie.Value, session);
+                        }
+
+                        return (HttpContextBase)new HttpListenerContextSimulator(listenerContext, session);
                     });
         }
 

@@ -11,15 +11,17 @@ namespace Xania.AspNet.Simulator
     public class HttpListenerContextSimulator : HttpContextBase, IDisposable
     {
         private readonly HttpListenerContext _listenerContext;
+        private readonly HttpSessionStateBase _session;
         private readonly HttpListenerResponseWrapper _response;
         private readonly HttpListenerRequestWrapper _request;
         private readonly Dictionary<object, object> _items;
         private readonly Cache _cache;
         private HttpApplication _applicationInstance;
 
-        public HttpListenerContextSimulator(HttpListenerContext listenerContext)
+        public HttpListenerContextSimulator(HttpListenerContext listenerContext, HttpSessionStateBase session)
         {
             _listenerContext = listenerContext;
+            _session = session;
             _response = new HttpListenerResponseWrapper(listenerContext.Response, this);
             _request = new HttpListenerRequestWrapper(listenerContext.Request, this);
             _items = new Dictionary<object, object>();
@@ -35,6 +37,11 @@ namespace Xania.AspNet.Simulator
         public override HttpResponseBase Response
         {
             get { return _response; }
+        }
+
+        public override HttpSessionStateBase Session
+        {
+            get { return _session; }
         }
 
         public override IDictionary Items
