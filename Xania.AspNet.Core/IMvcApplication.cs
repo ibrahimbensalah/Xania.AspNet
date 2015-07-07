@@ -34,5 +34,7 @@ namespace Xania.AspNet.Core
         string MapPath(string virtualPath);
 
         string ToAbsoluteUrl(string path);
+
+        IVirtualContent GetVirtualContent(string virtualPath);
     }
 }

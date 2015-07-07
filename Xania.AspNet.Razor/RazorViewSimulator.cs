@@ -25,10 +25,12 @@ namespace Xania.AspNet.Razor
 
         private IWebViewPage Create(ViewContext viewContext)
         {
-            using (var reader = _mvcApplication.OpenText(_virtualPath, !_isPartialView))
-            {
-                return _mvcApplication.Create(viewContext, _virtualPath, reader);
-            }
+            var virtualContent = _mvcApplication.GetVirtualContent(_virtualPath);
+
+            var webPage = _mvcApplication.CreatePage(virtualContent, !_isPartialView);
+            webPage.Initialize(viewContext, virtualContent.VirtualPath, _mvcApplication);
+
+            return webPage;
         }
     }
 }

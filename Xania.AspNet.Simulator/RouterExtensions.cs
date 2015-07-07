@@ -32,7 +32,7 @@ namespace Xania.AspNet.Simulator
     {
         public Stream Open(string relativePath)
         {
-            throw new InvalidOperationException();
+            throw new NotImplementedException();
         }
 
         public bool Exists(string relativePath)

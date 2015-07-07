@@ -25,7 +25,7 @@ namespace Xania.AspNet.Razor
             return LinkExtensions.ActionLink(this, title, actionName, controllerName);
         }
 
-        public MvcHtmlString AntiForgeryToken()
+        public new MvcHtmlString AntiForgeryToken()
         {
             return MvcHtmlString.Create(string.Empty);
         }

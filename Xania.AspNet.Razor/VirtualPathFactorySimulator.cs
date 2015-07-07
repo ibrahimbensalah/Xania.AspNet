@@ -22,7 +22,9 @@ namespace Xania.AspNet.Razor
 
         public object CreateInstance(string virtualPath)
         {
-            var webViewPage = _mvcApplication.Create(virtualPath);
+            IVirtualContent virtualContent = new FileVirtualContent(_mvcApplication.ContentProvider, virtualPath);
+
+            var webViewPage = _mvcApplication.CreatePage(virtualContent, false);
             webViewPage.Initialize(_viewContext, virtualPath, _mvcApplication);
 
             return webViewPage;

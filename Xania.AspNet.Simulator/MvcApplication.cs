@@ -110,15 +110,9 @@ namespace Xania.AspNet.Simulator
 
         public TextReader OpenText(string virtualPath, bool includeStartPage)
         {
-            var relativePath = ToFilePath(virtualPath);
-            var contentStream = ContentProvider.Open(relativePath);
-            const string startPagePath = @"Views\_ViewStart.cshtml";
-
-            return includeStartPage && !String.Equals(relativePath, startPagePath) &&
-                   ContentProvider.Exists(startPagePath)
-                ? (TextReader) new ConcatenatedStream(ContentProvider.Open(@"Views\_ViewStart.cshtml"), contentStream)
-                : new StreamReader(contentStream);
+            return ContentProvider.Open(ToFilePath(virtualPath), includeStartPage);
         }
+
         private string ToFilePath(string virtualPath)
         {
             return virtualPath.Substring(2).Replace("/", "\\");
@@ -141,6 +135,11 @@ namespace Xania.AspNet.Simulator
             if (path.StartsWith("~"))
                 return path.Substring(1);
             return path;
+        }
+
+        public IVirtualContent GetVirtualContent(string virtualPath)
+        {
+            return new FileVirtualContent(ContentProvider, virtualPath);
         }
 
         public string MapUrl(FileInfo file)
@@ -190,48 +189,6 @@ namespace Xania.AspNet.Simulator
                 httpContext.Response.Output = mainOutput;
             }
 
-        }
-
-    }
-
-
-    internal class ConcatenatedStream : TextReader
-    {
-        private readonly IEnumerable<Stream> _streams;
-        private readonly IEnumerator<StreamReader> _enumerator;
-
-        public ConcatenatedStream(params Stream[] streams)
-        {
-            _streams = streams;
-            _enumerator = _streams.Select(e => new StreamReader(e)).GetEnumerator();
-            _enumerator.MoveNext();
-        }
-
-        public override int Read()
-        {
-            if (_enumerator.Current == null)
-                return -1;
-
-            var ch = _enumerator.Current.Read();
-            if (ch != -1) 
-                return ch;
-
-            if (!_enumerator.MoveNext())
-                return -1;
-
-            return '\n';
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                foreach (var stream in _streams)
-                {
-                    stream.Dispose();
-                }
-            }
-            base.Dispose(disposing);
         }
     }
 }

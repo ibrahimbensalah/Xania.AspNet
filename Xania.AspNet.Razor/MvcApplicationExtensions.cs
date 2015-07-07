@@ -13,20 +13,12 @@ namespace Xania.AspNet.Razor
 {
     public static class MvcApplicationExtensions
     {
-        public static IWebViewPage Create(this IMvcApplication mvcApplication, string virtualPath)
+        public static IWebViewPage CreatePage(this IMvcApplication mvcApplication, IVirtualContent virtualContent, bool includeStartPage)
         {
-            using (var reader = mvcApplication.OpenText(virtualPath, false))
+            using (var reader = mvcApplication.OpenText(virtualContent.VirtualPath, includeStartPage))
             {
-                return new WebViewPageFactory(mvcApplication.Assemblies).Create(virtualPath, reader);
+                return new WebViewPageFactory(mvcApplication.Assemblies).Create(virtualContent.VirtualPath, reader, virtualContent.ModifiedDateTime);
             }
-        }
-
-        public static IWebViewPage Create(this IMvcApplication mvcApplication, ViewContext viewContext, string virtualPath, TextReader reader)
-        {
-            var webPage = new WebViewPageFactory(mvcApplication.Assemblies).Create(virtualPath, reader);
-            webPage.Initialize(viewContext, virtualPath, mvcApplication);
-
-            return webPage;
         }
 
         public static IMvcApplication EnableRazor(this IMvcApplication mvcApplication)

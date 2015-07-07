@@ -22,30 +22,28 @@ namespace Xania.AspNet.Razor
         {
             _assemblies = assemblies;
         }
-
-
-        public IWebViewPage Create(string virtualPath, TextReader reader)
+        
+        public IWebViewPage Create(string virtualPath, TextReader reader, DateTime modifiedDateTime)
         {
-            var content = reader.ReadToEnd();
-            var output = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Xania", "AspNet.Razor");
-            var cacheFile = Path.Combine(output, GetCacheKey(content) + ".dll");
+            var output = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Xania", "AspNet.Razor");
+            var cacheFile = new FileInfo(Path.Combine(output, GetCacheKey(virtualPath) + ".dll"));
 
             Assembly assembly;
 
-            if (File.Exists(cacheFile))
+            if (cacheFile.Exists && cacheFile.LastWriteTime > modifiedDateTime)
             {
                 Console.WriteLine("load from cache file");
-                assembly = Assembly.LoadFrom(cacheFile);
+                assembly = Assembly.LoadFrom(cacheFile.FullName);
             }
             else
             {
                 Console.WriteLine("compile razor");
                 Directory.CreateDirectory(output);
 
-                var generatedCode = GetGeneratedCode(virtualPath, new StringReader(content));
+                var generatedCode = GetGeneratedCode(virtualPath, reader);
                 assembly = Compile(generatedCode, GetCompilerParameters(), cacheFile);
 
-                File.Copy(assembly.Location, cacheFile, true);
+                File.Copy(assembly.Location, cacheFile.FullName, true);
             }
 
             var pageType = GetPageType(assembly);
@@ -90,7 +88,7 @@ namespace Xania.AspNet.Razor
             return compiledTemplateType;
         }
 
-        protected virtual Assembly Compile(CodeCompileUnit generatedCode, CompilerParameters compilerParameters, string output)
+        protected virtual Assembly Compile(CodeCompileUnit generatedCode, CompilerParameters compilerParameters, FileInfo file)
         {
             var compilerResults = new CSharpCodeProvider().CompileAssemblyFromDom(compilerParameters, generatedCode);
 
@@ -117,7 +115,7 @@ namespace Xania.AspNet.Razor
                 throw new Exception("Errors in razor file \r\n" + writer);
             }
 
-            File.Copy(compilerResults.PathToAssembly, output, true);
+            File.Copy(compilerResults.PathToAssembly, file.FullName, true);
             
             return compilerResults.CompiledAssembly;
         }
