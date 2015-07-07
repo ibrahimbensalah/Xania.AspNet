@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Web;
-using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.WebPages;
 using Xania.AspNet.Core;
@@ -13,11 +8,21 @@ namespace Xania.AspNet.Razor
 {
     public static class MvcApplicationExtensions
     {
-        public static IWebViewPage CreatePage(this IMvcApplication mvcApplication, IVirtualContent virtualContent, bool includeStartPage)
+        public static IWebViewPage CreatePage(this IMvcApplication mvcApplication, IVirtualContent virtualContent,
+            bool includeStartPage)
         {
-            using (var reader = mvcApplication.OpenText(virtualContent.VirtualPath, includeStartPage))
+            var contentStream = virtualContent.Open();
+            var startPagePath = mvcApplication.GetVirtualContent(@"~/Views/_ViewStart.cshtml");
+
+            var reader = includeStartPage && startPagePath.Exists &&
+                         !String.Equals(virtualContent.VirtualPath, startPagePath.VirtualPath)
+                ? (TextReader)new ConcatenatedStream(startPagePath.Open(), contentStream)
+                : new StreamReader(contentStream);
+
+            using (reader)
             {
-                return new WebViewPageFactory(mvcApplication.Assemblies).Create(virtualContent.VirtualPath, reader, virtualContent.ModifiedDateTime);
+                return new WebViewPageFactory(mvcApplication.Assemblies).Create(virtualContent.VirtualPath, reader,
+                    virtualContent.ModifiedDateTime);
             }
         }
 

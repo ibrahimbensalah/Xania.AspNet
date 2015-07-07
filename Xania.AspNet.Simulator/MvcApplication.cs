@@ -108,11 +108,6 @@ namespace Xania.AspNet.Simulator
             return ContentProvider.Open(filePath);
         }
 
-        public TextReader OpenText(string virtualPath, bool includeStartPage)
-        {
-            return ContentProvider.Open(ToFilePath(virtualPath), includeStartPage);
-        }
-
         private string ToFilePath(string virtualPath)
         {
             return virtualPath.Substring(2).Replace("/", "\\");

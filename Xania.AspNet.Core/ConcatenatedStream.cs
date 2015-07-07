@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Xania.AspNet.Core
 {
 
-    internal class ConcatenatedStream : TextReader
+    public class ConcatenatedStream : TextReader
     {
         private readonly IEnumerable<Stream> _streams;
         private readonly IEnumerator<StreamReader> _enumerator;

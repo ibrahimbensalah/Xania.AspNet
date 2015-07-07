@@ -18,9 +18,7 @@ namespace Xania.AspNet.Simulator.Tests
         {
             get
             {
-                var propertiesFile = new PropertiesFile("xania.properties");
-                var solutionDir = propertiesFile.Get("SolutionDir");
-                return solutionDir;
+                return new PropertiesFile("xania.properties").Get("SolutionDir");
             }
         }
     }

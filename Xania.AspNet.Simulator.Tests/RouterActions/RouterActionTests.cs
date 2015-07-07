@@ -11,7 +11,7 @@ namespace Xania.AspNet.Simulator.Tests.RouterActions
         public void SetupRouter()
         {
             _controllerContainer = new ControllerContainer()
-                .RegisterController("home", new HomeController());
+                .RegisterController("home", () => new HomeController());
         }
 
         [Test]

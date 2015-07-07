@@ -23,8 +23,7 @@ namespace Xania.AspNet.Core
 
         public Stream Open()
         {
-            var relativePath = ToFilePath(_virtualPath);
-            return _contentProvider.Open(relativePath);
+            return _contentProvider.Open(_filePath);
         }
         private string ToFilePath(string virtualPath)
         {
@@ -34,6 +33,11 @@ namespace Xania.AspNet.Core
         public string VirtualPath
         {
             get { return _virtualPath; }
+        }
+
+        public bool Exists
+        {
+            get { return _contentProvider.Exists(_filePath); }
         }
     }
 }

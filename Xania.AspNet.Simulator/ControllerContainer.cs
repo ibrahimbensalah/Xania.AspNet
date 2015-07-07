@@ -15,14 +15,9 @@ namespace Xania.AspNet.Simulator
             _controllerMap = new Dictionary<String, IValueProvider<HttpContextBase, ControllerBase>>(StringComparer.InvariantCultureIgnoreCase);
         }
 
-        public virtual ControllerContainer RegisterController(string name, ControllerBase controller)
+        public virtual ControllerContainer RegisterController(string name, Func<ControllerBase> controllerFactory)
         {
-            if (name == null)
-                throw new ArgumentNullException("name");
-
-            _controllerMap.Add(name, new LiteralValueProvider<ControllerBase>(controller));
-
-            return this;
+            return RegisterController(name, ctx => controllerFactory());
         }
 
         public virtual ControllerContainer RegisterController(string name, Func<HttpContextBase, ControllerBase> controllerFactory)
@@ -85,7 +80,7 @@ namespace Xania.AspNet.Simulator
             var name = controllerType.Name.Substring(0, controllerType.Name.Length - "Controller".Length);
 
             return new ControllerContainer()
-                .RegisterController(name, controller);
+                .RegisterController(name, ctx => controller);
         }
     }
 }

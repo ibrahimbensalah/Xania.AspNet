@@ -13,13 +13,13 @@ namespace Xania.AspNet.Simulator.Tests.RouterActions
         public void SetupRouter()
         {
             _controllerContainer = new ControllerContainer()
-                .RegisterController("test", new TestController());
+                .RegisterController("test", () => new TestController());
         }
 
         [Test]
         public void ControllerNameIsRequiredTest()
         {
-            Assert.Catch(() => _controllerContainer.RegisterController(null, new TestController()));
+            Assert.Catch(() => _controllerContainer.RegisterController(null, () => new TestController()));
         }
 
         [Test]

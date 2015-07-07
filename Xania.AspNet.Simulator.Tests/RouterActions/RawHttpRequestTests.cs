@@ -22,7 +22,7 @@ namespace Xania.AspNet.Simulator.Tests.RouterActions
         {
             // assert
             var controllerContainer = new ControllerContainer()
-                .RegisterController("home", new HomeController());
+                .RegisterController("home", () => new HomeController());
 
             var routerAction = new HttpControllerAction(controllerContainer)
             {

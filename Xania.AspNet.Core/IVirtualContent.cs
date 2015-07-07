@@ -10,5 +10,7 @@ namespace Xania.AspNet.Core
         Stream Open();
 
         string VirtualPath { get; }
+
+        bool Exists { get; }
     }
 }
