@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -47,6 +46,11 @@ namespace Xania.AspNet.Simulator
         {
             return _baseDirectories.SelectMany(baseDirectory => Directory.EnumerateFiles(baseDirectory, searchPattern))
                 .Where(File.Exists);
+        }
+
+        public DateTime GetModifiedDateTime(string relativePath)
+        {
+            return File.GetLastWriteTime(GetPhysicalPath(relativePath));
         }
 
         private string GetRelativePath(DirectoryInfo directoryInfo, FileInfo fileInfo)

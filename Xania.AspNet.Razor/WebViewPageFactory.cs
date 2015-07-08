@@ -29,8 +29,9 @@ namespace Xania.AspNet.Razor
             var cacheFile = new FileInfo(Path.Combine(output, GetCacheKey(virtualPath) + ".dll"));
 
             Assembly assembly;
+            var compilerParameters = GetCompilerParameters();
 
-            if (cacheFile.Exists && cacheFile.LastWriteTime > modifiedDateTime)
+            if (!compilerParameters.GenerateInMemory && cacheFile.Exists && cacheFile.LastWriteTime > modifiedDateTime)
             {
                 Console.WriteLine("load from cache file");
                 assembly = Assembly.LoadFrom(cacheFile.FullName);
@@ -42,8 +43,6 @@ namespace Xania.AspNet.Razor
 
                 var generatedCode = GetGeneratedCode(virtualPath, reader);
                 assembly = Compile(generatedCode, GetCompilerParameters(), cacheFile);
-
-                File.Copy(assembly.Location, cacheFile.FullName, true);
             }
 
             var pageType = GetPageType(assembly);
@@ -115,8 +114,11 @@ namespace Xania.AspNet.Razor
                 throw new Exception("Errors in razor file \r\n" + writer);
             }
 
-            File.Copy(compilerResults.PathToAssembly, file.FullName, true);
-            
+            if (!compilerParameters.GenerateInMemory)
+            {
+                File.Copy(compilerResults.PathToAssembly, file.FullName, true);
+            }
+
             return compilerResults.CompiledAssembly;
         }
 
@@ -147,7 +149,7 @@ namespace Xania.AspNet.Razor
         {
             var parameters = new CompilerParameters
             {
-                GenerateInMemory = false,
+                GenerateInMemory = true,
                 GenerateExecutable = false,
                 IncludeDebugInformation = false,
                 CompilerOptions = "/target:library /optimize",

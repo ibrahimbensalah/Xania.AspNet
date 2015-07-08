@@ -18,7 +18,7 @@ namespace Xania.AspNet.Core
 
         public DateTime ModifiedDateTime
         {
-            get { return File.GetLastAccessTime(_filePath); }
+            get { return _contentProvider.GetModifiedDateTime(_filePath); }
         }
 
         public Stream Open()

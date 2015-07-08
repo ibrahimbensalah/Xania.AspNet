@@ -54,5 +54,10 @@ namespace Xania.AspNet.Simulator
         {
             throw new NotImplementedException();
         }
+
+        public DateTime GetModifiedDateTime(string relativePath)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
