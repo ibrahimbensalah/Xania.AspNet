@@ -17,12 +17,14 @@ namespace Xania.AspNet.Razor
     public class WebViewPageFactory
     {
         private readonly IEnumerable<string> _assemblies;
+        private readonly IEnumerable<string> _namespaces;
 
-        public WebViewPageFactory(IEnumerable<string> assemblies)
+        public WebViewPageFactory(IEnumerable<string> assemblies, IEnumerable<string> namespaces)
         {
             _assemblies = assemblies;
+            _namespaces = namespaces;
         }
-        
+
         public IWebViewPage Create(string virtualPath, TextReader reader, DateTime modifiedDateTime)
         {
             var output = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Xania", "AspNet.Razor");
@@ -122,23 +124,15 @@ namespace Xania.AspNet.Razor
             return compilerResults.CompiledAssembly;
         }
 
-        private static CodeCompileUnit GetGeneratedCode(string virtualPath, TextReader reader)
+        private CodeCompileUnit GetGeneratedCode(string virtualPath, TextReader reader)
         {
             var host = new MvcWebPageRazorHost(virtualPath, string.Empty)
             {
-                DefaultBaseClass = typeof (WebViewPageSimulator).FullName,
-                NamespaceImports =
-                {
-                    "System",
-                    "System.Collections.Generic",
-                    "System.Linq",
-                    "System.Web.Mvc",
-                    "System.Web.Mvc.Ajax",
-                    "System.Web.Mvc.Html",
-                    "System.Web.Routing",
-                    "Microsoft.Web.WebPages.OAuth"
-                }
+                DefaultBaseClass = typeof (WebViewPageSimulator).FullName
             };
+
+            foreach(var ns in _namespaces)
+                host.NamespaceImports.Add(ns);
 
             var generatedCode =
                 new RazorTemplateEngine(host).GenerateCode(reader).GeneratedCode;
