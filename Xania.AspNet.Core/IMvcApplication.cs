@@ -11,15 +11,17 @@ namespace Xania.AspNet.Core
     {
         RouteCollection Routes { get; }
 
-        ViewEngineCollection ViewEngines { get; }
-
         IContentProvider ContentProvider { get; }
 
         IControllerFactory ControllerFactory { get; }
 
-        IHtmlString Action(ViewContext viewContext, string actionName, object routeValues);
+        ViewEngineCollection ViewEngines { get; }
+
+        IWebViewPageFactory WebViewPageFactory { get; set; }
 
         BundleCollection Bundles { get; }
+
+        IHtmlString Action(ViewContext viewContext, string actionName, object routeValues);
 
         IEnumerable<string> Assemblies { get; }
 

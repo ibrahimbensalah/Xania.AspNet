@@ -66,6 +66,7 @@
     <Compile Include="IVirtualContent.cs" />
     <Compile Include="IWebPageProvider.cs" />
     <Compile Include="IWebViewPage.cs" />
+    <Compile Include="IWebViewPageFactory,cs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

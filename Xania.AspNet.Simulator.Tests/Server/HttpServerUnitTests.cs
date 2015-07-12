@@ -33,12 +33,10 @@ namespace Xania.AspNet.Simulator.Tests.Server
         {
             // arrange
             var contentProvider = SystemUnderTest.GetSimulatorTestsContentProvider();
-            Server.UseStatic(contentProvider);
 
+            Server.UseStatic(contentProvider);
             Server.UseMvc(new TestController(), contentProvider)
                 .EnableRazor();
-
-            var d = typeof(Microsoft.Web.WebPages.OAuth.AuthenticationClientData).GetProperties();
 
             using (var client = new HttpClient())
             {

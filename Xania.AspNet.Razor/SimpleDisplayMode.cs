@@ -4,7 +4,7 @@ using System.Web.WebPages;
 
 namespace Xania.AspNet.Razor
 {
-    public class SimpleDisplayMode : IDisplayMode
+    internal class SimpleDisplayMode : IDisplayMode
     {
         public bool CanHandleContext(HttpContextBase httpContext)
         {

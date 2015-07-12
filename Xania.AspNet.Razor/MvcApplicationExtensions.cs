@@ -14,17 +14,19 @@ namespace Xania.AspNet.Razor
         public static IWebViewPage CreatePage(this IMvcApplication mvcApplication, IVirtualContent virtualContent,
             bool includeStartPage)
         {
-            var contentStream = virtualContent.Open();
-            var startPagePath = mvcApplication.GetVirtualContent(@"~/Views/_ViewStart.cshtml");
+            const string startPagePath = @"~/Views/_ViewStart.cshtml";
 
-            var reader = includeStartPage && startPagePath.Exists &&
-                         !String.Equals(virtualContent.VirtualPath, startPagePath.VirtualPath)
-                ? (TextReader)new ConcatenatedStream(startPagePath.Open(), contentStream)
+            var contentStream = virtualContent.Open();
+            var startPage = mvcApplication.GetVirtualContent(startPagePath);
+
+            var reader = includeStartPage && startPage.Exists &&
+                         !startPagePath.Equals(virtualContent.VirtualPath, StringComparison.OrdinalIgnoreCase)
+                ? (TextReader)new ConcatenatedStream(startPage.Open(), contentStream)
                 : new StreamReader(contentStream);
 
             using (reader)
             {
-                return new WebViewPageFactory(mvcApplication.Assemblies, GetNamespaces(mvcApplication)).Create(virtualContent.VirtualPath, reader,
+                return mvcApplication.WebViewPageFactory.Create(virtualContent.VirtualPath, reader,
                     virtualContent.ModifiedDateTime);
             }
         }
@@ -73,7 +75,8 @@ namespace Xania.AspNet.Razor
         public static IMvcApplication EnableRazor(this IMvcApplication mvcApplication)
         {
             mvcApplication.ViewEngines.Add(new RazorViewEngineSimulator(mvcApplication));
-
+            mvcApplication.WebViewPageFactory = new WebViewPageFactory(mvcApplication.Assemblies, GetNamespaces(mvcApplication));
+            
             BundleTable.MapPathMethod = mvcApplication.MapPath;
             DisplayModeProvider.Instance.Modes.Clear();
             DisplayModeProvider.Instance.Modes.Add(new SimpleDisplayMode());

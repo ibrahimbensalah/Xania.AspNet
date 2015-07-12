@@ -52,7 +52,7 @@ namespace Xania.AspNet.Simulator
 
         public IEnumerable<string> GetFiles(string searchPattern)
         {
-            throw new NotImplementedException();
+            yield break;
         }
 
         public DateTime GetModifiedDateTime(string relativePath)

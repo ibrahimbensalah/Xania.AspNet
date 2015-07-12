@@ -31,6 +31,8 @@ namespace Xania.AspNet.Simulator
 
         public ViewEngineCollection ViewEngines { get; private set; }
 
+        public IWebViewPageFactory WebViewPageFactory { get; set; }
+
         public RouteCollection Routes { get; private set; }
 
         public BundleCollection Bundles { get; private set; }

@@ -14,7 +14,7 @@ using Xania.AspNet.Core;
 
 namespace Xania.AspNet.Razor
 {
-    public class WebViewPageFactory
+    public class WebViewPageFactory: IWebViewPageFactory
     {
         private readonly IEnumerable<string> _assemblies;
         private readonly IEnumerable<string> _namespaces;
@@ -143,7 +143,7 @@ namespace Xania.AspNet.Razor
         {
             var parameters = new CompilerParameters
             {
-                GenerateInMemory = true,
+                GenerateInMemory = false,
                 GenerateExecutable = false,
                 IncludeDebugInformation = false,
                 CompilerOptions = "/target:library /optimize",
