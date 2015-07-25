@@ -30,7 +30,7 @@ namespace Xania.AspNet.Simulator
             return actionRequest;
         }
 
-        public static TActionRequest Data<TActionRequest>(this TActionRequest actionRequest, object values)
+        public static TActionRequest RequestData<TActionRequest>(this TActionRequest actionRequest, object values)
             where TActionRequest : ControllerAction
         {
             {

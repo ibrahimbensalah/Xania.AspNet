@@ -26,10 +26,10 @@ namespace Xania.AspNet.Simulator.Tests.RouterActions
         public void RequiredModelTest()
         {
             // arrange
-            var action = _controllerContainer.Action("/test/index").Post().Data(new {name = "my name"});
+            var action = _controllerContainer.Action("/test/index").Post().RequestData(new {name = "my name"});
 
             // act
-            var result = action.Execute();
+            var result = action.Invoke();
             var model = (MyModel)result.ViewData.Model;
 
             // assert

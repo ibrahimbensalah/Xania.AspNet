@@ -12,7 +12,7 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
             // arrange
             var action = new HomeController().Action(e => e.Index());
             // act
-            var result = action.Execute();
+            var result = action.Invoke();
             // assert
             Assert.AreEqual("service is null", result.ViewBag.ServiceMessage);
         }
@@ -26,7 +26,7 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
             var action = new HomeController().Action(e => e.Index());
             action.Resolve = type => container.Resolve(type);
             // act
-            var result = action.Execute();
+            var result = action.Invoke();
             // assert
             Assert.AreEqual("service is not null", result.ViewBag.ServiceMessage);
         }

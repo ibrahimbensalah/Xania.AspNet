@@ -16,6 +16,6 @@ namespace Xania.AspNet.Simulator
 
         IValueProvider ValueProvider { get; }
 
-        ControllerActionResult Execute();
+        ControllerActionResult Invoke();
     }
 }

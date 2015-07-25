@@ -22,7 +22,7 @@ namespace Xania.AspNet.Simulator.Tests.RouterActions
             var controllerAction = _controllerContainer.Action("~/home/private").Authenticate("Ibrahim", null);
 
             // act
-            var result = controllerAction.Execute();
+            var result = controllerAction.Invoke();
 
             // assert
             Assert.IsInstanceOf<EmptyResult>(result.ActionResult);
@@ -36,7 +36,7 @@ namespace Xania.AspNet.Simulator.Tests.RouterActions
             var controllerAction = _controllerContainer.Action("~/home/private");
 
             // act
-            var result = controllerAction.Execute();
+            var result = controllerAction.Invoke();
 
             // assert
             Assert.IsInstanceOf<HttpUnauthorizedResult>(result.ActionResult);

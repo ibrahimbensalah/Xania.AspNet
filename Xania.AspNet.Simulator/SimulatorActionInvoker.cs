@@ -25,7 +25,7 @@ namespace Xania.AspNet.Simulator
             _filterInfo = new FilterInfo(enumerable);
         }
 
-        public virtual ActionResult AuthorizeAction()
+        public virtual ActionResult GetAuthorizationResult()
         {
             var authorizationContext = InvokeAuthorizationFilters(_controllerContext,
                 _filterInfo.AuthorizationFilters, _actionDescriptor);
@@ -43,7 +43,7 @@ namespace Xania.AspNet.Simulator
 
         public virtual ActionResult InvokeAction()
         {
-            return AuthorizeAction() ?? InvokeActionMethodWithFilters();
+            return GetAuthorizationResult() ?? InvokeActionMethodWithFilters();
         }
 
         private ActionResult InvokeActionMethodWithFilters()
@@ -85,6 +85,12 @@ namespace Xania.AspNet.Simulator
         {
             var modelMetadata = ModelMetadataProviders.Current.GetMetadataForType(() => modelValue, modelType);
             return ModelValidator.GetModelValidator(modelMetadata, controllerContext).Validate(null);
+        }
+
+        public virtual ModelStateDictionary ValidateRequest()
+        {
+            var parameters = GetParameterValues(_controllerContext, _actionDescriptor);
+            return _controllerContext.Controller.ViewData.ModelState;
         }
     }
 }

@@ -21,7 +21,7 @@ namespace Xania.AspNet.Simulator.Tests.RouterActions
             var controllerAction = _controllerContainer.Action("~/");
 
             // act
-            var result = controllerAction.Execute();
+            var result = controllerAction.Invoke();
 
             // assert
             Assert.IsInstanceOf<HomeController>(result.Controller);
@@ -35,7 +35,7 @@ namespace Xania.AspNet.Simulator.Tests.RouterActions
             // arrange
             var controllerAction = _controllerContainer.Action("~/home/update").Post();
             // act
-            var result = controllerAction.Execute();
+            var result = controllerAction.Invoke();
             // assert
             Assert.AreEqual("Update action is executed!", result.ViewBag.Message);
         }
@@ -47,7 +47,7 @@ namespace Xania.AspNet.Simulator.Tests.RouterActions
             var controllerAction = _controllerContainer.Action("~/home/update");
 
             // assert
-            Assert.IsNull(controllerAction.Execute());
+            Assert.IsNull(controllerAction.Invoke());
         }
 
         class HomeController : Controller

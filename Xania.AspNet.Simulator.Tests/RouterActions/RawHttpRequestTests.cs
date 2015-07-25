@@ -31,7 +31,7 @@ namespace Xania.AspNet.Simulator.Tests.RouterActions
             };
 
             // act
-            var actionResult = routerAction.Execute();
+            var actionResult = routerAction.Invoke();
 
             // assert
             Assert.IsInstanceOf<HomeController>(actionResult.Controller);

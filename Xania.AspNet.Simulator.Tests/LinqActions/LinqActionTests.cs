@@ -30,7 +30,7 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
             var controllerAction = controller.Action(c => c.Update());
 
             // assert
-            Assert.Catch<ControllerActionException>(() => controllerAction.Execute());
+            Assert.Catch<ControllerActionException>(() => controllerAction.Invoke());
         }
 
         [Test]
@@ -75,7 +75,7 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
                 .Action(e => e.ActionUsingUrl());
 
             // act
-            var result = action.Execute();
+            var result = action.Invoke();
 
             // assert
             Assert.IsInstanceOf<ContentResult>(result.ActionResult);

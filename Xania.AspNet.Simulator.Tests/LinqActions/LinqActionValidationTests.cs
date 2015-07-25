@@ -17,11 +17,11 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
             var controllerAction = new AccountController().Action(c => c.ChangePassword(model));
 
             // act
-            var result = controllerAction.Execute();
+            var modelState = controllerAction.ValidateRequest();
 
             // assert
-            Assert.AreEqual(newPasswordValid, result.ModelState.IsValidField("model.NewPassword"));
-            Assert.AreEqual(confirmPasswordValid, result.ModelState.IsValidField("model.ConfirmPassword"));
+            Assert.AreEqual(newPasswordValid, modelState.IsValidField("model.NewPassword"));
+            Assert.AreEqual(confirmPasswordValid, modelState.IsValidField("model.ConfirmPassword"));
         }
 
         [Test]
@@ -30,7 +30,7 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
             // arrange
             var controllerAction = new AccountController().Action(e => e.DeleteUser(1));
             // act
-            var result = controllerAction.Execute();
+            var result = controllerAction.Invoke();
             //assert
             Assert.IsAssignableFrom<ContentResult>(result.ActionResult);
             Assert.AreEqual("Deleting User 1", (result.ActionResult as ContentResult).Content);
@@ -42,9 +42,9 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
             // arrange
             var controllerAction = new AccountController()
                 .Action(e => e.DeleteUser(0))
-                .Data(new {userId = "1"});
+                .RequestData(new {userId = 1});
             // act
-            var result = controllerAction.Execute();
+            var result = controllerAction.Invoke();
             //assert
             Assert.IsAssignableFrom<ContentResult>(result.ActionResult);
             Assert.AreEqual("Deleting User 1", (result.ActionResult as ContentResult).Content);

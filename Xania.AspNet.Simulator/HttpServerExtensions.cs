@@ -47,7 +47,7 @@ namespace Xania.AspNet.Simulator
             server.Use(context =>
             {
                 var action = new HttpControllerAction(mvcApplication, context)
-                    .Execute();
+                    .Invoke();
 
                 if (action != null)
                 {

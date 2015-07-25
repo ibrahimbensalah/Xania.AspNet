@@ -74,13 +74,13 @@ namespace Xania.AspNet.Simulator
             }
         }
 
-        public virtual ControllerActionResult Execute()
+        public virtual ControllerActionResult Invoke()
         {
             var actionContext = GetActionContext();
-            return Execute(actionContext.ControllerContext, actionContext.ActionDescriptor);
+            return Invoke(actionContext.ControllerContext, actionContext.ActionDescriptor);
         }
 
-        protected virtual ControllerActionResult Execute(ControllerContext controllerContext, ActionDescriptor actionDescriptor)
+        protected virtual ControllerActionResult Invoke(ControllerContext controllerContext, ActionDescriptor actionDescriptor)
         {
             var invoker = GetActionInvoker(controllerContext, actionDescriptor);
             return new ControllerActionResult
@@ -118,17 +118,28 @@ namespace Xania.AspNet.Simulator
             return filter;
         }
 
-        public virtual ActionResult Authorize()
+        public ActionResult Authorize()
         {
-            var actionContext = GetActionContext();
-            return Authorize(actionContext.ControllerContext, actionContext.ActionDescriptor);
+            return GetAuthorizationResult();
         }
 
-        protected virtual ActionResult Authorize(ControllerContext controllerContext, ActionDescriptor actionDescriptor)
+        public virtual ActionResult GetAuthorizationResult()
+        {
+            var actionContext = GetActionContext();
+            return GetAuthorizationResult(actionContext.ControllerContext, actionContext.ActionDescriptor);
+        }
+
+        protected virtual ActionResult GetAuthorizationResult(ControllerContext controllerContext, ActionDescriptor actionDescriptor)
         {
             Initialize(controllerContext);
+            return GetActionInvoker(controllerContext, actionDescriptor).GetAuthorizationResult();
+        }
 
-            return GetActionInvoker(controllerContext, actionDescriptor).AuthorizeAction();
+        public virtual ModelStateDictionary ValidateRequest()
+        {
+            var actionContext = GetActionContext();
+            Initialize(actionContext.ControllerContext);
+            return GetActionInvoker(actionContext.ControllerContext, actionContext.ActionDescriptor).ValidateRequest();
         }
     }
 

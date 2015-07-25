@@ -79,7 +79,7 @@ namespace Xania.AspNet.Simulator
             where TController : ControllerBase
         {
             var action = Action(controller, actionExpression);
-            return action.Execute();
+            return action.Invoke();
         }
 
         public static TControllerAction AddCookie<TControllerAction>(this TControllerAction controllerAction, string name, string value)

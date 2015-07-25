@@ -32,7 +32,7 @@ namespace Xania.AspNet.Simulator
             HttpContext = context;
         }
 
-        public override ControllerActionResult Execute()
+        public override ControllerActionResult Invoke()
         {
             var actionContext = GetActionContext();
             var actionDescriptor = actionContext.ActionDescriptor;
@@ -40,7 +40,7 @@ namespace Xania.AspNet.Simulator
             if (actionDescriptor == null)
                 return null;
 
-            return Execute(actionContext.ControllerContext, actionDescriptor);
+            return Invoke(actionContext.ControllerContext, actionDescriptor);
         }
 
         public override ActionContext GetActionContext()
