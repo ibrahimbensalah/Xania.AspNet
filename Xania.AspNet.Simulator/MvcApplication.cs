@@ -177,7 +177,7 @@ namespace Xania.AspNet.Simulator
                 var action = controller.Action(this, actionName);
                 action.RequestData(routeValues);
 
-                action.Invoke().ExecuteResult();
+                action.Execute();
 
                 return MvcHtmlString.Create(partialOutput.ToString());
             }

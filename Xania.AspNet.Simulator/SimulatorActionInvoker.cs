@@ -14,13 +14,13 @@ namespace Xania.AspNet.Simulator
         private readonly RouteCollection _routes;
         private readonly FilterInfo _filterInfo;
 
-        public SimulatorActionInvoker(ControllerContext controllerContext, ActionDescriptor actionDescriptor, IEnumerable<Filter> filters, RouteCollection routes)
+        public SimulatorActionInvoker(ActionExecutionContext actionExecutionContext, IEnumerable<Filter> filters, RouteCollection routes)
         {
             var enumerable = filters as Filter[] ?? filters.ToArray();
             SimulatorHelper.InitializeFilters(enumerable);
 
-            _controllerContext = controllerContext;
-            _actionDescriptor = actionDescriptor;
+            _controllerContext = actionExecutionContext.ControllerContext;
+            _actionDescriptor = actionExecutionContext.ActionDescriptor;
             _routes = routes;
             _filterInfo = new FilterInfo(enumerable);
         }
@@ -41,19 +41,14 @@ namespace Xania.AspNet.Simulator
             return authorizationContext;
         }
 
-        public virtual ActionResult InvokeAction()
-        {
-            return GetAuthorizationResult() ?? InvokeActionMethodWithFilters();
-        }
-
-        private ActionResult InvokeActionMethodWithFilters()
+        public virtual ActionResult GetActionResult()
         {
             var parameters = GetParameterValues(_controllerContext, _actionDescriptor);
             var actionExecutedContext = InvokeActionMethodWithFilters(_controllerContext,
                 _filterInfo.ActionFilters, _actionDescriptor, parameters);
 
             if (actionExecutedContext == null)
-                throw new Exception("InvokeActionMethodWithFilters returned null");
+                throw new Exception("GetActionResult returned null");
 
             SimulatorHelper.InitizializeActionResults(actionExecutedContext.Result, _routes);
             return actionExecutedContext.Result;
@@ -74,7 +69,7 @@ namespace Xania.AspNet.Simulator
 
             foreach (var validationResult in validationResults.Where(isValidField).ToArray())
             {
-                var subPropertyName = String.Format("{0}.{1}", parameterDescriptor.ParameterName, validationResult.MemberName);
+                var subPropertyName = String.Format("{0}.{1}", parameterName, validationResult.MemberName);
                 modelState.AddModelError(subPropertyName, validationResult.Message);
             }
 

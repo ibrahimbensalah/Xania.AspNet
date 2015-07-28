@@ -32,18 +32,7 @@ namespace Xania.AspNet.Simulator
             HttpContext = context;
         }
 
-        public override ControllerActionResult Invoke()
-        {
-            var actionContext = GetActionContext();
-            var actionDescriptor = actionContext.ActionDescriptor;
-
-            if (actionDescriptor == null)
-                return null;
-
-            return Invoke(actionContext.ControllerContext, actionDescriptor);
-        }
-
-        public override ActionContext GetActionContext()
+        public override ActionExecutionContext GetExecutionContext()
         {
             var httpContext = HttpContext ?? AspNetUtility.GetContext(UriPath, HttpMethod, User ?? AspNetUtility.CreateAnonymousUser());
             
@@ -61,7 +50,7 @@ namespace Xania.AspNet.Simulator
 
             Initialize(controllerContext);
 
-            return new ActionContext
+            return new ActionExecutionContext
             {
                 ControllerContext = controllerContext,
                 ActionDescriptor = GetActionDescriptor(controller, routeData)

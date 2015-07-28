@@ -29,10 +29,8 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
             var action = new HomeController().Action(c => c.Get(1));
             action.RequestData(new {id = 2});
             // act
-            var result = action.Invoke();
+            var contentResult = (ContentResult)action.GetActionResult();
             // assert
-            Assert.IsInstanceOf<ContentResult>(result.ActionResult);
-            var contentResult = result.ActionResult as ContentResult;
             Assert.AreEqual("2", contentResult.Content);
         }
 

@@ -12,9 +12,9 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
             // arrange
             var action = new HomeController().Action(c => c.Index()).Authenticate("normaluser", null);
             // act
-            var result = action.Invoke();
+            var result = action.GetAuthorizationResult();
             // assert
-            Assert.IsInstanceOf<HttpUnauthorizedResult>(result.ActionResult);
+            Assert.IsInstanceOf<HttpUnauthorizedResult>(result);
         }
 
         [Test]
@@ -23,9 +23,9 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
             // arrange
             var action = new HomeController().Action(c => c.About()).Authenticate("normaluser", null);
             // act
-            var result = action.Invoke();
+            var result = action.GetAuthorizationResult();
             // assert
-            Assert.IsInstanceOf<HttpUnauthorizedResult>(result.ActionResult);
+            Assert.IsInstanceOf<HttpUnauthorizedResult>(result);
         }
 
         [TestCase("ADMIN", true)]
@@ -46,10 +46,10 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
             var controllerAction = new HomeController().Action(c => c.Public());
 
             // act 
-            var result = controllerAction.Invoke();
+            var result = controllerAction.GetAuthorizationResult();
 
             // assert
-            Assert.IsInstanceOf<HttpUnauthorizedResult>(result.ActionResult);
+            Assert.IsInstanceOf<HttpUnauthorizedResult>(result);
         }
 
 

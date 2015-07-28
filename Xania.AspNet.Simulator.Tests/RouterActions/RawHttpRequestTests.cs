@@ -31,10 +31,11 @@ namespace Xania.AspNet.Simulator.Tests.RouterActions
             };
 
             // act
-            var actionResult = routerAction.Invoke();
+            var actionContext = routerAction.GetExecutionContext();
+            routerAction.GetActionResult(actionContext);
 
             // assert
-            Assert.IsInstanceOf<HomeController>(actionResult.Controller);
+            Assert.IsInstanceOf<HomeController>(actionContext.Controller);
         }
 
         class HomeController: Controller

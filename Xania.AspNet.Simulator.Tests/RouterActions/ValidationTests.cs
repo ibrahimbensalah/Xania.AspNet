@@ -22,11 +22,11 @@ namespace Xania.AspNet.Simulator.Tests.RouterActions
             var controllerAction = _controllerContainer.Action("~/home/private").Authenticate("Ibrahim", null);
 
             // act
-            var result = controllerAction.Invoke();
+            var result = controllerAction.GetActionResult();
 
             // assert
-            Assert.IsInstanceOf<EmptyResult>(result.ActionResult);
-            Assert.AreEqual("Hello Ibrahim", result.ViewBag.Message);
+            Assert.IsInstanceOf<ContentResult>(result);
+            Assert.AreEqual("Hello Ibrahim", (result as ContentResult).Content);
         }
 
         [Test]
@@ -36,18 +36,18 @@ namespace Xania.AspNet.Simulator.Tests.RouterActions
             var controllerAction = _controllerContainer.Action("~/home/private");
 
             // act
-            var result = controllerAction.Invoke();
+            var result = controllerAction.GetAuthorizationResult();
 
             // assert
-            Assert.IsInstanceOf<HttpUnauthorizedResult>(result.ActionResult);
+            Assert.IsInstanceOf<HttpUnauthorizedResult>(result);
         }
 
         class HomeController : Controller
         {
             [Authorize, UsedImplicitly]
-            public void Private()
+            public string Private()
             {
-                ViewBag.Message = "Hello " + User.Identity.Name;
+                return "Hello " + User.Identity.Name;
             }
         }
     }

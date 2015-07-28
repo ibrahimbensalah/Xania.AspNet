@@ -30,10 +30,9 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
             // arrange
             var controllerAction = new AccountController().Action(e => e.DeleteUser(1));
             // act
-            var result = controllerAction.Invoke();
+            var result = (ContentResult)controllerAction.GetActionResult();
             //assert
-            Assert.IsAssignableFrom<ContentResult>(result.ActionResult);
-            Assert.AreEqual("Deleting User 1", (result.ActionResult as ContentResult).Content);
+            Assert.AreEqual("Deleting User 1", result.Content);
         }
 
         [Test]
@@ -44,10 +43,9 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
                 .Action(e => e.DeleteUser(0))
                 .RequestData(new {userId = 1});
             // act
-            var result = controllerAction.Invoke();
+            var result = (ContentResult)controllerAction.GetActionResult();
             //assert
-            Assert.IsAssignableFrom<ContentResult>(result.ActionResult);
-            Assert.AreEqual("Deleting User 1", (result.ActionResult as ContentResult).Content);
+            Assert.AreEqual("Deleting User 1", result.Content);
         }
 
         private class AccountController : Controller

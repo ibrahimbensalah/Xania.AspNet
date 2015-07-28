@@ -44,18 +44,20 @@ namespace Xania.AspNet.Simulator
         {
             SimulatorHelper.InitializeMembership();
 
-            server.Use(context =>
+            server.Use(httpContext =>
             {
-                var action = new HttpControllerAction(mvcApplication, context)
-                    .Invoke();
+                var action = new HttpControllerAction(mvcApplication, httpContext);
+                var executionContext = action.GetExecutionContext();
 
-                if (action != null)
+                if (executionContext != null)
                 {
-                    // Content-Type: text/html; charset=utf-8
-                    context.Response.Headers.Add("Content-Type", "text/html; charset=utf-8");
-                    context.Response.Headers.Add("Cache-Control", "private");
+                    var actionResult = action.GetAuthorizationResult(executionContext) ?? action.GetActionResult(executionContext);
 
-                    action.ExecuteResult();
+                    // Content-Type: text/html; charset=utf-8
+                    httpContext.Response.Headers.Add("Content-Type", "text/html; charset=utf-8");
+                    httpContext.Response.Headers.Add("Cache-Control", "private");
+
+                    actionResult.ExecuteResult(executionContext);
                     return true;
                 }
 

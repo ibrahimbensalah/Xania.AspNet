@@ -74,14 +74,6 @@ namespace Xania.AspNet.Simulator
             };
         }
 
-        public static ControllerActionResult Execute<TController>(this TController controller,
-            Expression<Func<TController, object>> actionExpression)
-            where TController : ControllerBase
-        {
-            var action = Action(controller, actionExpression);
-            return action.Invoke();
-        }
-
         public static TControllerAction AddCookie<TControllerAction>(this TControllerAction controllerAction, string name, string value)
             where TControllerAction: ControllerAction
         {
@@ -112,13 +104,6 @@ namespace Xania.AspNet.Simulator
             return Activator.CreateInstance<TService>();
         }
 
-        public static ControllerActionResult Execute<TController>(this IDependencyResolver resolver,
-            Expression<Func<TController, object>> actionExpression)
-            where TController : ControllerBase
-        {
-            return resolver.GetService<TController>().Execute(actionExpression);
-        }
-
         public static ControllerContainer RegisterControllers(this ControllerContainer container, params Assembly[] assemblies)
         {
             return RegisterControllers(container, type => (ControllerBase)Activator.CreateInstance(type), assemblies);
@@ -144,6 +129,11 @@ namespace Xania.AspNet.Simulator
             }
 
             return container;
+        }
+
+        public static void ExecuteResult(this ActionResult actionResult, ActionExecutionContext executionContext)
+        {
+            actionResult.ExecuteResult(executionContext.ControllerContext);
         }
 
         private static IEnumerable<Type> ScanTypes(params Assembly[] assemblies)

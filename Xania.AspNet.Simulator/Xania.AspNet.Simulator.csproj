@@ -65,7 +65,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ActionContext.cs" />
+    <Compile Include="ActionExecutionContext.cs" />
     <Compile Include="ControllerAction.cs" />
     <Compile Include="ActionRequestExtensions.cs" />
     <Compile Include="AspNetUtility.cs" />
@@ -87,7 +87,6 @@
     <Compile Include="SimulatorValueProvider.cs" />
     <Compile Include="RouterExtensions.cs" />
     <Compile Include="ActionRequestWrapper.cs" />
-    <Compile Include="ControllerActionResult.cs" />
     <Compile Include="SimulatorActionInvoker.cs" />
     <Compile Include="ControllerContainer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

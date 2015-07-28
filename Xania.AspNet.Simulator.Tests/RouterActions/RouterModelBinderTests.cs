@@ -29,14 +29,11 @@ namespace Xania.AspNet.Simulator.Tests.RouterActions
             var action = _controllerContainer.Action("/test/index").Post().RequestData(new {name = "my name"});
 
             // act
-            var result = action.Invoke();
-            var model = (MyModel)result.ViewData.Model;
+            var modelState = action.ValidateRequest();
 
             // assert
-            Assert.IsTrue(result.ModelState.IsValidField("Name"));
-            Assert.IsFalse(result.ModelState.IsValidField("Email"));
-            
-            Assert.AreEqual("my name", model.Name);
+            Assert.IsTrue(modelState.IsValidField("Name"));
+            Assert.IsFalse(modelState.IsValidField("Email"));
         }
 
         private class TestController : Controller

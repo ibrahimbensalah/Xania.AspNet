@@ -28,7 +28,6 @@ namespace Xania.AspNet.Simulator
             Cookies = new Collection<HttpCookie>();
             Session = new Dictionary<string, object>();
             Files = new Dictionary<string, Stream>();
-            Resolve = DependencyResolver.Current.GetService;
         }
 
         public FilterProviderCollection FilterProviders { get; private set; }
@@ -40,7 +39,6 @@ namespace Xania.AspNet.Simulator
         public ICollection<HttpCookie> Cookies { get; private set; }
         public IDictionary<string, object> Session { get; private set; }
         public IDictionary<string, Stream> Files { get; private set; }
-        public Func<Type, object> Resolve { get; set; }
 
         public string HttpMethod { get; set; }
 
@@ -50,7 +48,7 @@ namespace Xania.AspNet.Simulator
 
         public ViewEngineCollection ViewEngines { get; private set; }
 
-        public abstract ActionContext GetActionContext();
+        public abstract ActionExecutionContext GetExecutionContext();
 
         protected virtual void Initialize(ControllerContext controllerContext)
         {
@@ -74,48 +72,32 @@ namespace Xania.AspNet.Simulator
             }
         }
 
-        public virtual ControllerActionResult Invoke()
+        public virtual ControllerContext Execute()
         {
-            var actionContext = GetActionContext();
-            return Invoke(actionContext.ControllerContext, actionContext.ActionDescriptor);
+            var actionContext = GetExecutionContext();
+            var actionResult = GetActionResult(actionContext);
+
+            actionResult.ExecuteResult(actionContext.ControllerContext);
+
+            return actionContext.ControllerContext;
+        }
+        public virtual ActionResult GetActionResult()
+        {
+            var actionContext = GetExecutionContext();
+            return GetActionResult(actionContext);
         }
 
-        protected virtual ControllerActionResult Invoke(ControllerContext controllerContext, ActionDescriptor actionDescriptor)
+        public virtual ActionResult GetActionResult(ActionExecutionContext actionExecutionContext)
         {
-            var invoker = GetActionInvoker(controllerContext, actionDescriptor);
-            return new ControllerActionResult
-            {
-                ControllerContext = controllerContext,
-                ActionResult = invoker.InvokeAction()
-            };
+            var invoker = GetActionInvoker(actionExecutionContext);
+            return invoker.GetActionResult();
         }
 
-        internal virtual SimulatorActionInvoker GetActionInvoker(ControllerContext controllerContext,
-            ActionDescriptor actionDescriptor)
+        private SimulatorActionInvoker GetActionInvoker(ActionExecutionContext actionExecutionContext)
         {
-            
-            var filters = FilterProviders.GetFilters(controllerContext, actionDescriptor).Select(BuildUp);
+            var filters = FilterProviders.GetFilters(actionExecutionContext.ControllerContext, actionExecutionContext.ActionDescriptor);
 
-            return new SimulatorActionInvoker(controllerContext, actionDescriptor, filters, Routes);
-        }
-
-        protected virtual Filter BuildUp(Filter filter)
-        {
-            if (Resolve == null)
-                return filter;
-
-            foreach (PropertyDescriptor propertyDesc in TypeDescriptor.GetProperties(filter.Instance))
-            {
-                var typeNames = propertyDesc.Attributes.OfType<Attribute>().Select(e => e.GetType().ToString());
-                if (typeNames.Contains("Microsoft.Practices.Unity.DependencyAttribute"))
-                {
-                    var service = Resolve(propertyDesc.PropertyType);
-                    if (service != null)
-                        propertyDesc.SetValue(filter.Instance, service);
-                }
-            }
-
-            return filter;
+            return new SimulatorActionInvoker(actionExecutionContext, filters, Routes);
         }
 
         public ActionResult Authorize()
@@ -125,21 +107,20 @@ namespace Xania.AspNet.Simulator
 
         public virtual ActionResult GetAuthorizationResult()
         {
-            var actionContext = GetActionContext();
-            return GetAuthorizationResult(actionContext.ControllerContext, actionContext.ActionDescriptor);
+            return GetAuthorizationResult(GetExecutionContext());
         }
 
-        protected virtual ActionResult GetAuthorizationResult(ControllerContext controllerContext, ActionDescriptor actionDescriptor)
+        public virtual ActionResult GetAuthorizationResult(ActionExecutionContext executionContext)
         {
-            Initialize(controllerContext);
-            return GetActionInvoker(controllerContext, actionDescriptor).GetAuthorizationResult();
+            Initialize(executionContext.ControllerContext);
+            return GetActionInvoker(executionContext).GetAuthorizationResult();
         }
 
         public virtual ModelStateDictionary ValidateRequest()
         {
-            var actionContext = GetActionContext();
-            Initialize(actionContext.ControllerContext);
-            return GetActionInvoker(actionContext.ControllerContext, actionContext.ActionDescriptor).ValidateRequest();
+            var executionContext = GetExecutionContext();
+            Initialize(executionContext.ControllerContext);
+            return GetActionInvoker(executionContext).ValidateRequest();
         }
     }
 

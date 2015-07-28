@@ -15,7 +15,5 @@ namespace Xania.AspNet.Simulator
         FilterProviderCollection FilterProviders { get; }
 
         IValueProvider ValueProvider { get; }
-
-        ControllerActionResult Invoke();
     }
 }

@@ -21,7 +21,7 @@ namespace Xania.AspNet.Simulator.Tests.MvcApplication1
             Driver.FindElement(By.Id("UserName")).SendKeys("me");
             Driver.FindElement(By.Id("Password")).SendKeys("p@ssw");
             // submit
-            Driver.FindElement(By.CssSelector("[type=submit]")).Click();
+            Driver.FindElement(By.TagName("form")).Submit();
             // assert user is logged in
             var userElement = Driver.FindElement(By.CssSelector("a[class=username]"));
             userElement.Text.Should().Be("me");
@@ -36,6 +36,7 @@ namespace Xania.AspNet.Simulator.Tests.MvcApplication1
             Driver.Navigate().Refresh();
             // log off
             Driver.FindElement(By.LinkText("Log off")).Click();
+            Thread.Sleep(TimeSpan.FromMilliseconds(10));
             // assert user is logged off
             Driver.FindElement(By.Id("registerLink")).Should().NotBeNull();
         }
@@ -55,13 +56,12 @@ namespace Xania.AspNet.Simulator.Tests.MvcApplication1
             Driver.FindElement(By.Name("Password")).SendKeys("password1");
             Driver.FindElement(By.Name("ConfirmPassword")).SendKeys("password1");
             // submit
-            Driver.FindElement(By.CssSelector("[type=submit]")).Click();
+            Driver.FindElement(By.TagName("form")).Submit();
             // assert user is logged in
             var userElement = Driver.FindElement(By.CssSelector("a[class=username]"));
             userElement.Text.Should().Be("userName1");
             // and the fun part, assert user is added to an in memory repository
-            var user = Users.SingleOrDefault(u => u.UserName.Equals("userName1"));
-            user.Should().NotBeNull();
+            Users.Should().Contain(u => u.UserName.Equals("userName1"));
         }
 
         [Test]
