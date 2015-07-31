@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Web;
@@ -16,9 +17,9 @@ namespace Xania.AspNet.Simulator
     {
         public MvcApplication([NotNull] Core.IControllerFactory controllerFactory, IContentProvider contentProvider)
         {
-            if (controllerFactory == null) 
+            if (controllerFactory == null)
                 throw new ArgumentNullException("controllerFactory");
-            if (contentProvider == null) 
+            if (contentProvider == null)
                 throw new ArgumentNullException("contentProvider");
 
             ControllerFactory = controllerFactory;
@@ -27,6 +28,11 @@ namespace Xania.AspNet.Simulator
             Routes = GetRoutes();
             ViewEngines = new ViewEngineCollection();
             Bundles = new BundleCollection();
+            FilterProviders = new FilterProviderCollection();
+            foreach (var provider in System.Web.Mvc.FilterProviders.Providers)
+            {
+                FilterProviders.Add(provider);
+            }
         }
 
         public ViewEngineCollection ViewEngines { get; private set; }
@@ -36,6 +42,24 @@ namespace Xania.AspNet.Simulator
         public RouteCollection Routes { get; private set; }
 
         public BundleCollection Bundles { get; private set; }
+
+        public FilterProviderCollection FilterProviders { get; private set; }
+
+        public IValueProvider ValueProvider { get; set; }
+
+        public IValueProvider GetValueProvider(ControllerContext controllerContext)
+        {
+            // Use empty value provider by default to prevent use of ASP.NET MVC default value providers
+            // Its not the purpose of this simulator framework to validate the ASP.NET MVC default value 
+            // providers. Either a value provider is not need in case model values are predefined or a 
+            // custom implementation is provided.
+            var valueProviders = new ValueProviderCollection();
+            if (ValueProvider != null)
+                valueProviders.Add(ValueProvider);
+            valueProviders.Add(new SimulatorValueProvider(controllerContext, new CultureInfo("nl-NL")));
+
+            return valueProviders;
+        }
 
         public IEnumerable<string> Assemblies
         {
@@ -96,12 +120,6 @@ namespace Xania.AspNet.Simulator
                     );
 
             return routes;
-        }
-
-
-        public ControllerBase CreateController(HttpContextBase context, string controllerName)
-        {
-            return ControllerFactory.CreateController(context, controllerName);
         }
 
         public Stream Open(string virtualPath)
@@ -185,7 +203,11 @@ namespace Xania.AspNet.Simulator
             {
                 httpContext.Response.Output = mainOutput;
             }
+        }
 
+        public static MvcApplication CreateDefault()
+        {
+            return new MvcApplication(new ControllerContainer(), new DirectoryContentProvider(AppDomain.CurrentDomain.BaseDirectory));
         }
     }
 }

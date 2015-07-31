@@ -11,13 +11,12 @@ namespace Xania.AspNet.Simulator
     public class DirectControllerAction : ControllerAction
     {
         public DirectControllerAction(ControllerBase controller, ActionDescriptor actionDescriptor)
-            : base(MvcApplication.GetRoutes())
+            : this(Simulator.MvcApplication.CreateDefault(), controller, actionDescriptor)
         {
-            Controller = controller;
-            ActionDescriptor = actionDescriptor;
         }
+
         public DirectControllerAction(IMvcApplication mvcApplication, ControllerBase controller, ActionDescriptor actionDescriptor)
-            : base(mvcApplication.Routes, mvcApplication.ViewEngines)
+            : base(mvcApplication)
         {
             Controller = controller;
             ActionDescriptor = actionDescriptor;

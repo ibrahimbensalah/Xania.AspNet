@@ -25,7 +25,7 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
             var container = new UnityContainer()
                 .RegisterType<IDummyService, DummyService>();
             var action = new HomeController().Action(e => e.Index());
-            action.FilterProviders.Add(new UnityFilterAttributeFilterProvider(container));
+            action.MvcApplication.FilterProviders.Add(new UnityFilterAttributeFilterProvider(container));
             var context = action.GetExecutionContext();
             // act
             action.GetActionResult(context);

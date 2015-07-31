@@ -14,7 +14,7 @@ namespace Xania.AspNet.Simulator
         }
 
         public HttpControllerAction(IMvcApplication mvcApplication)
-            : base(mvcApplication.Routes, mvcApplication.ViewEngines)
+            : base(mvcApplication)
         {
             MvcApplication = mvcApplication;
         }
@@ -36,7 +36,7 @@ namespace Xania.AspNet.Simulator
         {
             var httpContext = HttpContext ?? AspNetUtility.GetContext(UriPath, HttpMethod, User ?? AspNetUtility.CreateAnonymousUser());
             
-            var routeData = Routes.GetRouteData(httpContext);
+            var routeData = GetRouteData(httpContext);
 
             if (routeData == null)
                 return null;

@@ -17,6 +17,8 @@ namespace Xania.AspNet.Core
 
         ViewEngineCollection ViewEngines { get; }
 
+        FilterProviderCollection FilterProviders { get; }
+
         IWebViewPageFactory WebViewPageFactory { get; set; }
 
         BundleCollection Bundles { get; }
@@ -24,6 +26,8 @@ namespace Xania.AspNet.Core
         IHtmlString Action(ViewContext viewContext, string actionName, object routeValues);
 
         IEnumerable<string> Assemblies { get; }
+
+        IValueProvider ValueProvider { get; set; }
 
         string MapUrl(FileInfo file);
 
@@ -34,5 +38,7 @@ namespace Xania.AspNet.Core
         string ToAbsoluteUrl(string path);
 
         IVirtualContent GetVirtualContent(string virtualPath);
+
+        IValueProvider GetValueProvider(ControllerContext controllerContext);
     }
 }

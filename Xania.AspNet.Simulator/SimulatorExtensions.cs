@@ -13,14 +13,6 @@ namespace Xania.AspNet.Simulator
 {
     public static class ControlllerActionExtensions
     {
-        //public static IAction Authenticate(this IAction action, string userName,
-        //    string[] roles, string identityType = "simulator")
-        //{
-        //    var user = new GenericPrincipal(new GenericIdentity(userName, identityType), roles ?? new string[] {});
-        //    action.Authenticate(user);
-        //    return action;
-        //}
-
         public static DirectControllerAction PostAction<TController>(this TController controller,
             Expression<Func<TController, object>> actionExpression)
             where TController : ControllerBase
@@ -39,9 +31,13 @@ namespace Xania.AspNet.Simulator
             Expression<Func<TController, object>> actionExpression, string httpMethod = "GET")
             where TController : ControllerBase
         {
+
             return new DirectControllerAction(controller, LinqActionDescriptor.Create(actionExpression))
             {
-                ValueProvider = new LinqActionValueProvider(actionExpression.Body),
+                MvcApplication =
+                {
+                    ValueProvider = new LinqActionValueProvider(actionExpression.Body),
+                },
                 HttpMethod = httpMethod
             };
         }
@@ -69,7 +65,10 @@ namespace Xania.AspNet.Simulator
         {
             return new DirectControllerAction(controller, LinqActionDescriptor.Create(actionExpression))
             {
-                ValueProvider = new LinqActionValueProvider(actionExpression.Body),
+                MvcApplication =
+                {
+                    ValueProvider = new LinqActionValueProvider(actionExpression.Body)
+                },
                 HttpMethod = httpMethod
             };
         }
@@ -85,13 +84,6 @@ namespace Xania.AspNet.Simulator
             where TControllerAction : ControllerAction
         {
             controllerAction.Session[name] = value;
-            return controllerAction;
-        }
-
-        public static TControllerAction AddFile<TControllerAction>(this TControllerAction controllerAction, string name,
-            Stream stream) where TControllerAction: ControllerAction
-        {
-            controllerAction.Files[name] = stream;
             return controllerAction;
         }
 

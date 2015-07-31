@@ -34,7 +34,7 @@ namespace Xania.AspNet.Simulator
             where TActionRequest : ControllerAction
         {
             {
-                actionRequest.ValueProvider = new DictionaryValueProvider<object>(values.ToDictionary(),
+                actionRequest.MvcApplication.ValueProvider = new DictionaryValueProvider<object>(values.ToDictionary(),
                     CultureInfo.CurrentCulture);
                 return actionRequest;
             }

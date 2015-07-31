@@ -9,51 +9,37 @@ using System.Security.Principal;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
+using Xania.AspNet.Core;
 
 namespace Xania.AspNet.Simulator
 {
     public abstract class ControllerAction: IHttpRequest, IControllerAction
     {
-        protected ControllerAction(RouteCollection routes)
-            : this(routes, new ViewEngineCollection())
-        {
-        }
+        public IMvcApplication MvcApplication { get; private set; }
 
-        protected ControllerAction(RouteCollection routes, ViewEngineCollection viewEngines)
+        protected ControllerAction(IMvcApplication mvcApplication)
         {
-            Routes = routes;
-            ViewEngines = viewEngines;
-
-            FilterProviders = new FilterProviderCollection();
-            foreach (var provider in System.Web.Mvc.FilterProviders.Providers)
-            {
-                FilterProviders.Add(provider);
-            }
+            MvcApplication = mvcApplication;
 
             Cookies = new Collection<HttpCookie>();
             Session = new Dictionary<string, object>();
-            Files = new Dictionary<string, Stream>();
         }
-
-        public FilterProviderCollection FilterProviders { get; private set; }
 
         public IPrincipal User { get; set; }
 
-        public IValueProvider ValueProvider { get; set; }
-
         public ICollection<HttpCookie> Cookies { get; private set; }
         public IDictionary<string, object> Session { get; private set; }
-        public IDictionary<string, Stream> Files { get; private set; }
 
         public string HttpMethod { get; set; }
 
         public string UriPath { get; set; }
 
-        public RouteCollection Routes { get; private set; }
-
-        public ViewEngineCollection ViewEngines { get; private set; }
-
         public abstract ActionExecutionContext GetExecutionContext();
+
+        protected RouteData GetRouteData(HttpContextBase httpContext)
+        {
+            return MvcApplication.Routes.GetRouteData(httpContext);
+        }
 
         protected virtual void Initialize(ControllerContext controllerContext)
         {
@@ -61,19 +47,10 @@ namespace Xania.AspNet.Simulator
 
             if (controller != null)
             {
-                // Use empty value provider by default to prevent use of ASP.NET MVC default value providers
-                // Its not the purpose of this simulator framework to validate the ASP.NET MVC default value 
-                // providers. Either a value provider is not need in case model values are predefined or a 
-                // custom implementation is provided.
-                var valueProviders = new ValueProviderCollection();
-                if (ValueProvider != null)
-                    valueProviders.Add(ValueProvider);
-                valueProviders.Add(new SimulatorValueProvider(controllerContext, new CultureInfo("nl-NL")));
-
-                controller.ValueProvider = valueProviders;
+                controller.ValueProvider = MvcApplication.GetValueProvider(controllerContext);
                 controller.ControllerContext = controllerContext;
-                controller.Url = new UrlHelper(controllerContext.RequestContext, Routes);
-                controller.ViewEngineCollection = ViewEngines;
+                controller.Url = new UrlHelper(controllerContext.RequestContext, MvcApplication.Routes);
+                controller.ViewEngineCollection = MvcApplication.ViewEngines;
             }
         }
 
@@ -100,9 +77,9 @@ namespace Xania.AspNet.Simulator
 
         private SimulatorActionInvoker GetActionInvoker(ActionExecutionContext actionExecutionContext)
         {
-            var filters = FilterProviders.GetFilters(actionExecutionContext.ControllerContext, actionExecutionContext.ActionDescriptor);
+            var filters = MvcApplication.FilterProviders.GetFilters(actionExecutionContext.ControllerContext, actionExecutionContext.ActionDescriptor);
 
-            return new SimulatorActionInvoker(actionExecutionContext, filters, Routes);
+            return new SimulatorActionInvoker(actionExecutionContext, filters, MvcApplication.Routes);
         }
 
         public ActionResult Authorize()
