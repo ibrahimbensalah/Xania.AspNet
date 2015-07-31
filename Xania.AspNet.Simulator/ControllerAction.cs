@@ -24,7 +24,12 @@ namespace Xania.AspNet.Simulator
             Routes = routes;
             ViewEngines = viewEngines;
 
-            FilterProviders = new FilterProviderCollection(System.Web.Mvc.FilterProviders.Providers);
+            FilterProviders = new FilterProviderCollection();
+            foreach (var provider in System.Web.Mvc.FilterProviders.Providers)
+            {
+                FilterProviders.Add(provider);
+            }
+
             Cookies = new Collection<HttpCookie>();
             Session = new Dictionary<string, object>();
             Files = new Dictionary<string, Stream>();
