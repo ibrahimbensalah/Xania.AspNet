@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace Xania.AspNet.Simulator.Tests.LinqActions
@@ -36,12 +37,26 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
         }
 
         [Test]
+        public void ShouldNotValidateModelWhenGetActionResult()
+        {
+            // arrange
+            var invalidModel = new ChangePasswordModel {  };
+            var controllerAction = new AccountController().Action(c => c.ChangePassword(invalidModel));
+            var context = controllerAction.GetExecutionContext();
+
+            // act
+            controllerAction.GetActionResult(context);
+            //assert
+            context.ModelState.IsValid.Should().BeTrue();
+        }
+
+        [Test]
         public void ExpressionParameterTest()
         {
             // arrange
             var controllerAction = new AccountController()
                 .Action(e => e.DeleteUser(0))
-                .RequestData(new {userId = 1});
+                .RequestData(new { userId = 1 });
             // act
             var result = (ContentResult)controllerAction.GetActionResult();
             //assert

@@ -51,7 +51,13 @@ namespace Xania.AspNet.Simulator
 
                 if (executionContext != null)
                 {
-                    var actionResult = action.GetAuthorizationResult(executionContext) ?? action.GetActionResult(executionContext);
+                    var actionResult = action.GetAuthorizationResult(executionContext);
+
+                    if (actionResult == null)
+                    {
+                        action.ValidateRequest(executionContext);
+                        actionResult = action.GetActionResult(executionContext);
+                    }
 
                     // Content-Type: text/html; charset=utf-8
                     httpContext.Response.Headers.Add("Content-Type", "text/html; charset=utf-8");

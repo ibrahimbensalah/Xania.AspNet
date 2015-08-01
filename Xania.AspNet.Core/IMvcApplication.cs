@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Web;
@@ -40,5 +41,8 @@ namespace Xania.AspNet.Core
         IVirtualContent GetVirtualContent(string virtualPath);
 
         IValueProvider GetValueProvider(ControllerContext controllerContext);
+
+        IEnumerable<ModelValidationResult> ValidateModel(Type modelType, object modelValue,
+            ControllerContext controllerContext);
     }
 }

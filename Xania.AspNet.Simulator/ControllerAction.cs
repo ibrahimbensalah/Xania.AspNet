@@ -77,9 +77,7 @@ namespace Xania.AspNet.Simulator
 
         private SimulatorActionInvoker GetActionInvoker(ActionExecutionContext actionExecutionContext)
         {
-            var filters = MvcApplication.FilterProviders.GetFilters(actionExecutionContext.ControllerContext, actionExecutionContext.ActionDescriptor);
-
-            return new SimulatorActionInvoker(actionExecutionContext, filters, MvcApplication.Routes);
+            return new SimulatorActionInvoker(MvcApplication, actionExecutionContext);
         }
 
         public ActionResult Authorize()
@@ -89,12 +87,13 @@ namespace Xania.AspNet.Simulator
 
         public virtual ActionResult GetAuthorizationResult()
         {
-            return GetAuthorizationResult(GetExecutionContext());
+            var executionContext = GetExecutionContext();
+            Initialize(executionContext.ControllerContext);
+            return GetAuthorizationResult(executionContext);
         }
 
         public virtual ActionResult GetAuthorizationResult(ActionExecutionContext executionContext)
         {
-            Initialize(executionContext.ControllerContext);
             return GetActionInvoker(executionContext).GetAuthorizationResult();
         }
 
@@ -102,6 +101,11 @@ namespace Xania.AspNet.Simulator
         {
             var executionContext = GetExecutionContext();
             Initialize(executionContext.ControllerContext);
+            return ValidateRequest(executionContext);
+        }
+
+        public virtual ModelStateDictionary ValidateRequest(ActionExecutionContext executionContext)
+        {
             return GetActionInvoker(executionContext).ValidateRequest();
         }
     }

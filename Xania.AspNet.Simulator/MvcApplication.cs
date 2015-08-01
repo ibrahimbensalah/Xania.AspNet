@@ -33,7 +33,11 @@ namespace Xania.AspNet.Simulator
             {
                 FilterProviders.Add(provider);
             }
+
+            ModelMetadataProvider = ModelMetadataProviders.Current;
         }
+
+        public ModelMetadataProvider ModelMetadataProvider { get; set; }
 
         public ViewEngineCollection ViewEngines { get; private set; }
 
@@ -59,6 +63,14 @@ namespace Xania.AspNet.Simulator
             valueProviders.Add(new SimulatorValueProvider(controllerContext, new CultureInfo("nl-NL")));
 
             return valueProviders;
+        }
+
+        public IEnumerable<ModelValidationResult> ValidateModel(Type modelType, object modelValue, ControllerContext controllerContext)
+        {
+            var modelMetadata = ModelMetadataProvider.GetMetadataForType(() => modelValue, modelType);
+            var validator = ModelValidator.GetModelValidator(modelMetadata, controllerContext);
+
+            return validator.Validate(null);
         }
 
         public IEnumerable<string> Assemblies
