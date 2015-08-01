@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
-using System.Security.Principal;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -13,6 +12,7 @@ namespace Xania.AspNet.Simulator
     public class HttpServerSimulator : IDisposable
     {
         private readonly HttpListener _listener;
+        private readonly List<IServerModule> _modules = new List<IServerModule>();
         private readonly List<Func<HttpContextBase, bool>> _handlers = new List<Func<HttpContextBase, bool>>();
         private bool _running;
 
@@ -97,6 +97,11 @@ namespace Xania.AspNet.Simulator
             }
         }
 
+        public void AddModule(IServerModule module)
+        {
+            _modules.Add(module);
+        }
+
         public void Use(Func<HttpContextBase, bool> handler)
         {
             _handlers.Add(handler);
@@ -127,6 +132,8 @@ namespace Xania.AspNet.Simulator
                             context.Response.StatusCode = (int) HttpStatusCode.NotFound;
                             context.Response.StatusDescription = "Resource not found";
                         }
+
+                        OnExit(context);
                     }
                     catch (HttpException ex)
                     {
@@ -160,16 +167,19 @@ namespace Xania.AspNet.Simulator
             }
         }
 
-        private void OnEnter(HttpContextBase context)
+        protected virtual void OnEnter(HttpContextBase context)
         {
-            var cookie = context.Request.Cookies["__AUTH"];
-            if (cookie != null)
+            foreach (var mod in _modules)
             {
-                context.User = new GenericPrincipal(new GenericIdentity(cookie.Value, "simulator"), new string[0]);
+                mod.Enter(context);
             }
-            else
+        }
+
+        protected virtual void OnExit(HttpContextBase context)
+        {
+            foreach (var mod in _modules)
             {
-                context.User = new GenericPrincipal(new GenericIdentity(string.Empty, "simulator"), new string[0]);
+                mod.Exit(context);
             }
         }
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Security.Principal;
 using System.Threading;
 using FluentAssertions;
 using MvcApplication1.Data;
@@ -30,20 +31,15 @@ namespace Xania.AspNet.Simulator.Tests.MvcApplication1
         [Test]
         public void LogoutTest()
         {
+            WebSecurity.Login("me", null);
+
             // go to index page
             Driver.Navigate().GoToUrl(GetUrl(string.Empty));
-            SetAuthCookie("me");
-            Driver.Navigate().Refresh();
             // log off
             Driver.FindElement(By.LinkText("Log off")).Click();
             Thread.Sleep(TimeSpan.FromMilliseconds(10));
             // assert user is logged off
             Driver.FindElement(By.Id("registerLink")).Should().NotBeNull();
-        }
-
-        private void SetAuthCookie(string userName)
-        {
-            Driver.Manage().Cookies.AddCookie(new Cookie("__AUTH", userName, "/", DateTime.MaxValue));
         }
 
         [Test]
@@ -67,15 +63,10 @@ namespace Xania.AspNet.Simulator.Tests.MvcApplication1
         [Test]
         public void ManageTest()
         {
-            Users.Add(new ApplicationUser
-            {
-                UserName = "me",
-                Password = "password",
-                UserId = 1
-            });
+            WebSecurity.CreateUserAndAccount("me", "password");
+            WebSecurity.Login("me", null);
+
             // go to register page
-            Driver.Navigate().GoToUrl(GetUrl(string.Empty));
-            SetAuthCookie("me");
             Driver.Navigate().GoToUrl(GetUrl("account/manage"));
         }
     }

@@ -14,6 +14,13 @@ namespace Xania.AspNet.Simulator.Tests.MvcApplication1
 {
     public class MvcApplication1TestBase: HttpServerTestBase
     {
+        private FakeWebSecurity _webSecurity;
+
+        public IWebSecurity WebSecurity
+        {
+            get { return _webSecurity; }
+        }
+
         protected ICollection<ApplicationUser> Users { get; private set; }
 
         public override void StartServer()
@@ -25,9 +32,14 @@ namespace Xania.AspNet.Simulator.Tests.MvcApplication1
             var contentProvider = SystemUnderTest.GetMvcApp1ContentProvider();
             Server.UseStatic(contentProvider);
 
+            _webSecurity = new FakeWebSecurity(Users);
+            Server.AddModule(new AuthenticationModule(ctx => _webSecurity.CurrentUser));
+
+
             var controllers = new ControllerContainer()
                 .RegisterController("home", ctx => new HomeController())
-                .RegisterController("account", ctx => new AccountController(new WebSecurityImpl(ctx, Users)));
+                .RegisterController("account", ctx => new AccountController(WebSecurity));
+
 
             Server.UseMvc(controllers, contentProvider)
                 .EnableRazor()

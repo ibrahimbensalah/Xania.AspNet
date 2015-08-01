@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Web;
 using System.Web.Mvc;
 using Xania.AspNet.Core;
 
@@ -58,10 +53,6 @@ namespace Xania.AspNet.Simulator
                         action.ValidateRequest(executionContext);
                         actionResult = action.GetActionResult(executionContext);
                     }
-
-                    // Content-Type: text/html; charset=utf-8
-                    httpContext.Response.Headers.Add("Content-Type", "text/html; charset=utf-8");
-                    httpContext.Response.Headers.Add("Cache-Control", "private");
 
                     actionResult.ExecuteResult(executionContext);
                     return true;

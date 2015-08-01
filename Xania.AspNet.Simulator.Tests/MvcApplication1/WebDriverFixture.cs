@@ -29,6 +29,7 @@ namespace Xania.AspNet.Simulator.Tests.MvcApplication1
                 if (_driver == null)
                 {
                     _driver = new ChromeDriver();
+                    _driver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(1));
                 }
                 return _driver;
             }

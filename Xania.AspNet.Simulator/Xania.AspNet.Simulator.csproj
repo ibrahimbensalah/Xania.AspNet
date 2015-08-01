@@ -66,6 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActionExecutionContext.cs" />
+    <Compile Include="AuthenticationModule.cs" />
     <Compile Include="ControllerAction.cs" />
     <Compile Include="ActionRequestExtensions.cs" />
     <Compile Include="AspNetUtility.cs" />
@@ -78,6 +79,7 @@
     <Compile Include="HttpListenerResponseWrapper.cs" />
     <Compile Include="HttpServerSimulator.cs" />
     <Compile Include="IControllerAction.cs" />
+    <Compile Include="IServerModule.cs" />
     <Compile Include="LinqActionDescriptor.cs" />
     <Compile Include="ActionRouterPathProvider.cs" />
     <Compile Include="HttpServerExtensions.cs" />

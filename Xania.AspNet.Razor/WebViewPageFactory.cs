@@ -146,7 +146,7 @@ namespace Xania.AspNet.Razor
                 GenerateInMemory = false,
                 GenerateExecutable = false,
                 IncludeDebugInformation = false,
-                CompilerOptions = "/target:library /optimize",
+                CompilerOptions = "/target:library",
             };
 
             parameters.ReferencedAssemblies.AddRange(_assemblies.ToArray());
