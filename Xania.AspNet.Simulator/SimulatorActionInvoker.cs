@@ -64,7 +64,7 @@ namespace Xania.AspNet.Simulator
             var controllerContext = _actionExecutionContext.ControllerContext;
             var actionDescriptor = _actionExecutionContext.ActionDescriptor;
 
-            _parameters = new Dictionary<string, object>((IEqualityComparer<string>)StringComparer.OrdinalIgnoreCase);
+            _parameters = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
             var modelState = controllerContext.Controller.ViewData.ModelState;
             foreach (ParameterDescriptor parameterDescriptor in actionDescriptor.GetParameters())
             {

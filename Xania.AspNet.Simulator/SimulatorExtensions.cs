@@ -42,6 +42,15 @@ namespace Xania.AspNet.Simulator
             };
         }
 
+        public static DirectControllerAction ChildAction<TController>(this TController controller,
+            Expression<Func<TController, object>> actionExpression, string httpMethod = "GET")
+            where TController : ControllerBase
+        {
+            var action = Action(controller, actionExpression, httpMethod);
+            action.IsChildAction = true;
+
+            return action;
+        }
 
         public static RouteCollection GetDefaultRoutes()
         {

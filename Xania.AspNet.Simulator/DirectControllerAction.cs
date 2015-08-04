@@ -26,6 +26,8 @@ namespace Xania.AspNet.Simulator
 
         public virtual ActionDescriptor ActionDescriptor { get; private set; }
 
+        public bool IsChildAction { get; set; }
+
         public override ActionExecutionContext GetExecutionContext()
         {
             var controllerContext = Controller.ControllerContext ?? CreateControllerContext(CreateHttpContext(), Controller,
@@ -49,6 +51,13 @@ namespace Xania.AspNet.Simulator
         {
             var requestContext = GetRequestContext(httpContext, actionDescriptor);
             var controllerContext = new ControllerContext(requestContext, controller);
+
+
+            if (IsChildAction)
+            {
+                requestContext.RouteData.DataTokens.Add("ParentActionViewContext",
+                    new ViewContext(controllerContext, new EmptyView(), controller.ViewData, controller.TempData, new StringWriter()));
+            }
 
             if (actionDescriptor.GetSelectors().Any(selector => !selector.Invoke(controllerContext)))
             {
@@ -86,6 +95,14 @@ namespace Xania.AspNet.Simulator
                 // ReSharper disable once PossibleNullReferenceException
                 requestContext.HttpContext.Session[kvp.Key] = kvp.Value;
             return requestContext;
+        }
+    }
+
+    public class EmptyView : IView
+    {
+        public void Render(ViewContext viewContext, TextWriter writer)
+        {
+            throw new NotImplementedException();
         }
     }
 }

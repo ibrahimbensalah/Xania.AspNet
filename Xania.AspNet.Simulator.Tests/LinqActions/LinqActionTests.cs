@@ -1,4 +1,7 @@
-﻿using System.Web.Mvc;
+﻿using System.IO;
+using System.Web.Mvc;
+using FluentAssertions;
+using NSubstitute;
 using NUnit.Framework;
 using Xania.AspNet.Simulator.Tests.Controllers;
 
@@ -8,7 +11,7 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
     {
 
         [Test]
-        public void ActionExecuteTest()
+        public void GetActionResultTest()
         {
             // arange
             var action = new TestController()
@@ -16,10 +19,22 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
             var context = action.GetExecutionContext();
 
             // act
-            var result = action.GetActionResult(context);
+            action.GetActionResult(context);
 
             // assert
             Assert.AreEqual("Hello Simulator!", context.ViewBag.Title);
+        }
+
+        [Test]
+        public void PartialViewResultTest()
+        {
+            var action = new TestController()
+                .ChildAction(c => c.ChildPartialViewAction());
+
+            action.GetAuthorizationResult().Should().BeNull();
+            var result = action.GetActionResult();
+
+            result.Should().BeOfType<PartialViewResult>();
         }
 
         [Test]

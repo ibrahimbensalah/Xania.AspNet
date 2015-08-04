@@ -5,6 +5,7 @@ using System.Web.Mvc;
 namespace Xania.AspNet.Simulator.Tests.Controllers
 {
     [SuppressMessage("ReSharper", "Mvc.ViewNotResolved", Justification = "Views are not executed")]
+    [SuppressMessage("ReSharper", "Mvc.PartialViewNotResolved")]
     public class TestController : Controller
     {
         public ActionResult Index()
@@ -62,6 +63,12 @@ namespace Xania.AspNet.Simulator.Tests.Controllers
         public ViewResult ViewWithModel(string id)
         {
             return View(model: id);
+        }
+
+        [ChildActionOnly]
+        public ActionResult ChildPartialViewAction()
+        {
+            return PartialView();
         }
     }
 }

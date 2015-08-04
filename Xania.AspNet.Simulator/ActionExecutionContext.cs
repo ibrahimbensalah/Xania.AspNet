@@ -1,5 +1,6 @@
 ﻿using System.Web;
 using System.Web.Mvc;
+using System.Web.Routing;
 
 namespace Xania.AspNet.Simulator
 {
@@ -20,6 +21,10 @@ namespace Xania.AspNet.Simulator
         {
             get { return ControllerContext.Controller.ViewData; }
         }
+        public TempDataDictionary TempData
+        {
+            get { return ControllerContext.Controller.TempData; }
+        }
 
         public ModelStateDictionary ModelState
         {
@@ -36,5 +41,9 @@ namespace Xania.AspNet.Simulator
             get { return ControllerContext.HttpContext.Request; }
         }
 
+        public RouteData RouteData
+        {
+            get { return ControllerContext.RequestContext.RouteData; }
+        }
     }
 }
