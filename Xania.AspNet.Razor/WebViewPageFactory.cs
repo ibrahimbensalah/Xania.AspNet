@@ -35,12 +35,10 @@ namespace Xania.AspNet.Razor
 
             if (!compilerParameters.GenerateInMemory && cacheFile.Exists && cacheFile.LastWriteTime > modifiedDateTime)
             {
-                Console.WriteLine("load from cache file");
                 assembly = Assembly.LoadFrom(cacheFile.FullName);
             }
             else
             {
-                Console.WriteLine("compile razor");
                 Directory.CreateDirectory(output);
 
                 var generatedCode = GetGeneratedCode(virtualPath, reader);

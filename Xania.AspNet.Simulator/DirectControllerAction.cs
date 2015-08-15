@@ -30,8 +30,8 @@ namespace Xania.AspNet.Simulator
 
         public override ActionExecutionContext GetExecutionContext()
         {
-            var controllerContext = Controller.ControllerContext ?? CreateControllerContext(CreateHttpContext(), Controller,
-                ActionDescriptor);
+            var controllerContext = Controller.ControllerContext ??
+                CreateControllerContext(CreateHttpContext(), Controller, ActionDescriptor);
 
             Initialize(controllerContext);
 

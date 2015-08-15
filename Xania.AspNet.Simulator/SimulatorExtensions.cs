@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -40,6 +39,13 @@ namespace Xania.AspNet.Simulator
                 },
                 HttpMethod = httpMethod
             };
+        }
+
+        public static DirectControllerAction Action<TController>(this TController controller, string actionName, string httpMethod = "GET")
+            where TController: ControllerBase
+        {
+            var controllerDesc = new ReflectedControllerDescriptor(typeof (TController));
+            return new DirectControllerAction(controller, new LazyActionDescriptor<TController>(controller, actionName));
         }
 
         public static DirectControllerAction ChildAction<TController>(this TController controller,
@@ -151,6 +157,60 @@ namespace Xania.AspNet.Simulator
         {
             return new RouteValueDictionary(values);
         } 
+    }
+
+    public class LazyActionDescriptor<TController> : ActionDescriptor
+        where TController: ControllerBase
+    {
+        private readonly TController _controller;
+        private readonly string _actionName;
+        private ActionDescriptor _inner;
+        private ReflectedControllerDescriptor _controllerDesc;
+
+        public LazyActionDescriptor(TController controller, string actionName)
+        {
+            _controller = controller;
+            _actionName = actionName;
+        }
+
+        public override object Execute(ControllerContext controllerContext, IDictionary<string, object> parameters)
+        {
+            return Inner.Execute(controllerContext, parameters);
+        }
+
+        public override ParameterDescriptor[] GetParameters()
+        {
+            return Inner.GetParameters();
+        }
+
+        public override string ActionName
+        {
+            get { return _actionName; }
+        }
+
+        public override ControllerDescriptor ControllerDescriptor
+        {
+            get
+            {
+                if (_controllerDesc == null)
+                {
+                    _controllerDesc = new ReflectedControllerDescriptor(typeof (TController));
+                }
+                return _controllerDesc;
+            }
+        }
+
+        private ActionDescriptor Inner
+        {
+            get
+            {
+                if (_inner == null)
+                {
+                    _inner = ControllerDescriptor.FindAction(_controller.ControllerContext, _actionName);
+                }
+                return _inner;
+            }
+        }
     }
 
     public class LinqActionValueProvider : IValueProvider
