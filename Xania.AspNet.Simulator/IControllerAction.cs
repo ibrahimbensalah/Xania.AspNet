@@ -1,6 +1,7 @@
 using System.Security.Principal;
 using System.Web;
 using System.Web.Mvc;
+using Xania.AspNet.Core;
 
 namespace Xania.AspNet.Simulator
 {
@@ -12,10 +13,6 @@ namespace Xania.AspNet.Simulator
 
         IPrincipal User { get; set; }
 
-        FilterProviderCollection FilterProviders { get; }
-
-        IValueProvider ValueProvider { get; }
-
-        ControllerActionResult Execute();
+        IMvcApplication MvcApplication { get; }
     }
 }

@@ -1,63 +1,56 @@
 using System;
-using System.IO;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
+using Xania.AspNet.Core;
 
 namespace Xania.AspNet.Simulator
 {
     public class HttpControllerAction : ControllerAction
     {
-        public HttpControllerAction(IControllerFactory controllerFactory)
-            : base(MvcApplication.GetRoutes())
+        public HttpControllerAction(Core.IControllerFactory controllerContainer)
+            : this(new MvcApplication(controllerContainer, new EmptyContentProvider()))
+        {            
+        }
+
+        public HttpControllerAction(IMvcApplication mvcApplication)
+            : base(mvcApplication)
         {
-            ControllerFactory = controllerFactory;
+            MvcApplication = mvcApplication;
         }
 
         private HttpContextBase HttpContext { get; set; }
 
-        public IControllerFactory ControllerFactory { get; set; }
+        public IMvcApplication MvcApplication { get; set; }
 
         public HttpControllerAction(IMvcApplication mvcApplication, [NotNull] HttpContextBase context)
-            : base(mvcApplication.Routes)
+            : this(mvcApplication)
         {
-            if (context == null) throw new ArgumentNullException("context");
+            if (context == null) 
+                throw new ArgumentNullException("context");
 
-            ControllerFactory = mvcApplication;
-            WebPageProvider = mvcApplication;
             HttpContext = context;
         }
 
-        public override ControllerActionResult Execute()
-        {
-            var actionContext = GetActionContext();
-            var actionDescriptor = actionContext.ActionDescriptor;
-
-            if (actionDescriptor == null)
-                return null;
-
-            return Execute(actionContext.ControllerContext, actionDescriptor);
-        }
-
-        public override ActionContext GetActionContext()
+        public override ActionExecutionContext GetExecutionContext()
         {
             var httpContext = HttpContext ?? AspNetUtility.GetContext(UriPath, HttpMethod, User ?? AspNetUtility.CreateAnonymousUser());
             
-            var routeData = Routes.GetRouteData(httpContext);
+            var routeData = GetRouteData(httpContext);
 
             if (routeData == null)
                 return null;
 
             var controllerName = routeData.GetRequiredString("controller");
 
-            var controller = ControllerFactory.CreateController(controllerName);
+            var controller = MvcApplication.ControllerFactory.CreateController(HttpContext, controllerName);
             var requestContext = new RequestContext(httpContext, routeData);
 
             var controllerContext = new ControllerContext(requestContext, controller);
 
             Initialize(controllerContext);
 
-            return new ActionContext
+            return new ActionExecutionContext
             {
                 ControllerContext = controllerContext,
                 ActionDescriptor = GetActionDescriptor(controller, routeData)
@@ -71,10 +64,5 @@ namespace Xania.AspNet.Simulator
             var actionDescriptor = controllerDescriptor.FindAction(controller.ControllerContext, actionName);
             return actionDescriptor;
         }
-    }
-
-    public interface IControllerFactory
-    {
-        ControllerBase CreateController(string controllerName);
     }
 }

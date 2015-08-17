@@ -1,29 +1,121 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
+using System.Web;
 using System.Web.Mvc;
+using System.Web.Optimization;
 using System.Web.Routing;
-using Xania.AspNet.Simulator.Razor;
+using System.Web.Security;
+using Xania.AspNet.Core;
+using IControllerFactory = Xania.AspNet.Core.IControllerFactory;
 
 namespace Xania.AspNet.Simulator
 {
     public class MvcApplication : IMvcApplication
     {
-        private readonly IControllerFactory _controllerFactory;
-        private readonly IContentProvider _contentProvider;
-
-        public MvcApplication(IControllerFactory controllerFactory, IContentProvider contentProvider = null)
+        public MvcApplication([NotNull] Core.IControllerFactory controllerFactory, IContentProvider contentProvider)
         {
-            _controllerFactory = controllerFactory;
-            _contentProvider = contentProvider ?? GetDefaultContentProvider();
+            if (controllerFactory == null)
+                throw new ArgumentNullException("controllerFactory");
+            if (contentProvider == null)
+                throw new ArgumentNullException("contentProvider");
+
+            ControllerFactory = controllerFactory;
+            ContentProvider = contentProvider;
 
             Routes = GetRoutes();
+            ViewEngines = new ViewEngineCollection();
+            Bundles = new BundleCollection();
+            FilterProviders = new FilterProviderCollection();
+            foreach (var provider in System.Web.Mvc.FilterProviders.Providers)
+            {
+                FilterProviders.Add(provider);
+            }
+
+            ModelMetadataProvider = ModelMetadataProviders.Current;
         }
 
+        public ModelMetadataProvider ModelMetadataProvider { get; set; }
+
+        public ViewEngineCollection ViewEngines { get; private set; }
+
+        public IWebViewPageFactory WebViewPageFactory { get; set; }
+
         public RouteCollection Routes { get; private set; }
+
+        public BundleCollection Bundles { get; private set; }
+
+        public FilterProviderCollection FilterProviders { get; private set; }
+
+        public IValueProvider ValueProvider { get; set; }
+
+        public IValueProvider GetValueProvider(ControllerContext controllerContext)
+        {
+            // Use empty value provider by default to prevent use of ASP.NET MVC default value providers
+            // Its not the purpose of this simulator framework to validate the ASP.NET MVC default value 
+            // providers. Either a value provider is not need in case model values are predefined or a 
+            // custom implementation is provided.
+            var valueProviders = new ValueProviderCollection();
+            if (ValueProvider != null)
+                valueProviders.Add(ValueProvider);
+            valueProviders.Add(new SimulatorValueProvider(controllerContext, new CultureInfo("nl-NL")));
+
+            return valueProviders;
+        }
+
+        public IEnumerable<ModelValidationResult> ValidateModel(Type modelType, object modelValue, ControllerContext controllerContext)
+        {
+            var modelMetadata = ModelMetadataProvider.GetMetadataForType(() => modelValue, modelType);
+            var validator = ModelValidator.GetModelValidator(modelMetadata, controllerContext);
+
+            return validator.Validate(null);
+        }
+
+        public IEnumerable<string> Assemblies
+        {
+            get
+            {
+                var result = new Dictionary<string, string>();
+                AddAssembly<Uri>(result);
+                AddAssembly<Microsoft.CSharp.RuntimeBinder.CSharpArgumentInfo>(result);
+                AddAssembly<EnumerableQuery>(result);
+                AddAssembly<CookieProtection>(result);
+
+                foreach (var assemblyPath in ContentProvider.GetFiles("bin\\*.dll"))
+                {
+                    var i = assemblyPath.LastIndexOf('\\') + 1;
+                    var fullName = assemblyPath.Substring(i);
+
+                    result.Add(fullName, assemblyPath);
+                }
+
+                var runtimeAssemblies = AppDomain.CurrentDomain.GetAssemblies()
+                    .Where(a => !a.IsDynamic)
+                    .GroupBy(a => a.FullName)
+                    .Select(grp => grp.First())
+                    .Select(a => new { Name = a.GetName().Name + ".dll", a.Location})
+                    .Where(a => !result.ContainsKey(a.Name) && !string.IsNullOrWhiteSpace(a.Location))
+                    .ToArray();
+
+                foreach (var assembly in runtimeAssemblies)
+                {
+                    result.Add(assembly.Name, assembly.Location);
+                }
+
+                return result.Values;
+            }
+        }
+
+        private static void AddAssembly<T>(Dictionary<string, string> result)
+        {
+            result.Add(typeof(T).Assembly.GetName().Name + ".dll", typeof(T).Assembly.Location);
+        }
+
+        public IContentProvider ContentProvider { get; private set; }
+
+        public IControllerFactory ControllerFactory { get; private set; }
 
         public static RouteCollection GetRoutes()
         {
@@ -42,125 +134,92 @@ namespace Xania.AspNet.Simulator
             return routes;
         }
 
-
-        private IContentProvider GetDefaultContentProvider()
-        {
-            var directories = new List<string>();
-
-            var appDomainBaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            directories.Add(appDomainBaseDirectory);
-
-            var regex = new Regex(@"(.*)\\bin\\[^\\]*\\?$");
-
-            var match = regex.Match(appDomainBaseDirectory);
-            if (match.Success)
-            {
-                var sourceBaseDirectory = match.Groups[1].Value;
-                directories.Add(sourceBaseDirectory);
-            }
-
-            return new DirectoryContentProvider(directories.ToArray());
-        }
-
-        public ControllerBase CreateController(string controllerName)
-        {
-            return _controllerFactory.CreateController(controllerName);
-        }
-
         public Stream Open(string virtualPath)
         {
-            var relativePath = ToRelativePath(virtualPath);
-            return _contentProvider.Open(relativePath);
+            var filePath = ToFilePath(virtualPath);
+            return ContentProvider.Open(filePath);
         }
 
-        public TextReader OpenText(string virtualPath, bool includeStartPage)
-        {
-            var relativePath = ToRelativePath(virtualPath);
-            var contentStream = _contentProvider.Open(relativePath);
-            const string startPagePath = @"Views\_ViewStart.cshtml";
-
-            return includeStartPage && !String.Equals(relativePath, startPagePath) &&
-                   _contentProvider.Exists(startPagePath)
-                ? (TextReader) new ConcatenatedStream(_contentProvider.Open(@"Views\_ViewStart.cshtml"), contentStream)
-                : new StreamReader(contentStream);
-        }
-
-        //public IWebViewPage CreateWithStartPage(ViewContext viewContext, string virtualPath)
-        //{
-        //    using (var stream = OpenText(virtualPath, true))
-        //    {
-        //        var webViewPage = new WebViewPageFactory().Create(virtualPath, stream);
-        //        webViewPage.Initialize(viewContext, virtualPath, this);
-
-        //        return webViewPage;
-        //    }
-        //}
-
-        private string ToRelativePath(string virtualPath)
+        private string ToFilePath(string virtualPath)
         {
             return virtualPath.Substring(2).Replace("/", "\\");
         }
 
         public bool Exists(string virtualPath)
         {
-            var relativePath = ToRelativePath(virtualPath);
-            return _contentProvider.Exists(relativePath);
+            var relativePath = ToFilePath(virtualPath);
+            return ContentProvider.Exists(relativePath);
         }
 
-        public IWebViewPage Create(string virtualPath)
+        public string MapPath(string virtualPath)
         {
-            using (var reader = OpenText(virtualPath, false))
+            var relativePath = ToFilePath(virtualPath);
+            return ContentProvider.GetPhysicalPath(relativePath);
+        }
+
+        public string ToAbsoluteUrl(string path)
+        {
+            if (path.StartsWith("~"))
+                return path.Substring(1);
+            return path;
+        }
+
+        public IVirtualContent GetVirtualContent(string virtualPath)
+        {
+            return new FileVirtualContent(ContentProvider, virtualPath);
+        }
+
+        public string MapUrl(FileInfo file)
+        {
+            var relativePath = ContentProvider.GetRelativePath(file.FullName);
+            return String.Format("/{0}", relativePath.Replace("\\", "/"));
+        }
+
+        public IHtmlString Action(ViewContext viewContext, string actionName, object routeValues)
+        {
+            const string parentActionViewContextToken = "ParentActionViewContext";
+
+            var controllerName = viewContext.RouteData.GetRequiredString("controller");
+            var controller = ControllerFactory.CreateController(viewContext.HttpContext, controllerName);
+
+            var routeData = new RouteData
             {
-                return new WebViewPageFactory().Create(virtualPath, reader);
+                Values = {{"controller", controllerName}, {"action", actionName}},
+                DataTokens = {{parentActionViewContextToken, viewContext}}
+            };
+            foreach (var kvp in new RouteValueDictionary(routeValues))
+            {
+                if (routeData.Values.ContainsKey(kvp.Key))
+                    continue;
+
+                routeData.Values.Add(kvp.Key, kvp.Value);
+            }
+
+            var httpContext = viewContext.HttpContext;
+            var mainOutput = httpContext.Response.Output;
+            try
+            {
+                var partialOutput = new StringWriter();
+                httpContext.Response.Output = partialOutput;
+               
+                controller.ControllerContext = new ControllerContext(httpContext, routeData, controller);
+
+                var action = controller.Action(this, actionName);
+                action.RequestData(routeValues);
+
+                action.Execute();
+
+                return MvcHtmlString.Create(partialOutput.ToString());
+            }
+            finally
+            {
+                httpContext.Response.Output = mainOutput;
             }
         }
 
-        public IWebViewPage Create(ViewContext viewContext, string virtualPath, TextReader reader)
+        public static MvcApplication CreateDefault()
         {
-            var webPage = new WebViewPageFactory().Create(virtualPath, reader);
-            webPage.Initialize(viewContext, virtualPath, this);
-
-            return webPage;
-        }
-    }
-
-    internal class ConcatenatedStream : TextReader
-    {
-        private readonly IEnumerable<Stream> _streams;
-        private readonly IEnumerator<StreamReader> _enumerator;
-
-        public ConcatenatedStream(params Stream[] streams)
-        {
-            _streams = streams;
-            _enumerator = _streams.Select(e => new StreamReader(e)).GetEnumerator();
-            _enumerator.MoveNext();
-        }
-
-        public override int Read()
-        {
-            if (_enumerator.Current == null)
-                return -1;
-
-            var ch = _enumerator.Current.Read();
-            if (ch != -1) 
-                return ch;
-
-            if (!_enumerator.MoveNext())
-                return -1;
-
-            return '\n';
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                foreach (var stream in _streams)
-                {
-                    stream.Dispose();
-                }
-            }
-            base.Dispose(disposing);
+            return new MvcApplication(new ControllerContainer(), new DirectoryContentProvider(AppDomain.CurrentDomain.BaseDirectory));
         }
     }
 }

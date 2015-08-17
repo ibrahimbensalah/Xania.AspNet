@@ -30,11 +30,11 @@ namespace Xania.AspNet.Simulator
             return actionRequest;
         }
 
-        public static TActionRequest Data<TActionRequest>(this TActionRequest actionRequest, object values)
+        public static TActionRequest RequestData<TActionRequest>(this TActionRequest actionRequest, object values)
             where TActionRequest : ControllerAction
         {
             {
-                actionRequest.ValueProvider = new DictionaryValueProvider<object>(values.ToDictionary(),
+                actionRequest.MvcApplication.ValueProvider = new DictionaryValueProvider<object>(values.ToDictionary(),
                     CultureInfo.CurrentCulture);
                 return actionRequest;
             }

@@ -1,5 +1,6 @@
 ﻿using System.Web.Mvc;
 using Microsoft.Practices.Unity;
+using Microsoft.Practices.Unity.Mvc;
 using NUnit.Framework;
 
 namespace Xania.AspNet.Simulator.Tests.LinqActions
@@ -12,9 +13,9 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
             // arrange
             var action = new HomeController().Action(e => e.Index());
             // act
-            var result = action.Execute();
+            var controllerContext = action.Execute();
             // assert
-            Assert.AreEqual("service is null", result.ViewBag.ServiceMessage);
+            Assert.AreEqual("service is null", controllerContext.Controller.ViewBag.ServiceMessage);
         }
 
         [Test]
@@ -24,11 +25,12 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
             var container = new UnityContainer()
                 .RegisterType<IDummyService, DummyService>();
             var action = new HomeController().Action(e => e.Index());
-            action.Resolve = type => container.Resolve(type);
+            action.MvcApplication.FilterProviders.Add(new UnityFilterAttributeFilterProvider(container));
+            var context = action.GetExecutionContext();
             // act
-            var result = action.Execute();
+            action.GetActionResult(context);
             // assert
-            Assert.AreEqual("service is not null", result.ViewBag.ServiceMessage);
+            Assert.AreEqual("service is not null", context.ViewBag.ServiceMessage);
         }
 
         class HomeController: Controller

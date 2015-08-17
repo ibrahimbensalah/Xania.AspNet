@@ -38,7 +38,7 @@ namespace Xania.AspNet.TagHelpers.Tests
             tagHelperProvider.Register<TagWithNs>("xn:div");
             var mng = new HtmlProcessor(writer, tagHelperProvider);
             // act
-            foreach(var ch in input )
+            foreach(var ch in input)
                 mng.Write(ch);
             // assert
             Assert.AreEqual(expected, writer.GetStringBuilder().ToString());

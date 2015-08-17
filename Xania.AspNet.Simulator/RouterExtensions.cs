@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using Xania.AspNet.Core;
 
 namespace Xania.AspNet.Simulator
 {
@@ -7,7 +10,8 @@ namespace Xania.AspNet.Simulator
     {
         public static HttpControllerAction Action(this ControllerContainer controllerContainer, string url)
         {
-            return new HttpControllerAction(controllerContainer) { UriPath = url };
+            var mvcApplication = new MvcApplication(controllerContainer, new EmptyContentProvider());
+            return new HttpControllerAction(mvcApplication) { UriPath = url };
         }
 
         public static HttpControllerAction ParseAction(this ControllerContainer controllerContainer, string rawHttpRequest)
@@ -16,11 +20,44 @@ namespace Xania.AspNet.Simulator
             var first = lines.First();
 
             var parts = first.Split(' ');
-            return new HttpControllerAction(controllerContainer)
+            return new HttpControllerAction(new MvcApplication(controllerContainer, new EmptyContentProvider()))
             {
                 HttpMethod = parts[0],
                 UriPath = parts[1]
             };
+        }
+    }
+
+    public class EmptyContentProvider : IContentProvider
+    {
+        public Stream Open(string relativePath)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Exists(string relativePath)
+        {
+            return false;
+        }
+
+        public string GetPhysicalPath(string relativePath)
+        {
+            throw new InvalidOperationException();
+        }
+
+        public string GetRelativePath(string physicalPath)
+        {
+            throw new InvalidOperationException();
+        }
+
+        public IEnumerable<string> GetFiles(string searchPattern)
+        {
+            yield break;
+        }
+
+        public DateTime GetModifiedDateTime(string relativePath)
+        {
+            throw new NotImplementedException();
         }
     }
 }

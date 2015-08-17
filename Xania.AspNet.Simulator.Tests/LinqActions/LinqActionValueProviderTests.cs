@@ -27,24 +27,11 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
         {
             // arrange
             var action = new HomeController().Action(c => c.Get(1));
-            action.Data(new {id = 2});
+            action.RequestData(new {id = 2});
             // act
-            var result = action.Execute();
+            var contentResult = (ContentResult)action.GetActionResult();
             // assert
-            Assert.IsInstanceOf<ContentResult>(result.ActionResult);
-            var contentResult = result.ActionResult as ContentResult;
             Assert.AreEqual("2", contentResult.Content);
-        }
-
-        [Test, Ignore]
-        public void RequiredLinqParameterTest()
-        {
-            // arrange
-            var action = new HomeController().Action(c => c.Upload(null));
-            // act
-            var result = action.Execute();
-            // assert
-            Assert.IsFalse(result.ModelState.IsValid);
         }
 
         class HomeController : Controller
@@ -52,10 +39,6 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
             public ActionResult Get(int id)
             {
                 return Content(id.ToString());
-            }
-
-            public void Upload([Required]HttpPostedFileBase file)
-            {
             }
         }
     }

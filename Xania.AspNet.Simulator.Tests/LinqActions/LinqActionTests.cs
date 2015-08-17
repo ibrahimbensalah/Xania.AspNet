@@ -1,5 +1,9 @@
-﻿using System.Web.Mvc;
+﻿using System.IO;
+using System.Web.Mvc;
+using FluentAssertions;
+using NSubstitute;
 using NUnit.Framework;
+using Xania.AspNet.Simulator.Tests.Controllers;
 
 namespace Xania.AspNet.Simulator.Tests.LinqActions
 {
@@ -7,16 +11,30 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
     {
 
         [Test]
-        public void ActionExecuteTest()
+        public void GetActionResultTest()
         {
             // arange
-            var controller = new TestController();
+            var action = new TestController()
+                .Action(c => c.Index());
+            var context = action.GetExecutionContext();
 
             // act
-            var result = controller.Execute(c => c.Index());
+            action.GetActionResult(context);
 
             // assert
-            Assert.AreEqual("Hello Simulator!", result.ViewBag.Title);
+            Assert.AreEqual("Hello Simulator!", context.ViewBag.Title);
+        }
+
+        [Test]
+        public void PartialViewResultTest()
+        {
+            var action = new TestController()
+                .ChildAction(c => c.ChildPartialViewAction());
+
+            action.GetAuthorizationResult().Should().BeNull();
+            var result = action.GetActionResult();
+
+            result.Should().BeOfType<PartialViewResult>();
         }
 
         [Test]
@@ -29,7 +47,7 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
             var controllerAction = controller.Action(c => c.Update());
 
             // assert
-            Assert.Catch<ControllerActionException>(() => controllerAction.Execute());
+            Assert.Catch<ControllerActionException>(() => controllerAction.GetActionResult());
         }
 
         [Test]
@@ -41,7 +59,7 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
                 .AddCookie("name1", "value1");
 
             // act
-            var name1 = action.GetActionContext()
+            var name1 = action.GetExecutionContext()
                 .ControllerContext.HttpContext.Request.Cookies["name1"];
 
             // assert
@@ -58,7 +76,7 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
                 .AddSession("name1", "value1");
 
             // act
-            var session = action.GetActionContext()
+            var session = action.GetExecutionContext()
                 .ControllerContext.HttpContext.Session;
 
             // assert
@@ -74,11 +92,11 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
                 .Action(e => e.ActionUsingUrl());
 
             // act
-            var result = action.Execute();
+            var result = action.GetActionResult();
 
             // assert
-            Assert.IsInstanceOf<ContentResult>(result.ActionResult);
-            Assert.AreEqual("/Test", ((ContentResult)result.ActionResult).Content);
+            Assert.IsInstanceOf<ContentResult>(result);
+            Assert.AreEqual("/Test", ((ContentResult)result).Content);
         }
     }
 }

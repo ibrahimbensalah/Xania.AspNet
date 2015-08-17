@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web;
@@ -9,13 +12,9 @@ namespace Xania.AspNet.Simulator
     public class HttpServerSimulator : IDisposable
     {
         private readonly HttpListener _listener;
-
-        private static readonly Stopwatch Stopwatch = new Stopwatch();
-
-        static HttpServerSimulator()
-        {
-            Stopwatch.Start();
-        }
+        private readonly List<IServerModule> _modules = new List<IServerModule>();
+        private readonly List<Func<HttpContextBase, bool>> _handlers = new List<Func<HttpContextBase, bool>>();
+        private bool _running;
 
         public HttpServerSimulator(params string[] prefixes)
         {
@@ -27,6 +26,8 @@ namespace Xania.AspNet.Simulator
             if (prefixes == null || prefixes.Length == 0)
                 throw new ArgumentException("prefixes");
 
+            Sessions = new Dictionary<string, HttpSessionStateBase>(StringComparer.InvariantCultureIgnoreCase);
+
             _listener = new HttpListener();
 
             foreach (var prefix in prefixes)
@@ -34,6 +35,23 @@ namespace Xania.AspNet.Simulator
                 _listener.Prefixes.Add(prefix);
             }
             _listener.Start();
+        }
+
+        /// <summary>
+        /// Session object stores states accross requests. There
+        /// </summary>
+        public IDictionary<string, HttpSessionStateBase> Sessions { get; private set; }
+
+        public void AddSession(string sessionId, string paramName, object value)
+        {
+            HttpSessionStateBase session;
+            if (!Sessions.TryGetValue(sessionId, out session))
+            {
+                session = new SimpleSessionState(sessionId);
+                Sessions.Add(sessionId, session);
+            }
+
+            session[paramName] = value;
         }
 
         public Task<HttpContextBase> GetContextAsync()
@@ -45,8 +63,22 @@ namespace Xania.AspNet.Simulator
                         if (task.IsFaulted)
                             return null;
 
-                        task.Result.Response.AppendHeader("Server", "Xania");
-                        return (HttpContextBase) new HttpListenerContextSimulator(task.Result);
+                        var listenerContext = task.Result;
+                        listenerContext.Response.AppendHeader("Server", "Xania");
+
+                        HttpSessionStateBase session = null;
+                        var sessionCookie = listenerContext.Request.Cookies["ASP.NET_SessionId"];
+                        if (sessionCookie == null)
+                        {
+                            session = new SimpleSessionState();
+                        }
+                        else if(!Sessions.TryGetValue(sessionCookie.Value, out session))
+                        {
+                            session = new SimpleSessionState(sessionCookie.Value);
+                            Sessions.Add(sessionCookie.Value, session);
+                        }
+
+                        return (HttpContextBase)new HttpListenerContextSimulator(listenerContext, session);
                     });
         }
 
@@ -65,13 +97,26 @@ namespace Xania.AspNet.Simulator
             }
         }
 
-        public async void Use(Action<HttpContextBase> handler)
+        public void AddModule(IServerModule module)
         {
-            bool running = true;
+            _modules.Add(module);
+        }
 
-            while (running)
+        public void Use(Func<HttpContextBase, bool> handler)
+        {
+            _handlers.Add(handler);
+            EnsureStarted();
+        }
+
+        private async void EnsureStarted()
+        {
+            if (_running)
+                return;
+            _running = true;
+
+            while (_running)
             {
-                running = await GetContextAsync().ContinueWith(task =>
+                _running = await GetContextAsync().ContinueWith(task =>
                 {
                     var context = task.Result;
                     if (context == null)
@@ -79,11 +124,29 @@ namespace Xania.AspNet.Simulator
 
                     try
                     {
-                        PrintElapsedMilliseconds("handler started");
-                        handler(context);
-                        PrintElapsedMilliseconds("handler complete");
+                        OnEnter(context);
 
-                        Stopwatch.Reset();
+                        if (!_handlers.Any(h => h(context)))
+                        {
+                            // not served
+                            context.Response.StatusCode = (int) HttpStatusCode.NotFound;
+                            context.Response.StatusDescription = "Resource not found";
+                        }
+
+                        OnExit(context);
+                    }
+                    catch (HttpException ex)
+                    {
+                        context.Response.StatusCode = ex.GetHttpCode();
+                        context.Response.StatusDescription = ex.Message;
+                        context.Response.Write(ex.Message);
+                        var htmlErrorMessage = ex.GetHtmlErrorMessage();
+
+                        if (htmlErrorMessage != null)
+                        {
+                            context.Response.Write("\n");
+                            context.Response.Write(htmlErrorMessage);
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -104,9 +167,20 @@ namespace Xania.AspNet.Simulator
             }
         }
 
-        public static void PrintElapsedMilliseconds(string category)
+        protected virtual void OnEnter(HttpContextBase context)
         {
-            Console.WriteLine("{0,-10} {1}", Stopwatch.ElapsedMilliseconds, category);
+            foreach (var mod in _modules)
+            {
+                mod.Enter(context);
+            }
+        }
+
+        protected virtual void OnExit(HttpContextBase context)
+        {
+            foreach (var mod in _modules)
+            {
+                mod.Exit(context);
+            }
         }
     }
 }

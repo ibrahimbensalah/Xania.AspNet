@@ -1,4 +1,5 @@
 ﻿using System.Web.Mvc;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace Xania.AspNet.Simulator.Tests.RouterActions
@@ -11,22 +12,24 @@ namespace Xania.AspNet.Simulator.Tests.RouterActions
         public void SetupRouter()
         {
             _controllerContainer = new ControllerContainer()
-                .RegisterController("home", new HomeController());
+                .RegisterController("home", () => new HomeController());
         }
 
         [Test]
         public void ActionFromUrlTest()
         {
             // arrange
-            var controllerAction = _controllerContainer.Action("~/");
+            var action = _controllerContainer.Action("~/");
+            var actionContext = action.GetExecutionContext();
 
             // act
-            var result = controllerAction.Execute();
+
+            var result = action.GetActionResult(actionContext);
 
             // assert
-            Assert.IsInstanceOf<HomeController>(result.Controller);
-            Assert.IsInstanceOf<ContentResult>(result.ActionResult);
-            Assert.AreEqual("Hello Mvc Application!", result.ViewBag.Message);
+            Assert.IsInstanceOf<HomeController>(actionContext.Controller);
+            Assert.IsInstanceOf<ContentResult>(result);
+            Assert.AreEqual("Hello Mvc Application!", actionContext.ViewBag.Message);
         }
 
         [Test]
@@ -35,19 +38,22 @@ namespace Xania.AspNet.Simulator.Tests.RouterActions
             // arrange
             var controllerAction = _controllerContainer.Action("~/home/update").Post();
             // act
-            var result = controllerAction.Execute();
+            var context = controllerAction.GetExecutionContext();
+            var result = controllerAction.GetActionResult(context);
             // assert
-            Assert.AreEqual("Update action is executed!", result.ViewBag.Message);
+            Assert.AreEqual("Update action is executed!", context.ViewBag.Message);
         }
 
         [Test]
         public void UnmatchedPostActionTest()
         {
             // arrange
-            var controllerAction = _controllerContainer.Action("~/home/update");
+            var actionContext = _controllerContainer
+                .Action("~/home/update")
+                .GetExecutionContext();
 
             // assert
-            Assert.IsNull(controllerAction.Execute());
+            actionContext.ActionDescriptor.Should().BeNull();
         }
 
         class HomeController : Controller

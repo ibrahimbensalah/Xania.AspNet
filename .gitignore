@@ -8,3 +8,4 @@ nupack.cmd
 /Xania.AspNet.Simulator/Xania.AspNet.Simulator.nuspec
 *.coverage
 Xania.AspNet.sln.DotSettings
+*.DotSettings

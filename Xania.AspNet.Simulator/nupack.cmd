@@ -1,2 +1,2 @@
-.\.nuget\nuget.exe pack .\Xania.AspNet.Simulator.csproj
+.\.nuget\nuget.exe pack -IncludeReferencedProjects .\Xania.AspNet.Simulator.csproj
 pause

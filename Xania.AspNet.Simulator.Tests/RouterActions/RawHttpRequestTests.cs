@@ -22,7 +22,7 @@ namespace Xania.AspNet.Simulator.Tests.RouterActions
         {
             // assert
             var controllerContainer = new ControllerContainer()
-                .RegisterController("home", new HomeController());
+                .RegisterController("home", () => new HomeController());
 
             var routerAction = new HttpControllerAction(controllerContainer)
             {
@@ -31,10 +31,11 @@ namespace Xania.AspNet.Simulator.Tests.RouterActions
             };
 
             // act
-            var actionResult = routerAction.Execute();
+            var actionContext = routerAction.GetExecutionContext();
+            routerAction.GetActionResult(actionContext);
 
             // assert
-            Assert.IsInstanceOf<HomeController>(actionResult.Controller);
+            Assert.IsInstanceOf<HomeController>(actionContext.Controller);
         }
 
         class HomeController: Controller

@@ -13,30 +13,27 @@ namespace Xania.AspNet.Simulator.Tests.RouterActions
         public void SetupRouter()
         {
             _controllerContainer = new ControllerContainer()
-                .RegisterController("test", new TestController());
+                .RegisterController("test", () => new TestController());
         }
 
         [Test]
         public void ControllerNameIsRequiredTest()
         {
-            Assert.Catch(() => _controllerContainer.RegisterController(null, new TestController()));
+            Assert.Catch(() => _controllerContainer.RegisterController(null, () => new TestController()));
         }
 
         [Test]
         public void RequiredModelTest()
         {
             // arrange
-            var action = _controllerContainer.Action("/test/index").Post().Data(new {name = "my name"});
+            var action = _controllerContainer.Action("/test/index").Post().RequestData(new {name = "my name"});
 
             // act
-            var result = action.Execute();
-            var model = (MyModel)result.ViewData.Model;
+            var modelState = action.ValidateRequest();
 
             // assert
-            Assert.IsTrue(result.ModelState.IsValidField("Name"));
-            Assert.IsFalse(result.ModelState.IsValidField("Email"));
-            
-            Assert.AreEqual("my name", model.Name);
+            Assert.IsTrue(modelState.IsValidField("Name"));
+            Assert.IsFalse(modelState.IsValidField("Email"));
         }
 
         private class TestController : Controller
