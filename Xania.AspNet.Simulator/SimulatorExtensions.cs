@@ -207,6 +207,8 @@ namespace Xania.AspNet.Simulator
                 if (_inner == null)
                 {
                     _inner = ControllerDescriptor.FindAction(_controller.ControllerContext, _actionName);
+                    if (_inner == null)
+                        throw new HttpException(404, "Action '" + _actionName + "' of controller '" + ControllerDescriptor.ControllerName + "' not found");
                 }
                 return _inner;
             }

@@ -61,7 +61,7 @@ namespace Xania.AspNet.Simulator
 
             if (actionDescriptor.GetSelectors().Any(selector => !selector.Invoke(controllerContext)))
             {
-                throw new ControllerActionException(String.Format("Http method '{0}' is not allowed", controllerContext.HttpContext.Request.HttpMethod));
+                throw new HttpException(404, String.Format("Http method '{0}' is not allowed", controllerContext.HttpContext.Request.HttpMethod));
             }
 
             return controllerContext;

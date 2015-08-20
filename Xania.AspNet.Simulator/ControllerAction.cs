@@ -109,13 +109,4 @@ namespace Xania.AspNet.Simulator
             return GetActionInvoker(executionContext).ValidateRequest();
         }
     }
-
-    [Serializable]
-    public class ControllerActionException : Exception
-    {
-        public ControllerActionException(string message)
-            : base(message)
-        {
-        }
-    }
 }

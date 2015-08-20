@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Web;
 using System.Web.Mvc;
 using FluentAssertions;
 using NSubstitute;
@@ -7,24 +8,8 @@ using Xania.AspNet.Simulator.Tests.Controllers;
 
 namespace Xania.AspNet.Simulator.Tests.LinqActions
 {
-    public class LinqActionTests
+    public class LinqActionTests: ControllerActionBaseTests
     {
-
-        [Test]
-        public void GetActionResultTest()
-        {
-            // arange
-            var action = new TestController()
-                .Action(c => c.Index());
-            var context = action.GetExecutionContext();
-
-            // act
-            action.GetActionResult(context);
-
-            // assert
-            Assert.AreEqual("Hello Simulator!", context.ViewBag.Title);
-        }
-
         [Test]
         public void PartialViewResultTest()
         {
@@ -37,66 +22,39 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
             result.Should().BeOfType<PartialViewResult>();
         }
 
-        [Test]
-        public void PostActionIsNotAllowedWithGetTest()
+        protected override ControllerAction GetIndexAction(TestController testController)
         {
-            // arrange 
-            var controller = new TestController();
-
-            // act 
-            var controllerAction = controller.Action(c => c.Update());
-
-            // assert
-            Assert.Catch<ControllerActionException>(() => controllerAction.GetActionResult());
+            return testController.Action(c => c.Index());
         }
 
-        [Test]
-        public void ActionWithCookieTest()
+        protected override ControllerAction GetUpdateAction(TestController testController)
         {
-            // arrange
-            var action = new TestController()
-                .Action(e => e.Index())
-                .AddCookie("name1", "value1");
-
-            // act
-            var name1 = action.GetExecutionContext()
-                .ControllerContext.HttpContext.Request.Cookies["name1"];
-
-            // assert
-            Assert.IsNotNull(name1);
-            Assert.AreEqual("value1", name1.Value);
+            return testController.Action(c => c.Update());
         }
 
-        [Test]
-        public void ActionWithSessionTest()
+        protected override ControllerAction GetIndexAction(HomeController homeController)
         {
-            // arrange
-            var action = new TestController()
-                .Action(e => e.Index())
-                .AddSession("name1", "value1");
-
-            // act
-            var session = action.GetExecutionContext()
-                .ControllerContext.HttpContext.Session;
-
-            // assert
-            Assert.IsNotNull(session);
-            Assert.AreEqual("value1", session["name1"]);
+            return homeController.Action(c => c.Index());
         }
 
-        [Test]
-        public void ActionUsingUrlTest()
+        protected override ControllerAction GetAboutAction(HomeController homeController)
         {
-            // arrange
-            var action = new TestController()
-                .Action(e => e.ActionUsingUrl());
+            return homeController.Action(c => c.About());
+        }
 
-            // act
-            var result = action.GetActionResult();
+        protected override ControllerAction GetIndexAction(AdminController adminController)
+        {
+            return adminController.Action(c => c.Index());
+        }
 
-            // assert
-            Assert.IsInstanceOf<ContentResult>(result);
-            Assert.AreEqual("/Test", ((ContentResult)result).Content);
+        protected override ControllerAction GetPublicAction(HomeController homeController)
+        {
+            return homeController.Action(c => c.Public());
+        }
+
+        protected override ControllerAction GetActionUsingUrl(TestController testController)
+        {
+            return testController.Action(c => c.ActionUsingUrl());
         }
     }
 }

@@ -184,7 +184,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\TestController.cs" />
-    <Compile Include="LinqActions\AuthorizationTests.cs" />
     <Compile Include="LinqActions\LinqActionFilterProvidersTests.cs" />
     <Compile Include="LinqActions\LinqActionValidationTests.cs" />
     <Compile Include="LinqActions\LinqActionValueProviderTests.cs" />
@@ -194,6 +193,7 @@
     <Compile Include="MvcApplication1\FakeWebSecurity.cs" />
     <Compile Include="MvcApplication1\MvcApplication1TestBase.cs" />
     <Compile Include="MvcApplication1\WebDriverFixture.cs" />
+    <Compile Include="ControllerActionBaseTests.cs" />
     <Compile Include="NamedActions\NamedActionTests.cs" />
     <Compile Include="PropertiesFile.cs" />
     <Compile Include="Properties\Annotations.cs" />
