@@ -164,9 +164,9 @@ namespace Xania.AspNet.Simulator.Tests
         }
 
 
-        [Authorize(Roles = "ADMIN")]
         protected class AdminController : Controller
         {
+            [Authorize(Roles = "ADMIN")]
             public void Index() { }
         }
 

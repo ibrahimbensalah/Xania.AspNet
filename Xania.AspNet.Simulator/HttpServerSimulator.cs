@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web;
+using Xania.AspNet.Simulator.Http;
 
 namespace Xania.AspNet.Simulator
 {
@@ -47,7 +48,7 @@ namespace Xania.AspNet.Simulator
             HttpSessionStateBase session;
             if (!Sessions.TryGetValue(sessionId, out session))
             {
-                session = new SimpleSessionState(sessionId);
+                session = new HttpSessionStateSimulator(sessionId);
                 Sessions.Add(sessionId, session);
             }
 
@@ -70,11 +71,11 @@ namespace Xania.AspNet.Simulator
                         var sessionCookie = listenerContext.Request.Cookies["ASP.NET_SessionId"];
                         if (sessionCookie == null)
                         {
-                            session = new SimpleSessionState();
+                            session = new HttpSessionStateSimulator();
                         }
                         else if(!Sessions.TryGetValue(sessionCookie.Value, out session))
                         {
-                            session = new SimpleSessionState(sessionCookie.Value);
+                            session = new HttpSessionStateSimulator(sessionCookie.Value);
                             Sessions.Add(sessionCookie.Value, session);
                         }
 

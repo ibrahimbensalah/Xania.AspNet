@@ -30,8 +30,7 @@ namespace Xania.AspNet.Simulator
 
         public override ActionExecutionContext GetExecutionContext()
         {
-            var controllerContext = Controller.ControllerContext ??
-                CreateControllerContext(CreateHttpContext(), Controller, ActionDescriptor);
+            var controllerContext = CreateControllerContext(CreateHttpContext(), Controller, ActionDescriptor);
 
             Initialize(controllerContext);
 
@@ -44,14 +43,14 @@ namespace Xania.AspNet.Simulator
 
         private HttpContextBase CreateHttpContext()
         {
-            return CreateHttpContext(this, ActionDescriptor);
+            return HttpContext ?? CreateHttpContext(this, ActionDescriptor);
         }
 
         public virtual ControllerContext CreateControllerContext(HttpContextBase httpContext, ControllerBase controller, ActionDescriptor actionDescriptor)
         {
             var requestContext = GetRequestContext(httpContext, actionDescriptor);
             var controllerContext = new ControllerContext(requestContext, controller);
-
+            controller.ControllerContext = controllerContext;
 
             if (IsChildAction)
             {

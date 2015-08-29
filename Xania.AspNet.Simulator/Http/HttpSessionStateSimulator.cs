@@ -2,19 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.Web;
 
-namespace Xania.AspNet.Simulator
+namespace Xania.AspNet.Simulator.Http
 {
-    internal class SimpleSessionState : HttpSessionStateBase
+    internal class HttpSessionStateSimulator : HttpSessionStateBase
     {
         private readonly string _sessionId;
         private readonly IDictionary<string, object> _values;
 
-        public SimpleSessionState()
+        public HttpSessionStateSimulator()
             : this(Guid.NewGuid().ToString("N").ToLowerInvariant())
         {
         }
 
-        public SimpleSessionState(string sessionId)
+        public HttpSessionStateSimulator(string sessionId)
         {
             _sessionId = sessionId;
             _values = new Dictionary<string, object>();

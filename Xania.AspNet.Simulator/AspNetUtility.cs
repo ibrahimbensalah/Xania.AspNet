@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Security.Principal;
 using System.Web;
+using Xania.AspNet.Simulator.Http;
 
 namespace Xania.AspNet.Simulator
 {
@@ -30,17 +31,5 @@ namespace Xania.AspNet.Simulator
             return new GenericPrincipal(new GenericIdentity(String.Empty), new string[] { });
         }
 
-    }
-
-    internal class HttpRequestSimulator: HttpRequestWrapper
-    {
-        public HttpRequestSimulator(HttpRequest httpRequest) : base(httpRequest)
-        {
-        }
-
-        public override string AppRelativeCurrentExecutionFilePath
-        {
-            get { return "~" + Url.AbsolutePath; }
-        }
     }
 }

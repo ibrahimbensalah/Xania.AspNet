@@ -3,24 +3,25 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Security.Principal;
 using System.Web;
 
-namespace Xania.AspNet.Simulator
+namespace Xania.AspNet.Simulator.Http
 {
     internal class HttpListenerRequestWrapper: HttpRequestBase
     {
-        private readonly HttpContextBase _context;
         private readonly HttpListenerRequest _request;
+        private readonly Func<IPrincipal> _principalFunc;
         private readonly string _physicalApplicationPath;
         private NameValueCollection _params;
         private NameValueCollection _serverVariables;
         private readonly HttpCookieCollection _cookies;
         private NameValueCollection _form;
 
-        public HttpListenerRequestWrapper(HttpListenerRequest request, HttpContextBase context)
+        public HttpListenerRequestWrapper(HttpListenerRequest request, Func<IPrincipal> principalFunc)
         {
-            _context = context;
             _request = request;
+            _principalFunc = principalFunc;
             _physicalApplicationPath = null;
             _cookies = new HttpCookieCollection();
             foreach (Cookie cookie in _request.Cookies)
@@ -133,7 +134,8 @@ namespace Xania.AspNet.Simulator
         {
             get
             {
-                return (_context.User != null && _context.User.Identity != null && _context.User.Identity.IsAuthenticated);
+                var user = _principalFunc();
+                return (user != null && user.Identity != null && user.Identity.IsAuthenticated);
             }
         }
 

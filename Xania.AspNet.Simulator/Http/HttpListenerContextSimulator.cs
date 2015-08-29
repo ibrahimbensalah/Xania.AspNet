@@ -6,9 +6,9 @@ using System.Security.Principal;
 using System.Web;
 using System.Web.Caching;
 
-namespace Xania.AspNet.Simulator
+namespace Xania.AspNet.Simulator.Http
 {
-    public class HttpListenerContextSimulator : HttpContextBase, IDisposable
+    internal class HttpListenerContextSimulator : HttpContextBase, IDisposable
     {
         private readonly HttpListenerContext _listenerContext;
         private readonly HttpSessionStateBase _session;
@@ -23,7 +23,7 @@ namespace Xania.AspNet.Simulator
             _listenerContext = listenerContext;
             _session = session;
             _response = new HttpListenerResponseWrapper(listenerContext.Response, this);
-            _request = new HttpListenerRequestWrapper(listenerContext.Request, this);
+            _request = new HttpListenerRequestWrapper(listenerContext.Request, () => this.User);
             _items = new Dictionary<object, object>();
             _cache = null;
             _applicationInstance = null;

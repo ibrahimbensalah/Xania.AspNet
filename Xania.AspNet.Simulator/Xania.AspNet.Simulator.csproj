@@ -73,10 +73,11 @@
     <Compile Include="ControllerContextViewEngine.cs" />
     <Compile Include="DirectControllerAction.cs" />
     <Compile Include="DirectoryContentProvider.cs" />
-    <Compile Include="HttpContextSimulator.cs" />
-    <Compile Include="HttpListenerContextSimulator.cs" />
-    <Compile Include="HttpListenerRequestWrapper.cs" />
-    <Compile Include="HttpListenerResponseWrapper.cs" />
+    <Compile Include="Http\HttpContextDecorator.cs" />
+    <Compile Include="Http\HttpContextSimulator.cs" />
+    <Compile Include="Http\HttpListenerContextSimulator.cs" />
+    <Compile Include="Http\HttpListenerRequestWrapper.cs" />
+    <Compile Include="Http\HttpListenerResponseWrapper.cs" />
     <Compile Include="HttpServerSimulator.cs" />
     <Compile Include="IControllerAction.cs" />
     <Compile Include="IServerModule.cs" />
@@ -93,7 +94,7 @@
     <Compile Include="ControllerContainer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SimpleHttpRequest.cs" />
-    <Compile Include="SimpleSessionState.cs" />
+    <Compile Include="Http\HttpSessionStateSimulator.cs" />
     <Compile Include="SimulatorExtensions.cs" />
     <Compile Include="HttpControllerAction.cs" />
   </ItemGroup>

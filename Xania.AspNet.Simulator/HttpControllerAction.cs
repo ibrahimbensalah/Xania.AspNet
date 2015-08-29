@@ -14,22 +14,13 @@ namespace Xania.AspNet.Simulator
         }
 
         public HttpControllerAction(IMvcApplication mvcApplication)
-            : base(mvcApplication)
+            : base(mvcApplication, null)
         {
-            MvcApplication = mvcApplication;
         }
 
-        private HttpContextBase HttpContext { get; set; }
-
-        public IMvcApplication MvcApplication { get; set; }
-
-        public HttpControllerAction(IMvcApplication mvcApplication, [NotNull] HttpContextBase context)
-            : this(mvcApplication)
+        public HttpControllerAction(IMvcApplication mvcApplication, HttpContextBase context)
+            : base(mvcApplication, context)
         {
-            if (context == null) 
-                throw new ArgumentNullException("context");
-
-            HttpContext = context;
         }
 
         public override ActionExecutionContext GetExecutionContext()

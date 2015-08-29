@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Caching;
 
-namespace Xania.AspNet.Simulator
+namespace Xania.AspNet.Simulator.Http
 {
     internal class HttpListenerResponseWrapper : HttpResponseBase, IDisposable
     {

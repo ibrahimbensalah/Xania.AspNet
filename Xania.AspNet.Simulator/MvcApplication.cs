@@ -9,13 +9,14 @@ using System.Web.Optimization;
 using System.Web.Routing;
 using System.Web.Security;
 using Xania.AspNet.Core;
+using Xania.AspNet.Simulator.Http;
 using IControllerFactory = Xania.AspNet.Core.IControllerFactory;
 
 namespace Xania.AspNet.Simulator
 {
     public class MvcApplication : IMvcApplication
     {
-        public MvcApplication([NotNull] Core.IControllerFactory controllerFactory, IContentProvider contentProvider)
+        public MvcApplication(IControllerFactory controllerFactory, IContentProvider contentProvider)
         {
             if (controllerFactory == null)
                 throw new ArgumentNullException("controllerFactory");
@@ -177,44 +178,34 @@ namespace Xania.AspNet.Simulator
 
         public IHtmlString Action(ViewContext viewContext, string actionName, object routeValues)
         {
-            const string parentActionViewContextToken = "ParentActionViewContext";
+            // const string parentActionViewContextToken = "ParentActionViewContext";
 
             var controllerName = viewContext.RouteData.GetRequiredString("controller");
             var controller = ControllerFactory.CreateController(viewContext.HttpContext, controllerName);
 
-            var routeData = new RouteData
-            {
-                Values = {{"controller", controllerName}, {"action", actionName}},
-                DataTokens = {{parentActionViewContextToken, viewContext}}
-            };
-            foreach (var kvp in new RouteValueDictionary(routeValues))
-            {
-                if (routeData.Values.ContainsKey(kvp.Key))
-                    continue;
+            //var routeData = new RouteData
+            //{
+            //    Values = {{"controller", controllerName}, {"action", actionName}},
+            //    DataTokens = {{parentActionViewContextToken, viewContext}}
+            //};
+            //foreach (var kvp in new RouteValueDictionary(routeValues))
+            //{
+            //    if (routeData.Values.ContainsKey(kvp.Key))
+            //        continue;
 
-                routeData.Values.Add(kvp.Key, kvp.Value);
-            }
+            //    routeData.Values.Add(kvp.Key, kvp.Value);
+            //}
 
-            var httpContext = viewContext.HttpContext;
-            var mainOutput = httpContext.Response.Output;
-            try
-            {
-                var partialOutput = new StringWriter();
-                httpContext.Response.Output = partialOutput;
-               
-                controller.ControllerContext = new ControllerContext(httpContext, routeData, controller);
+            var partialOutput = new StringWriter();
 
-                var action = controller.Action(this, actionName);
-                action.RequestData(routeValues);
+            var action = controller.Action(this, actionName);
+            action.HttpContext = new HttpContextDecorator(viewContext.HttpContext);
+            action.HttpContext.Response.Output = partialOutput;
+            action.RequestData(routeValues);
 
-                action.Execute();
+            action.Execute();
 
-                return MvcHtmlString.Create(partialOutput.ToString());
-            }
-            finally
-            {
-                httpContext.Response.Output = mainOutput;
-            }
+            return MvcHtmlString.Create(partialOutput.ToString());
         }
 
         public static MvcApplication CreateDefault()

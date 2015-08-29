@@ -16,13 +16,16 @@ namespace Xania.AspNet.Simulator
     public abstract class ControllerAction: IHttpRequest, IControllerAction
     {
         public IMvcApplication MvcApplication { get; private set; }
+        public HttpContextBase HttpContext { get; set; }
 
-        protected ControllerAction(IMvcApplication mvcApplication)
+        protected ControllerAction(IMvcApplication mvcApplication, HttpContextBase context = null)
         {
             MvcApplication = mvcApplication;
 
             Cookies = new Collection<HttpCookie>();
             Session = new Dictionary<string, object>();
+
+            HttpContext = context;
         }
 
         public IPrincipal User { get; set; }
@@ -44,6 +47,7 @@ namespace Xania.AspNet.Simulator
         protected virtual void Initialize(ControllerContext controllerContext)
         {
             var controller = controllerContext.Controller as Controller;
+            controllerContext.Controller.ControllerContext = controllerContext;
 
             if (controller != null)
             {

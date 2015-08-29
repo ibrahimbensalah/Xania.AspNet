@@ -10,17 +10,7 @@ namespace Xania.AspNet.Simulator
     {
         public static DirectControllerAction Action(this ControllerBase controller, IMvcApplication mvcApplication, string actionName)
         {
-            var controllerType = controller.GetType();
-            var controllerDescriptor = new ReflectedControllerDescriptor(controllerType);
-            var actionDescriptor = controllerDescriptor.FindAction(controller.ControllerContext, actionName);
-
-            return new DirectControllerAction(mvcApplication, controller, actionDescriptor)
-            {
-            };
+            return new DirectControllerAction(mvcApplication, controller, new LazyActionDescriptor(controller, actionName));
         }
-    }
-
-    internal class NotNullAttribute : Attribute
-    {
     }
 }

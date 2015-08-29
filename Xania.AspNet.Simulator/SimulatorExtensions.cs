@@ -44,8 +44,7 @@ namespace Xania.AspNet.Simulator
         public static DirectControllerAction Action<TController>(this TController controller, string actionName, string httpMethod = "GET")
             where TController: ControllerBase
         {
-            var controllerDesc = new ReflectedControllerDescriptor(typeof (TController));
-            return new DirectControllerAction(controller, new LazyActionDescriptor<TController>(controller, actionName));
+            return new DirectControllerAction(controller, new LazyActionDescriptor(controller, actionName));
         }
 
         public static DirectControllerAction ChildAction<TController>(this TController controller,
@@ -159,15 +158,14 @@ namespace Xania.AspNet.Simulator
         } 
     }
 
-    public class LazyActionDescriptor<TController> : ActionDescriptor
-        where TController: ControllerBase
+    public class LazyActionDescriptor : ActionDescriptor
     {
-        private readonly TController _controller;
+        private readonly ControllerBase _controller;
         private readonly string _actionName;
         private ActionDescriptor _inner;
         private ReflectedControllerDescriptor _controllerDesc;
 
-        public LazyActionDescriptor(TController controller, string actionName)
+        public LazyActionDescriptor(ControllerBase controller, string actionName)
         {
             _controller = controller;
             _actionName = actionName;
@@ -194,7 +192,7 @@ namespace Xania.AspNet.Simulator
             {
                 if (_controllerDesc == null)
                 {
-                    _controllerDesc = new ReflectedControllerDescriptor(typeof (TController));
+                    _controllerDesc = new ReflectedControllerDescriptor(_controller.GetType());
                 }
                 return _controllerDesc;
             }
@@ -213,8 +211,57 @@ namespace Xania.AspNet.Simulator
                 return _inner;
             }
         }
-    }
 
+        public override IEnumerable<FilterAttribute> GetFilterAttributes(bool useCache)
+        {
+            return Inner.GetFilterAttributes(useCache);
+        }
+
+        public override object[] GetCustomAttributes(Type attributeType, bool inherit)
+        {
+            return Inner.GetCustomAttributes(attributeType, inherit);
+        }
+
+        public override object[] GetCustomAttributes(bool inherit)
+        {
+            return Inner.GetCustomAttributes(inherit);
+        }
+
+        public override ICollection<ActionSelector> GetSelectors()
+        {
+            return Inner.GetSelectors();
+        }
+
+        public override bool IsDefined(Type attributeType, bool inherit)
+        {
+            return Inner.IsDefined(attributeType, inherit);
+        }
+
+        public override string UniqueId
+        {
+            get { return Inner.UniqueId; }
+        }
+
+        public override int GetHashCode()
+        {
+            return Inner.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is LazyActionDescriptor && Equals((LazyActionDescriptor) obj);
+        }
+
+        public virtual bool Equals(LazyActionDescriptor lazyActionDescriptor)
+        {
+            return Inner.Equals(lazyActionDescriptor.Inner);
+        }
+
+        public override string ToString()
+        {
+            return Inner.ToString();
+        }
+    }
     public class LinqActionValueProvider : IValueProvider
     {
         private readonly Dictionary<string, object> _values;
