@@ -178,23 +178,8 @@ namespace Xania.AspNet.Simulator
 
         public IHtmlString Action(ViewContext viewContext, string actionName, object routeValues)
         {
-            // const string parentActionViewContextToken = "ParentActionViewContext";
-
             var controllerName = viewContext.RouteData.GetRequiredString("controller");
             var controller = ControllerFactory.CreateController(viewContext.HttpContext, controllerName);
-
-            //var routeData = new RouteData
-            //{
-            //    Values = {{"controller", controllerName}, {"action", actionName}},
-            //    DataTokens = {{parentActionViewContextToken, viewContext}}
-            //};
-            //foreach (var kvp in new RouteValueDictionary(routeValues))
-            //{
-            //    if (routeData.Values.ContainsKey(kvp.Key))
-            //        continue;
-
-            //    routeData.Values.Add(kvp.Key, kvp.Value);
-            //}
 
             var partialOutput = new StringWriter();
 

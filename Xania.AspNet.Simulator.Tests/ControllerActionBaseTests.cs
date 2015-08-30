@@ -1,3 +1,4 @@
+using System;
 using System.Web;
 using System.Web.Mvc;
 using FluentAssertions;
@@ -144,6 +145,30 @@ namespace Xania.AspNet.Simulator.Tests
 
         #endregion
 
+        #region ChildAction
+
+        protected abstract ControllerAction GetChildAction(TestController testController);
+
+        [Test]
+        public void ChildActionRequestIsIdentifiedAccordinglyAtCtrlContext()
+        {
+            var action = GetChildAction(new TestController())
+                .IsChildAction();
+
+            var executionContext = action.GetExecutionContext();
+            executionContext.ControllerContext.IsChildAction.Should().BeTrue("controller action is child action");
+        }
+
+        [Test]
+        public void NonChildActionShouldNotBeAbleToFindChildActionMethod()
+        {
+            GetChildAction(new TestController())
+                .Invoking(a => a.GetAuthorizationResult())
+                .ShouldThrow<InvalidOperationException>();
+        }
+
+        #endregion
+
         protected abstract ControllerAction GetActionUsingUrl(TestController testController);
 
         protected class HomeController : Controller
@@ -168,6 +193,9 @@ namespace Xania.AspNet.Simulator.Tests
         {
             [Authorize(Roles = "ADMIN")]
             public void Index() { }
+
+            [ChildActionOnly]
+            public void ChildAction() { }
         }
 
         protected class MyAuthorizeAttribute : AuthorizeAttribute

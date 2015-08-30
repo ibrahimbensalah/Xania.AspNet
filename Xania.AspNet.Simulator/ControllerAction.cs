@@ -17,6 +17,7 @@ namespace Xania.AspNet.Simulator
     {
         public IMvcApplication MvcApplication { get; private set; }
         public HttpContextBase HttpContext { get; set; }
+        public bool IsChildAction { get; set; }
 
         protected ControllerAction(IMvcApplication mvcApplication, HttpContextBase context = null)
         {

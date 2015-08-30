@@ -39,5 +39,14 @@ namespace Xania.AspNet.Simulator
                 return actionRequest;
             }
         }
+
+        public static TActionRequest IsChildAction<TActionRequest>(this TActionRequest actionRequest, bool isChildAction = true)
+            where TActionRequest : ControllerAction
+        {
+            {
+                actionRequest.IsChildAction = isChildAction;
+                return actionRequest;
+            }
+        }
     }
 }

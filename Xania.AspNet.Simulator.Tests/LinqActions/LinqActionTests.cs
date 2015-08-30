@@ -52,6 +52,11 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
             return homeController.Action(c => c.Public());
         }
 
+        protected override ControllerAction GetChildAction(TestController testController)
+        {
+            return testController.Action(c => c.ChildPartialViewAction());
+        }
+
         protected override ControllerAction GetActionUsingUrl(TestController testController)
         {
             return testController.Action(c => c.ActionUsingUrl());
