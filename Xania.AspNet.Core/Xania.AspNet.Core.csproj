@@ -59,6 +59,7 @@
   <ItemGroup>
     <Compile Include="ConcatenatedStream.cs" />
     <Compile Include="ContentProviderExtensions.cs" />
+    <Compile Include="ControllerContextViewEngine.cs" />
     <Compile Include="FileVirtualContent.cs" />
     <Compile Include="IContentProvider.cs" />
     <Compile Include="IControllerFactory.cs" />

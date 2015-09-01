@@ -16,6 +16,11 @@ namespace Xania.AspNet.Simulator
 {
     public class MvcApplication : IMvcApplication
     {
+        public MvcApplication(IContentProvider contentProvider)
+            : this(new ControllerContainer(), contentProvider)
+        {
+        }
+
         public MvcApplication(IControllerFactory controllerFactory, IContentProvider contentProvider)
         {
             if (controllerFactory == null)
@@ -96,7 +101,7 @@ namespace Xania.AspNet.Simulator
                     .Where(a => !a.IsDynamic)
                     .GroupBy(a => a.FullName)
                     .Select(grp => grp.First())
-                    .Select(a => new { Name = a.GetName().Name + ".dll", a.Location})
+                    .Select(a => new { Name = a.GetName().Name + ".dll", a.Location })
                     .Where(a => !result.ContainsKey(a.Name) && !string.IsNullOrWhiteSpace(a.Location))
                     .ToArray();
 
@@ -183,10 +188,13 @@ namespace Xania.AspNet.Simulator
 
             var partialOutput = new StringWriter();
 
-            var action = controller.Action(this, actionName);
-            action.HttpContext = new HttpContextDecorator(viewContext.HttpContext);
-            action.HttpContext.Response.Output = partialOutput;
-            action.RequestData(routeValues);
+            var action = this.Action(controller, actionName)
+                .RequestData(routeValues);
+
+            action.HttpContext = new HttpContextDecorator(viewContext.HttpContext)
+            {
+                Response = {Output = partialOutput}
+            };
 
             action.Execute();
 

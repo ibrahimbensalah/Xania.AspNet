@@ -25,9 +25,6 @@ namespace Xania.AspNet.Simulator
             if (contentProvider == null) 
                 throw new ArgumentNullException("contentProvider");
 
-            ViewEngines.Engines.Clear();
-            ViewEngines.Engines.Add(new ControllerContextViewEngine());
-
             var mvcApplication = new MvcApplication(controllerContainer, contentProvider);
             
             UseMvc(server, mvcApplication);
@@ -54,7 +51,7 @@ namespace Xania.AspNet.Simulator
                         actionResult = action.GetActionResult(executionContext);
                     }
 
-                    actionResult.ExecuteResult(executionContext);
+                    actionResult.ExecuteResult(executionContext.ControllerContext);
                     return true;
                 }
 

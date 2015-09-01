@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 using Xania.AspNet.Core;
+using Xania.AspNet.Simulator.Http;
 
 namespace Xania.AspNet.Simulator
 {
@@ -28,9 +29,7 @@ namespace Xania.AspNet.Simulator
 
         public override ActionExecutionContext GetExecutionContext()
         {
-            var controllerContext = CreateControllerContext(CreateHttpContext(), Controller, ActionDescriptor);
-
-            Initialize(controllerContext);
+            var controllerContext = CreateControllerContext();
 
             return new ActionExecutionContext
             {
@@ -39,12 +38,18 @@ namespace Xania.AspNet.Simulator
             };
         }
 
-        private HttpContextBase CreateHttpContext()
+        public virtual HttpContextBase CreateHttpContext()
         {
-            return HttpContext ?? CreateHttpContext(this, ActionDescriptor);
+            return HttpContext ?? this.CreateHttpContext(ActionDescriptor);
         }
 
-        public virtual ControllerContext CreateControllerContext(HttpContextBase httpContext, ControllerBase controller, ActionDescriptor actionDescriptor)
+        public virtual ControllerContext CreateControllerContext()
+        {
+            var httpContext = new HttpContextDecorator(CreateHttpContext());
+            return CreateControllerContext(httpContext, Controller, ActionDescriptor);
+        }
+
+        protected virtual ControllerContext CreateControllerContext(HttpContextBase httpContext, ControllerBase controller, ActionDescriptor actionDescriptor)
         {
             var requestContext = GetRequestContext(httpContext, actionDescriptor);
             var controllerContext = new ControllerContext(requestContext, controller);
@@ -55,20 +60,9 @@ namespace Xania.AspNet.Simulator
                 throw new HttpException(404, String.Format("Http method '{0}' is not allowed", controllerContext.HttpContext.Request.HttpMethod));
             }
 
+            Initialize(controllerContext);
+
             return controllerContext;
-        }
-
-        private HttpContextBase CreateHttpContext(IControllerAction actionRequest, ActionDescriptor actionDescriptor)
-        {
-            var controllerDescriptor = actionDescriptor.ControllerDescriptor;
-            var controllerName = controllerDescriptor.ControllerName;
-
-            var user = actionRequest.User ?? AspNetUtility.CreateAnonymousUser();
-            var httpContext =
-                AspNetUtility.GetContext(String.Format("/{0}/{1}", controllerName, actionDescriptor.ActionName),
-                    actionRequest.HttpMethod, user);
-
-            return httpContext;
         }
 
         private RequestContext GetRequestContext(HttpContextBase httpContext, ActionDescriptor actionDescriptor)

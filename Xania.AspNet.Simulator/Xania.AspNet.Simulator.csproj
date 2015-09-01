@@ -70,7 +70,7 @@
     <Compile Include="ControllerAction.cs" />
     <Compile Include="ActionRequestExtensions.cs" />
     <Compile Include="AspNetUtility.cs" />
-    <Compile Include="ControllerContextViewEngine.cs" />
+    <Compile Include="ControllerActionExtensions.cs" />
     <Compile Include="DirectControllerAction.cs" />
     <Compile Include="DirectoryContentProvider.cs" />
     <Compile Include="Http\HttpContextDecorator.cs" />

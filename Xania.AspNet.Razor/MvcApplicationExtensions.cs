@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.WebPages;
 using System.Xml;
@@ -74,6 +75,9 @@ namespace Xania.AspNet.Razor
 
         public static IMvcApplication EnableRazor(this IMvcApplication mvcApplication)
         {
+            ViewEngines.Engines.Clear();
+            ViewEngines.Engines.Add(new ControllerContextViewEngine());
+
             mvcApplication.ViewEngines.Add(new RazorViewEngineSimulator(mvcApplication));
             mvcApplication.WebViewPageFactory = new WebViewPageFactory(mvcApplication.Assemblies, GetNamespaces(mvcApplication));
             

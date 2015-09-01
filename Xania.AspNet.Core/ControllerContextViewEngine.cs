@@ -1,6 +1,6 @@
 using System.Web.Mvc;
 
-namespace Xania.AspNet.Simulator
+namespace Xania.AspNet.Core
 {
     public class ControllerContextViewEngine : IViewEngine
     {
