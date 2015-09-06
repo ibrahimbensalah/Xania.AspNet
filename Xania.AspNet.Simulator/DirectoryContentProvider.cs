@@ -23,10 +23,16 @@ namespace Xania.AspNet.Simulator
             _baseDirectories = baseDirectories;
         }
 
-        public bool Exists(string relativePath)
+        public bool FileExists(string relativePath)
         {
             return _baseDirectories.Select(baseDirectory => Path.Combine(baseDirectory, relativePath))
                 .Any(File.Exists);
+        }
+
+        public bool DirectoryExists(string relativePath)
+        {
+            return _baseDirectories.Select(baseDirectory => Path.Combine(baseDirectory, relativePath))
+                .Any(Directory.Exists);
         }
 
         public string GetPhysicalPath(string relativePath)

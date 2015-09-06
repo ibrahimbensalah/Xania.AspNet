@@ -7,7 +7,8 @@ namespace Xania.AspNet.Core
     public interface IContentProvider
     {
         Stream Open(string relativePath);
-        bool Exists(string relativePath);
+        bool FileExists(string relativePath);
+        bool DirectoryExists(string relativePath);
         string GetPhysicalPath(string relativePath);
         string GetRelativePath(string physicalPath);
         IEnumerable<string> GetFiles(string searchPattern);

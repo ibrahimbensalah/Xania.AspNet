@@ -37,7 +37,7 @@ namespace Xania.AspNet.Core
 
         public bool Exists
         {
-            get { return _contentProvider.Exists(_filePath); }
+            get { return _contentProvider.FileExists(_filePath); }
         }
     }
 

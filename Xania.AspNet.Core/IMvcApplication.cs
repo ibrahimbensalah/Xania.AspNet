@@ -32,7 +32,7 @@ namespace Xania.AspNet.Core
 
         string MapUrl(FileInfo file);
 
-        bool Exists(string virtualPath);
+        bool FileExists(string virtualPath);
 
         string MapPath(string virtualPath);
 

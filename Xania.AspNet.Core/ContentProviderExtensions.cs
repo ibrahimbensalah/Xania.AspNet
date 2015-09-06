@@ -11,7 +11,7 @@ namespace Xania.AspNet.Core
             const string startPagePath = @"Views\_ViewStart.cshtml";
 
             return includeStartPage && !String.Equals(relativePath, startPagePath) &&
-                   contentProvider.Exists(startPagePath)
+                   contentProvider.FileExists(startPagePath)
                 ? (TextReader)new ConcatenatedStream(contentProvider.Open(@"Views\_ViewStart.cshtml"), contentStream)
                 : new StreamReader(contentStream);
         }

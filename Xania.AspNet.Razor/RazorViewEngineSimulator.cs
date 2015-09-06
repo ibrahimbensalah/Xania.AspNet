@@ -46,7 +46,7 @@ namespace Xania.AspNet.Razor
             {
                 var virtualPath = String.Format(pathFormat, viewName);
 
-                if (_mvcApplication.Exists(virtualPath))
+                if (_mvcApplication.FileExists(virtualPath))
                 {
                     return virtualPath;
                 }

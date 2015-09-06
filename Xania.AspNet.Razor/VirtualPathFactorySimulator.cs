@@ -17,7 +17,7 @@ namespace Xania.AspNet.Razor
 
         public bool Exists(string virtualPath)
         {
-            return _mvcApplication.Exists(virtualPath);
+            return _mvcApplication.FileExists(virtualPath);
         }
 
         public object CreateInstance(string virtualPath)

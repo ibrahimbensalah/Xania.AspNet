@@ -32,10 +32,14 @@ namespace Xania.AspNet.Simulator
     {
         public Stream Open(string relativePath)
         {
-            throw new NotImplementedException();
+            throw new InvalidOperationException();
         }
 
-        public bool Exists(string relativePath)
+        public bool FileExists(string relativePath)
+        {
+            return false;
+        }
+        public bool DirectoryExists(string relativePath)
         {
             return false;
         }

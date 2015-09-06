@@ -72,7 +72,7 @@ namespace Xania.AspNet.Simulator
             server.Use(context =>
             {
                 var filePath = context.Request.FilePath.Substring(1);
-                if (contentProvider.Exists(filePath))
+                if (contentProvider.FileExists(filePath))
                 {
                     contentProvider.Open(filePath).CopyTo(context.Response.OutputStream);
                     return true;

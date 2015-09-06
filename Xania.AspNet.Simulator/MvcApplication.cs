@@ -95,7 +95,7 @@ namespace Xania.AspNet.Simulator
                 AddAssembly<EnumerableQuery>(result);
                 AddAssembly<CookieProtection>(result);
 
-                if (ContentProvider.Exists("bin"))
+                if (ContentProvider.DirectoryExists("bin"))
                 {
                     foreach (var assemblyPath in ContentProvider.GetFiles("bin\\*.dll"))
                     {
@@ -160,10 +160,10 @@ namespace Xania.AspNet.Simulator
             return virtualPath.Substring(2).Replace("/", "\\");
         }
 
-        public bool Exists(string virtualPath)
+        public bool FileExists(string virtualPath)
         {
             var relativePath = ToFilePath(virtualPath);
-            return ContentProvider.Exists(relativePath);
+            return ContentProvider.FileExists(relativePath);
         }
 
         public string MapPath(string virtualPath)
@@ -217,7 +217,7 @@ namespace Xania.AspNet.Simulator
 
         private static IEnumerable<string> GetNamespaces(IMvcApplication mvcApplication)
         {
-            if (mvcApplication.Exists("~/Views/Web.config"))
+            if (mvcApplication.FileExists("~/Views/Web.config"))
             {
                 var virtualContent = mvcApplication.GetVirtualContent("~/Views/Web.config");
                 var doc = new XmlDocument();
