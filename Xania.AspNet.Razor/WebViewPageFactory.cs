@@ -42,6 +42,9 @@ namespace Xania.AspNet.Razor
                 Directory.CreateDirectory(output);
 
                 var generatedCode = GetGeneratedCode(virtualPath, reader);
+
+                // new CSharpCodeProvider().GenerateCodeFromCompileUnit(generatedCode, Console.Out, new CodeGeneratorOptions());
+
                 assembly = Compile(generatedCode, GetCompilerParameters(), cacheFile);
             }
 

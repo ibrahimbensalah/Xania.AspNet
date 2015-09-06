@@ -153,5 +153,23 @@ namespace Xania.AspNet.Simulator.Http
         {
             return @"C:\asdflaksdf\asdfa\asdfasdf.cshtml";
         }
+
+        public override string UserAgent
+        {
+            get { return _request.UserAgent; }
+        }
+
+        public override HttpBrowserCapabilitiesBase Browser
+        {
+            get { return new HttpBrowserCapabilitiesSimulator(); }
+        }
+    }
+
+    internal class HttpBrowserCapabilitiesSimulator : HttpBrowserCapabilitiesBase
+    {
+        public override bool IsMobileDevice
+        {
+            get { return false; }
+        }
     }
 }

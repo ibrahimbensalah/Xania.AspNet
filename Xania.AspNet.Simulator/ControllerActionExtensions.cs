@@ -156,13 +156,21 @@ namespace Xania.AspNet.Simulator
             actionResult.ExecuteResult(executionContext.ControllerContext);
         }
 
+        public static ViewResult View(this ControllerAction controllerAction)
+        {
+            return new ViewResult
+            {
+                ViewEngineCollection = controllerAction.MvcApplication.ViewEngines
+            };
+        }
+
         public static void RenderView(this DirectControllerAction controllerAction, TextWriter writer)
         {
             var controllerContext = controllerAction
                 .CreateControllerContext();
             controllerContext.HttpContext.Response.Output = writer;
 
-            new ViewResult().ExecuteResult(controllerContext);
+            controllerAction.View().ExecuteResult(controllerContext);
         }
 
         private static IEnumerable<Type> ScanTypes(params Assembly[] assemblies)
