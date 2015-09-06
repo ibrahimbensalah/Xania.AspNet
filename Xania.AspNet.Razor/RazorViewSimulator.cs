@@ -4,16 +4,16 @@ using Xania.AspNet.Core;
 
 namespace Xania.AspNet.Razor
 {
-    internal class RazorViewSimulator : IView
+    public class RazorViewSimulator : IView
     {
         private readonly IMvcApplication _mvcApplication;
-        private readonly string _virtualPath;
+        private readonly IVirtualContent _virtualContent;
         private readonly bool _isPartialView;
 
-        public RazorViewSimulator(IMvcApplication mvcApplication, string virtualPath, bool isPartialView = false)
+        public RazorViewSimulator(IMvcApplication mvcApplication, IVirtualContent virtualContent, bool isPartialView = false)
         {
             _mvcApplication = mvcApplication;
-            _virtualPath = virtualPath;
+            _virtualContent = virtualContent;
             _isPartialView = isPartialView;
         }
 
@@ -25,10 +25,10 @@ namespace Xania.AspNet.Razor
 
         private IWebViewPage Create(ViewContext viewContext)
         {
-            var virtualContent = _mvcApplication.GetVirtualContent(_virtualPath);
+            // var virtualContent = _mvcApplication.GetVirtualContent(_virtualPath);
 
-            var webPage = _mvcApplication.CreatePage(virtualContent, !_isPartialView);
-            webPage.Initialize(viewContext, virtualContent.VirtualPath, _mvcApplication);
+            var webPage = _mvcApplication.CreatePage(_virtualContent, !_isPartialView);
+            webPage.Initialize(viewContext, _virtualContent.VirtualPath, _mvcApplication);
 
             return webPage;
         }

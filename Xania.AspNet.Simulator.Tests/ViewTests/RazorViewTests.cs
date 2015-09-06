@@ -15,14 +15,7 @@ namespace Xania.AspNet.Simulator.Tests.ViewTests
         [Test]
         public void IndexViewTest()
         {
-            var contentProvider = Substitute.For<IContentProvider>();
-            contentProvider.Exists("Views\\Test\\index.cshtml").Returns(true);
-            contentProvider.Open("Views\\Test\\index.cshtml").Returns(c => GetIndexContentStream());
-
-            new MvcApplication(contentProvider)
-                .EnableRazor()
-                .Action(new TestController(), "index")
-                .RenderView(Console.Out);
+            new TestController().Action("index").RenderView(GetIndexContentStream(), Console.Out);
         }
 
         private Stream GetIndexContentStream()
@@ -36,7 +29,7 @@ namespace Xania.AspNet.Simulator.Tests.ViewTests
         {
             public ActionResult Index()
             {
-                return View();
+                throw new InvalidOperationException("this action is intended to provide the context for rendering the view but should not be invoked.");
             }
         }
     }

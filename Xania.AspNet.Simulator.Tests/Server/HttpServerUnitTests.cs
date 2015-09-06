@@ -35,8 +35,7 @@ namespace Xania.AspNet.Simulator.Tests.Server
             var contentProvider = SystemUnderTest.GetSimulatorTestsContentProvider();
 
             Server.UseStatic(contentProvider);
-            Server.UseMvc(new TestController(), contentProvider)
-                .EnableRazor();
+            Server.UseMvc(new TestController(), contentProvider);
 
             using (var client = new HttpClient())
             {
@@ -56,8 +55,7 @@ namespace Xania.AspNet.Simulator.Tests.Server
         public void MvcSessionTest(string sessionId, string expectedResult)
         {
             Server.AddSession("1234", "name1", "value1");
-            Server.UseMvc(new TestController())
-                .EnableRazor();
+            Server.UseMvc(new TestController());
 
             var baseAddress = new Uri(GetUrl(string.Empty));
             var cookieContainer = new CookieContainer();

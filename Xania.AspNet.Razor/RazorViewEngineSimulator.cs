@@ -17,7 +17,8 @@ namespace Xania.AspNet.Razor
         public ViewEngineResult FindPartialView(ControllerContext controllerContext, string partialViewName, bool useCache)
         {
             var virtualPath = GetVirtualPath(controllerContext, partialViewName);
-            var view = new RazorViewSimulator(_mvcApplication, virtualPath, true);
+            var virtualContent = _mvcApplication.GetVirtualContent(virtualPath);
+            var view = new RazorViewSimulator(_mvcApplication, virtualContent, true);
 
             return new ViewEngineResult(view, this);
         }
@@ -25,7 +26,8 @@ namespace Xania.AspNet.Razor
         public ViewEngineResult FindView(ControllerContext controllerContext, string viewName, string masterName, bool useCache)
         {
             var virtualPath = GetVirtualPath(controllerContext, viewName);
-            var view = new RazorViewSimulator(_mvcApplication, virtualPath, false);
+            var virtualContent = _mvcApplication.GetVirtualContent(virtualPath);
+            var view = new RazorViewSimulator(_mvcApplication, virtualContent, false);
 
             return new ViewEngineResult(view, this);
         }

@@ -40,4 +40,26 @@ namespace Xania.AspNet.Core
             get { return _contentProvider.Exists(_filePath); }
         }
     }
+
+    public class StreamVirtualContent : IVirtualContent
+    {
+        private readonly Stream _stream;
+
+        public StreamVirtualContent(string virtualPath, Stream stream)
+        {
+            _stream = stream;
+            VirtualPath = virtualPath;
+            ModifiedDateTime = DateTime.Now;
+            Exists = true;
+        }
+
+        public DateTime ModifiedDateTime { get; private set; }
+        public Stream Open()
+        {
+            return _stream;
+        }
+
+        public string VirtualPath { get; private set; }
+        public bool Exists { get; private set; }
+    }
 }

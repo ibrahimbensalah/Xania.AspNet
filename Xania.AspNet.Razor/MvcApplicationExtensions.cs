@@ -33,68 +33,6 @@ namespace Xania.AspNet.Razor
             }
         }
 
-        private static IEnumerable<string> GetNamespaces(IMvcApplication mvcApplication)
-        {
-            if (mvcApplication.Exists("~/Views/Web.config"))
-            {
-                var virtualContent = mvcApplication.GetVirtualContent("~/Views/Web.config");
-                var doc = new XmlDocument();
-                using (var s = XmlReader.Create(virtualContent.Open()))
-                {
-                    doc.Load(s);
-
-                    if (doc.DocumentElement != null)
-                    {
-                        var nodes = doc.DocumentElement
-                            .SelectNodes("/configuration/system.web.webPages.razor/pages/namespaces/add");
-                        if (nodes != null)
-                            foreach (XmlNode n in nodes)
-                            {
-                                if (n.Attributes != null)
-                                {
-                                    var ns = n.Attributes["namespace"].Value;
-                                    if (!ns.Equals("System.Web.Mvc.Html"))
-                                        yield return ns;
-                                    else
-                                        yield return "Xania.AspNet.Razor.Html";
-                                }
-                            }
-                    }
-                }
-            }
-            else
-            {
-                var defaultList = new[]
-                {
-                    "System",
-                    "System.Collections.Generic",
-                    "System.Linq",
-                    "System.Web.Mvc",
-                    "System.Web.Mvc.Ajax",
-                    "Xania.AspNet.Razor.Html",
-                    "System.Web.Routing"
-                };
-
-                foreach (var ns in defaultList)
-                    yield return ns;
-            }
-
-            var auth = mvcApplication.Assemblies.Any(a => a.EndsWith("Microsoft.Web.WebPages.OAuth.dll"));
-            if (auth)
-            {
-                yield return "DotNetOpenAuth.AspNet";
-                yield return "Microsoft.Web.WebPages.OAuth";
-            }
-        }
-
-        public static IMvcApplication EnableRazor(this IMvcApplication mvcApplication)
-        {
-            mvcApplication.ViewEngines.Add(new RazorViewEngineSimulator(mvcApplication));
-            mvcApplication.WebViewPageFactory = new WebViewPageFactory(mvcApplication.Assemblies, GetNamespaces(mvcApplication));
-            
-            return mvcApplication;
-        }
-
         public static IMvcApplication WithBundles(this IMvcApplication mvcApplication, Action<BundleCollection> registerBundles)
         {
             var originalMapPathMethod = BundleTable.MapPathMethod;

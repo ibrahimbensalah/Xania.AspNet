@@ -20,7 +20,7 @@ namespace Xania.AspNet.Core
 
         FilterProviderCollection FilterProviders { get; }
 
-        IWebViewPageFactory WebViewPageFactory { get; set; }
+        IWebViewPageFactory WebViewPageFactory { get; }
 
         BundleCollection Bundles { get; }
 

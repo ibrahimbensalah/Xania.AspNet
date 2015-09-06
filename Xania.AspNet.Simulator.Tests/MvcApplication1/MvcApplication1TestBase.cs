@@ -42,7 +42,6 @@ namespace Xania.AspNet.Simulator.Tests.MvcApplication1
 
 
             Server.UseMvc(controllers, contentProvider)
-                .EnableRazor()
                 .WithBundles(BundleConfig.RegisterBundles);
         }
 

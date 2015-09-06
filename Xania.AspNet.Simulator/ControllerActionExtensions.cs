@@ -8,6 +8,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 using Xania.AspNet.Core;
+using Xania.AspNet.Razor;
 
 namespace Xania.AspNet.Simulator
 {
@@ -156,21 +157,21 @@ namespace Xania.AspNet.Simulator
             actionResult.ExecuteResult(executionContext.ControllerContext);
         }
 
-        public static ViewResult View(this ControllerAction controllerAction)
+        public static void RenderView(this DirectControllerAction controllerAction, Stream contentStream, TextWriter writer)
         {
-            return new ViewResult
+            var actionName = controllerAction.ActionDescriptor.ActionName;
+            var controllerName = controllerAction.ActionDescriptor.ControllerDescriptor.ControllerName;
+            var virtualPath = string.Format("~/Views/{0}/{1}.cshtml", controllerName, actionName);
+            
+            var view = new RazorViewSimulator(controllerAction.MvcApplication, new StreamVirtualContent(virtualPath, contentStream));
+            var viewResult = new ViewResult()
             {
-                ViewEngineCollection = controllerAction.MvcApplication.ViewEngines
+                View = view,
             };
-        }
 
-        public static void RenderView(this DirectControllerAction controllerAction, TextWriter writer)
-        {
-            var controllerContext = controllerAction
-                .CreateControllerContext();
+            var controllerContext = controllerAction.CreateControllerContext();
             controllerContext.HttpContext.Response.Output = writer;
-
-            controllerAction.View().ExecuteResult(controllerContext);
+            viewResult.ExecuteResult(controllerContext);
         }
 
         private static IEnumerable<Type> ScanTypes(params Assembly[] assemblies)

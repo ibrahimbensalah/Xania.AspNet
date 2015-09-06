@@ -8,7 +8,9 @@ using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
 using System.Web.Security;
+using System.Xml;
 using Xania.AspNet.Core;
+using Xania.AspNet.Razor;
 using Xania.AspNet.Simulator.Http;
 using IControllerFactory = Xania.AspNet.Core.IControllerFactory;
 
@@ -32,7 +34,10 @@ namespace Xania.AspNet.Simulator
             ContentProvider = contentProvider;
 
             Routes = GetRoutes();
-            ViewEngines = new ViewEngineCollection();
+            ViewEngines = new ViewEngineCollection()
+            {
+                new RazorViewEngineSimulator(this)
+            };
             Bundles = new BundleCollection();
             FilterProviders = new FilterProviderCollection();
             foreach (var provider in System.Web.Mvc.FilterProviders.Providers)
@@ -41,13 +46,14 @@ namespace Xania.AspNet.Simulator
             }
 
             ModelMetadataProvider = ModelMetadataProviders.Current;
+            WebViewPageFactory = new WebViewPageFactory(Assemblies, GetNamespaces(this));
         }
 
         public ModelMetadataProvider ModelMetadataProvider { get; set; }
 
         public ViewEngineCollection ViewEngines { get; private set; }
 
-        public IWebViewPageFactory WebViewPageFactory { get; set; }
+        public IWebViewPageFactory WebViewPageFactory { get; private set; }
 
         public RouteCollection Routes { get; private set; }
 
@@ -89,12 +95,15 @@ namespace Xania.AspNet.Simulator
                 AddAssembly<EnumerableQuery>(result);
                 AddAssembly<CookieProtection>(result);
 
-                foreach (var assemblyPath in ContentProvider.GetFiles("bin\\*.dll"))
+                if (ContentProvider.Exists("bin"))
                 {
-                    var i = assemblyPath.LastIndexOf('\\') + 1;
-                    var fullName = assemblyPath.Substring(i);
+                    foreach (var assemblyPath in ContentProvider.GetFiles("bin\\*.dll"))
+                    {
+                        var i = assemblyPath.LastIndexOf('\\') + 1;
+                        var fullName = assemblyPath.Substring(i);
 
-                    result.Add(fullName, assemblyPath);
+                        result.Add(fullName, assemblyPath);
+                    }
                 }
 
                 var runtimeAssemblies = AppDomain.CurrentDomain.GetAssemblies()
@@ -204,6 +213,60 @@ namespace Xania.AspNet.Simulator
         public static MvcApplication CreateDefault()
         {
             return new MvcApplication(new ControllerContainer(), new DirectoryContentProvider(AppDomain.CurrentDomain.BaseDirectory));
+        }
+
+        private static IEnumerable<string> GetNamespaces(IMvcApplication mvcApplication)
+        {
+            if (mvcApplication.Exists("~/Views/Web.config"))
+            {
+                var virtualContent = mvcApplication.GetVirtualContent("~/Views/Web.config");
+                var doc = new XmlDocument();
+                using (var s = XmlReader.Create(virtualContent.Open()))
+                {
+                    doc.Load(s);
+
+                    if (doc.DocumentElement != null)
+                    {
+                        var nodes = doc.DocumentElement
+                            .SelectNodes("/configuration/system.web.webPages.razor/pages/namespaces/add");
+                        if (nodes != null)
+                            foreach (XmlNode n in nodes)
+                            {
+                                if (n.Attributes != null)
+                                {
+                                    var ns = n.Attributes["namespace"].Value;
+                                    if (!ns.Equals("System.Web.Mvc.Html"))
+                                        yield return ns;
+                                    else
+                                        yield return "Xania.AspNet.Razor.Html";
+                                }
+                            }
+                    }
+                }
+            }
+            else
+            {
+                var defaultList = new[]
+                {
+                    "System",
+                    "System.Collections.Generic",
+                    "System.Linq",
+                    "System.Web.Mvc",
+                    "System.Web.Mvc.Ajax",
+                    "Xania.AspNet.Razor.Html",
+                    "System.Web.Routing"
+                };
+
+                foreach (var ns in defaultList)
+                    yield return ns;
+            }
+
+            var auth = mvcApplication.Assemblies.Any(a => a.EndsWith("Microsoft.Web.WebPages.OAuth.dll"));
+            if (auth)
+            {
+                yield return "DotNetOpenAuth.AspNet";
+                yield return "Microsoft.Web.WebPages.OAuth";
+            }
         }
     }
 }
