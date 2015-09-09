@@ -144,7 +144,7 @@ namespace Xania.AspNet.Razor
         {
             var parameters = new CompilerParameters
             {
-                GenerateInMemory = true,
+                GenerateInMemory = false,
                 GenerateExecutable = false,
                 IncludeDebugInformation = false,
                 CompilerOptions = "/target:library",

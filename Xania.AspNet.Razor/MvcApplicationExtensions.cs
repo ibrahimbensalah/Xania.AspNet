@@ -33,30 +33,24 @@ namespace Xania.AspNet.Razor
             }
         }
 
+        private static readonly object SyncObject = new object();
+
         public static IMvcApplication WithBundles(this IMvcApplication mvcApplication, Action<BundleCollection> registerBundles)
         {
-            var originalMapPathMethod = BundleTable.MapPathMethod;
-            
-            try
+            lock (SyncObject)
             {
-                var bundleThread = Thread.CurrentThread;
-
-                BundleTable.MapPathMethod = virtualPath =>
+                var originalMapPathMethod = BundleTable.MapPathMethod;
+                try
                 {
-                    if (bundleThread == Thread.CurrentThread)
-                        return mvcApplication.MapPath(virtualPath);
-                    else
-                        return originalMapPathMethod(virtualPath);
-                };
-
-                registerBundles(mvcApplication.Bundles);
+                    BundleTable.MapPathMethod = mvcApplication.MapPath;
+                    registerBundles(mvcApplication.Bundles);
+                }
+                finally
+                {
+                    BundleTable.MapPathMethod = originalMapPathMethod;
+                }
+                return mvcApplication;
             }
-            finally
-            {
-                BundleTable.MapPathMethod = originalMapPathMethod;
-            }
-
-            return mvcApplication;
         }
     }
 }

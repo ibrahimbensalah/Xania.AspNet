@@ -38,6 +38,11 @@ namespace Xania.AspNet.Simulator.Http
         {
         }
 
+        public override HttpBrowserCapabilitiesBase Browser
+        {
+            get { return new HttpBrowserCapabilitiesSimulator(); }
+        }
+
         public override string AppRelativeCurrentExecutionFilePath
         {
             get { return "~" + Url.AbsolutePath; }

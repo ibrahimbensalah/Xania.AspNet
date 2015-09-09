@@ -80,6 +80,11 @@ namespace Xania.AspNet.Simulator.Http
             return _response.ApplyAppPathModifier(virtualPath);
         }
 
+        public override HttpCookieCollection Cookies
+        {
+            get { return _response.Cookies; }
+        }
+
         public override HttpCachePolicyBase Cache
         {
             get { return _response.Cache; }

@@ -211,8 +211,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>ViewWithLayout.cshtml</DependentUpon>
     </Compile>
-    <Compile Include="ViewTests\Class1.cs" />
-    <Compile Include="ViewTests\RazorViewTests.cs" />
+    <Compile Include="ViewTests\HomeIndexViewTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config">
