@@ -79,6 +79,8 @@
     <Compile Include="Http\HttpListenerRequestWrapper.cs" />
     <Compile Include="Http\HttpListenerResponseWrapper.cs" />
     <Compile Include="HttpServerSimulator.cs" />
+    <Compile Include="Http\HttpResponseDecorator.cs" />
+    <Compile Include="Http\StreamByteCountAop.cs" />
     <Compile Include="IControllerAction.cs" />
     <Compile Include="IServerModule.cs" />
     <Compile Include="LinqActionDescriptor.cs" />

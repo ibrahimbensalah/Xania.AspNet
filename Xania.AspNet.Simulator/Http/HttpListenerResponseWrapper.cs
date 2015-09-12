@@ -16,7 +16,7 @@ namespace Xania.AspNet.Simulator.Http
     internal class HttpListenerResponseWrapper : HttpResponseBase, IDisposable
     {
         private readonly HttpListenerResponse _listenerResponse;
-        private readonly HttpContextBase _context;
+        // private readonly HttpContextBase _context;
         private TextWriter _output;
         private readonly MemoryStream _outputStream;
         private bool _closed = false;
@@ -26,7 +26,7 @@ namespace Xania.AspNet.Simulator.Http
         public HttpListenerResponseWrapper(HttpListenerResponse listenerResponse, HttpContextBase context)
         {
             _listenerResponse = listenerResponse;
-            _context = context;
+            // _context = context;
             _outputStream = new MemoryStream();
             _output = new StreamWriter(_outputStream);
             _cookies = new HttpCookieCollection();
@@ -105,7 +105,7 @@ namespace Xania.AspNet.Simulator.Http
 
         public override void Write(string s)
         {
-            Output.Write(s);
+            Output.Write(s, 0, s.Length);
         }
 
         public override void Redirect(string url)
@@ -116,6 +116,11 @@ namespace Xania.AspNet.Simulator.Http
         public override void Redirect(string url, bool endResponse)
         {
             _listenerResponse.Redirect(url);
+        }
+
+        public override void Write(char[] buffer, int index, int count)
+        {
+            Output.Write(buffer, index, count);
         }
 
         public override void Close()
