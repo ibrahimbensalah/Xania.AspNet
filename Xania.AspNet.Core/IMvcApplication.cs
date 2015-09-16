@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Web;
@@ -30,7 +31,7 @@ namespace Xania.AspNet.Core
 
         IValueProvider ValueProvider { get; set; }
 
-        string MapUrl(FileInfo file);
+        string MapUrl(string filePath);
 
         bool FileExists(string virtualPath);
 
@@ -44,5 +45,7 @@ namespace Xania.AspNet.Core
 
         IEnumerable<ModelValidationResult> ValidateModel(Type modelType, object modelValue,
             ControllerContext controllerContext);
+
+        IVirtualDirectory GetVirtualDirectory(string virtualPath);
     }
 }

@@ -85,6 +85,11 @@ namespace Xania.AspNet.Simulator
             return validator.Validate(null);
         }
 
+        public IVirtualDirectory GetVirtualDirectory(string virtualPath)
+        {
+            return new PhysicalVirtualDirectory(ContentProvider, virtualPath);
+        }
+
         public IEnumerable<string> Assemblies
         {
             get
@@ -184,9 +189,9 @@ namespace Xania.AspNet.Simulator
             return new FileVirtualContent(ContentProvider, virtualPath);
         }
 
-        public string MapUrl(FileInfo file)
+        public string MapUrl(string filePath)
         {
-            var relativePath = ContentProvider.GetRelativePath(file.FullName);
+            var relativePath = ContentProvider.GetRelativePath(filePath);
             return String.Format("/{0}", relativePath.Replace("\\", "/"));
         }
 
