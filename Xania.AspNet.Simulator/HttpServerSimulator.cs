@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -148,16 +149,15 @@ namespace Xania.AspNet.Simulator
                             context.Response.Write("\n");
                             context.Response.Write(htmlErrorMessage);
                         }
+                        PrintToHtml(ex, context.Response.Output);
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine(ex.ToString());
-
                         context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                         context.Response.StatusDescription = "Internal Server Error";
-                        context.Response.Write(ex.Message);
+                        PrintToHtml(ex, context.Response.Output);
                         context.Response.Write("\n");
-                        context.Response.Write(ex.StackTrace);
+                        // context.Response.Write(ex.StackTrace);
                     }
                     finally
                     {
@@ -165,6 +165,21 @@ namespace Xania.AspNet.Simulator
                     }
                     return true;
                 });
+            }
+        }
+
+        private static void PrintToHtml(Exception ex, TextWriter output)
+        {
+            while (ex != null)
+            {
+                Debug.WriteLine(ex.ToString());
+                output.Write("<div>");
+                output.Write(ex.Message);
+                output.Write("<p>");
+                output.Write(ex.StackTrace);
+                output.Write("</p>");
+                output.Write("</div>");
+                ex = ex.InnerException;
             }
         }
 
