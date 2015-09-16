@@ -96,38 +96,51 @@ namespace Xania.AspNet.Razor
 
         public override VirtualDirectory GetDirectory(string virtualDir)
         {
-            return new VirtualDirectoryWrapper(_mvcApplication.GetVirtualDirectory(virtualDir));
+            return VirtualDirectoryProxy.Create(_mvcApplication.GetVirtualDirectory(virtualDir));
         }
     }
 
-    internal class VirtualDirectoryWrapper : VirtualDirectory
+    internal class VirtualDirectoryProxy : RealProxy
     {
         private readonly IVirtualDirectory _virtualDirectory;
 
-        public VirtualDirectoryWrapper(IVirtualDirectory virtualDirectory)
-            : base(virtualDirectory.VirtualPath)
+        public VirtualDirectoryProxy(IVirtualDirectory virtualDirectory)
+            : base(typeof(VirtualDirectory))
         {
             _virtualDirectory = virtualDirectory;
         }
 
-        public override string Name
+        public override IMessage Invoke(IMessage msg)
         {
-            get { return _virtualDirectory.VirtualPath.Split('/').Last(); }
+            var methodCall = msg as IMethodCallMessage;
+            if (methodCall == null)
+                return null;
+
+            try
+            {
+                return new ReturnMessage(GetResult(methodCall), null, 0, methodCall.LogicalCallContext, methodCall);
+            }
+            catch (TargetInvocationException invocationException)
+            {
+                var exception = invocationException.InnerException;
+                return new ReturnMessage(exception, methodCall);
+            }
         }
 
-        public override IEnumerable Directories
+        private object GetResult(IMethodCallMessage methodCall)
         {
-            get { throw new NotImplementedException(); }
+            switch (methodCall.MethodName)
+            {
+                case "get_Files":
+                    return _virtualDirectory.GetFiles().Select(VirtualFileProxy.Create);
+                default:
+                    throw new NotImplementedException(methodCall.MethodName);
+            }
         }
 
-        public override IEnumerable Files
+        public static VirtualDirectory Create(IVirtualDirectory virtualDirectory)
         {
-            get { return _virtualDirectory.GetFiles().Select(VirtualFileProxy.Create); }
-        }
-
-        public override IEnumerable Children
-        {
-            get { throw new NotImplementedException(); }
+            return (VirtualDirectory) new VirtualDirectoryProxy(virtualDirectory).GetTransparentProxy();
         }
     }
 
@@ -149,26 +162,25 @@ namespace Xania.AspNet.Razor
 
             try
             {
-                var methodName = methodCall.MethodName;
-                object result = null;
-                switch (methodName)
-                {
-                    case "get_VirtualPath":
-                        result = _virtualContent.VirtualPath;
-                        break;
-                    case "get_Name":
-                        result = _virtualContent.VirtualPath.Split('/', '\\').Last();
-                        break;
-                    default:
-                        throw new NotImplementedException(methodName);
-                }
-
-                return new ReturnMessage(result, null, 0, methodCall.LogicalCallContext, methodCall);
+                return new ReturnMessage(GetResult(methodCall), null, 0, methodCall.LogicalCallContext, methodCall);
             }
             catch (TargetInvocationException invocationException)
             {
                 var exception = invocationException.InnerException;
                 return new ReturnMessage(exception, methodCall);
+            }
+        }
+
+        private object GetResult(IMethodCallMessage methodCall)
+        {
+            switch (methodCall.MethodName)
+            {
+                case "get_VirtualPath":
+                    return _virtualContent.VirtualPath;
+                case "get_Name":
+                    return _virtualContent.VirtualPath.Split('/', '\\').Last();
+                default:
+                    throw new NotImplementedException(methodCall.MethodName);
             }
         }
 
