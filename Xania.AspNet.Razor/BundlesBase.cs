@@ -1,8 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.Remoting.Messaging;
+using System.Runtime.Remoting.Proxies;
 using System.Text;
 using System.Web;
 using System.Web.Hosting;
@@ -44,8 +46,8 @@ namespace Xania.AspNet.Razor
             return from bundle in _mvcApplication.Bundles
                 where bundle.Path == path
                 from BundleFile f in bundle.EnumerateFiles(bundleContext)
-                let virtualFile = f.VirtualFile as VirtualFileWrapper
-                select _mvcApplication.ToAbsoluteUrl(virtualFile.VirtualPathString);
+                let virtualFile = f.VirtualFile
+                select _mvcApplication.ToAbsoluteUrl(virtualFile.VirtualPath);
         }
 
         private static readonly object SyncObject = new object();
@@ -89,7 +91,7 @@ namespace Xania.AspNet.Razor
 
         public override VirtualFile GetFile(string virtualPath)
         {
-            return new VirtualFileWrapper(_mvcApplication.GetVirtualContent(virtualPath));
+            return VirtualFileProxy.Create(_mvcApplication.GetVirtualContent(virtualPath));
         }
 
         public override VirtualDirectory GetDirectory(string virtualDir)
@@ -108,6 +110,11 @@ namespace Xania.AspNet.Razor
             _virtualDirectory = virtualDirectory;
         }
 
+        public override string Name
+        {
+            get { return _virtualDirectory.VirtualPath.Split('/').Last(); }
+        }
+
         public override IEnumerable Directories
         {
             get { throw new NotImplementedException(); }
@@ -115,7 +122,7 @@ namespace Xania.AspNet.Razor
 
         public override IEnumerable Files
         {
-            get { return _virtualDirectory.GetFiles().Select(vf => new VirtualFileWrapper(vf)); }
+            get { return _virtualDirectory.GetFiles().Select(VirtualFileProxy.Create); }
         }
 
         public override IEnumerable Children
@@ -124,26 +131,51 @@ namespace Xania.AspNet.Razor
         }
     }
 
-    internal class VirtualFileWrapper : VirtualFile
+    internal class VirtualFileProxy : RealProxy
     {
         private readonly IVirtualContent _virtualContent;
 
-        public VirtualFileWrapper(IVirtualContent virtualContent) 
-            : base(virtualContent.VirtualPath)
+        public VirtualFileProxy(IVirtualContent virtualContent)
+            : base(typeof(VirtualFile))
         {
             _virtualContent = virtualContent;
         }
 
-        public override string Name
+        public override IMessage Invoke(IMessage msg)
         {
-            get { return _virtualContent.VirtualPath; }
+            var methodCall = msg as IMethodCallMessage;
+            if (methodCall == null)
+                return null;
+
+            try
+            {
+                var methodName = methodCall.MethodName;
+                object result = null;
+                switch (methodName)
+                {
+                    case "get_VirtualPath":
+                        result = _virtualContent.VirtualPath;
+                        break;
+                    case "get_Name":
+                        result = _virtualContent.VirtualPath.Split('/', '\\').Last();
+                        break;
+                    default:
+                        throw new NotImplementedException(methodName);
+                }
+
+                return new ReturnMessage(result, null, 0, methodCall.LogicalCallContext, methodCall);
+            }
+            catch (TargetInvocationException invocationException)
+            {
+                var exception = invocationException.InnerException;
+                return new ReturnMessage(exception, methodCall);
+            }
         }
 
-        public string VirtualPathString { get { return _virtualContent.VirtualPath; } }
-
-        public override Stream Open()
+        public static VirtualFile Create(IVirtualContent vf)
         {
-            return _virtualContent.Open();
+            var proxy = new VirtualFileProxy(vf);
+            return (VirtualFile) proxy.GetTransparentProxy();
         }
     }
 }
