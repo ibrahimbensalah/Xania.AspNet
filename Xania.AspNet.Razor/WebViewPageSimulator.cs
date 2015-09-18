@@ -42,39 +42,7 @@ namespace Xania.AspNet.Razor
         }
     }
 
-    public abstract class WebViewPageSimulator : WebViewPage, IWebViewPage
+    public abstract class WebViewPageSimulator : WebViewPageSimulator<object>
     {
-        private IMvcApplication _mvcApplication;
-        public new HtmlHelperSimulator<object> Html { get; set; }
-
-        public StyleBundles Styles { get; private set; }
-        public ScriptBundles Scripts { get; private set; }
-
-        public void Initialize(ViewContext viewContext, string virtualPath, IMvcApplication mvcApplication)
-        {
-            _mvcApplication = mvcApplication;
-
-            Styles = new StyleBundles(viewContext.HttpContext, mvcApplication);
-            Scripts = new ScriptBundles(viewContext.HttpContext, mvcApplication);
-
-            VirtualPath = virtualPath;
-            ViewContext = viewContext;
-            ViewData = viewContext.ViewData;
-
-            Ajax = new AjaxHelper<object>(viewContext, this, mvcApplication.Routes);
-            Html = new HtmlHelperSimulator<object>(viewContext, this, mvcApplication);
-            Url = new UrlHelper(viewContext.RequestContext, mvcApplication.Routes);
-            VirtualPathFactory = new VirtualPathFactorySimulator(mvcApplication, viewContext);
-        }
-
-        public void Execute(HttpContextBase httpContext, TextWriter writer)
-        {
-            ExecutePageHierarchy(new WebPageContext(httpContext, null, null), writer);
-        }
-
-        public override string Href(string path, params object[] pathParts)
-        {
-            return _mvcApplication.ToAbsoluteUrl(path);
-        }
     }
 }

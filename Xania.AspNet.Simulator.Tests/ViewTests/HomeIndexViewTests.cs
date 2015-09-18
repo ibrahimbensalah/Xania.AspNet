@@ -51,6 +51,24 @@ namespace Xania.AspNet.Simulator.Tests.ViewTests
             }
         }
 
+        [Test]
+        public void IndexViewWithCustomViewResult()
+        {
+            // arrange
+            var contents = SystemUnderTest.GetMvcApp1ContentProvider();
+
+            // act
+            var sw = new StringWriter();
+            new MvcApplication(contents)
+                .Action(new HomeController(), "index")
+                .RenderView("index", null, sw);
+            var output = sw.ToString();
+
+            // assert
+            output.Should().Contain("<title>Home Page - My ASP.NET MVC Application</title>", "layout content should be included");
+            output.Should().Contain("<h3>We suggest the following:</h3>", "index content should be included");
+        }
+
         class TestController : Controller
         {
             public ActionResult Index()

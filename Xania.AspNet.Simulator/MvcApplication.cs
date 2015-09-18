@@ -240,14 +240,13 @@ namespace Xania.AspNet.Simulator
                                 if (n.Attributes != null)
                                 {
                                     var ns = n.Attributes["namespace"].Value;
-                                    if (!ns.Equals("System.Web.Mvc.Html"))
+                                    if (!ns.Equals("System.Web.Mvc.Html") && !ns.Equals("System.Web.Optimization"))
                                         yield return ns;
-                                    else
-                                        yield return "Xania.AspNet.Razor.Html";
                                 }
                             }
                     }
                 }
+                yield return "Xania.AspNet.Razor.Html";
             }
             else
             {

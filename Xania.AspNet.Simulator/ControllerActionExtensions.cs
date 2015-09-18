@@ -162,15 +162,35 @@ namespace Xania.AspNet.Simulator
             var actionName = controllerAction.ActionDescriptor.ActionName;
             var controllerName = controllerAction.ActionDescriptor.ControllerDescriptor.ControllerName;
             var virtualPath = string.Format("~/Views/{0}/{1}.cshtml", controllerName, actionName);
-            
-            var view = new RazorViewSimulator(controllerAction.MvcApplication, new StreamVirtualContent(virtualPath, contentStream));
-            var viewResult = new ViewResult()
-            {
-                View = view,
-            };
 
+            var view = new RazorViewSimulator(controllerAction.MvcApplication, new StreamVirtualContent(virtualPath, contentStream));
+            controllerAction.RenderView(view, writer);
+        }
+
+        public static void RenderView(this DirectControllerAction controllerAction, string viewName, string masterName, TextWriter writer)
+        {
             var controllerContext = controllerAction.CreateControllerContext();
             controllerContext.HttpContext.Response.Output = writer;
+
+            var viewResult = new ViewResult
+            {
+                ViewName = viewName,
+                MasterName = masterName,
+                ViewEngineCollection = controllerAction.MvcApplication.ViewEngines
+            };
+            viewResult.ExecuteResult(controllerContext);
+        }
+
+        public static void RenderView(this DirectControllerAction controllerAction, IView view, TextWriter writer)
+        {
+            var controllerContext = controllerAction.CreateControllerContext();
+            controllerContext.HttpContext.Response.Output = writer;
+
+            var viewResult = new ViewResult
+            {
+                View = view,
+                ViewEngineCollection = controllerAction.MvcApplication.ViewEngines
+            };
             viewResult.ExecuteResult(controllerContext);
         }
 
