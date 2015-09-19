@@ -157,6 +157,13 @@ namespace Xania.AspNet.Simulator
             actionResult.ExecuteResult(executionContext.ControllerContext);
         }
 
+        public static string RenderView(this DirectControllerAction controllerAction, Stream contentStream)
+        {
+            var stringWriter = new StringWriter();
+            controllerAction.RenderView(contentStream, stringWriter);
+            return stringWriter.ToString();
+        }
+
         public static void RenderView(this DirectControllerAction controllerAction, Stream contentStream, TextWriter writer)
         {
             var actionName = controllerAction.ActionDescriptor.ActionName;
@@ -165,6 +172,13 @@ namespace Xania.AspNet.Simulator
 
             var view = new RazorViewSimulator(controllerAction.MvcApplication, new StreamVirtualContent(virtualPath, contentStream));
             controllerAction.RenderView(view, writer);
+        }
+
+        public static string RenderView(this DirectControllerAction controllerAction, string viewName, string masterName)
+        {
+            var stringWriter = new StringWriter();
+            controllerAction.RenderView(viewName, masterName, stringWriter);
+            return stringWriter.ToString();
         }
 
         public static void RenderView(this DirectControllerAction controllerAction, string viewName, string masterName, TextWriter writer)
@@ -179,6 +193,14 @@ namespace Xania.AspNet.Simulator
                 ViewEngineCollection = controllerAction.MvcApplication.ViewEngines
             };
             viewResult.ExecuteResult(controllerContext);
+        }
+
+
+        public static string RenderView(this DirectControllerAction controllerAction, IView view)
+        {
+            var stringWriter = new StringWriter();
+            controllerAction.RenderView(view, stringWriter);
+            return stringWriter.ToString();
         }
 
         public static void RenderView(this DirectControllerAction controllerAction, IView view, TextWriter writer)

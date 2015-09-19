@@ -18,6 +18,11 @@ namespace Xania.AspNet.Simulator
 {
     public class MvcApplication : IMvcApplication
     {
+        public MvcApplication(string appDir)
+            : this(new DirectoryContentProvider(appDir))
+        {
+        }
+
         public MvcApplication(IContentProvider contentProvider)
             : this(new ControllerContainer(), contentProvider)
         {

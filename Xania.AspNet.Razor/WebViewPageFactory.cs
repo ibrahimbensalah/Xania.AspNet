@@ -2,6 +2,7 @@ using System;
 using System.CodeDom;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -18,22 +19,22 @@ namespace Xania.AspNet.Razor
     {
         private readonly IEnumerable<string> _assemblies;
         private readonly IEnumerable<string> _namespaces;
+        private readonly bool _cacheEnabled;
 
         public WebViewPageFactory(IEnumerable<string> assemblies, IEnumerable<string> namespaces)
         {
             _assemblies = assemblies;
             _namespaces = namespaces;
+            _cacheEnabled = true;
         }
 
         public IWebViewPage Create(string virtualPath, TextReader reader, DateTime modifiedDateTime)
         {
-            var output = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Xania", "AspNet.Razor");
+            var output = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Xania.AspNet");
             var cacheFile = new FileInfo(Path.Combine(output, GetCacheKey(virtualPath) + ".dll"));
 
             Assembly assembly;
-            var compilerParameters = GetCompilerParameters();
-
-            if (!compilerParameters.GenerateInMemory && cacheFile.Exists && cacheFile.LastWriteTime > modifiedDateTime)
+            if (_cacheEnabled && cacheFile.Exists && cacheFile.LastWriteTime > modifiedDateTime)
             {
                 assembly = Assembly.LoadFrom(cacheFile.FullName);
             }
@@ -53,11 +54,16 @@ namespace Xania.AspNet.Razor
             return instance;
         }
 
-        private static string GetCacheKey(string content)
+        private string GetCacheKey(string content)
         {
+            var versions = from assemblyPath in _assemblies
+                let myFileVersionInfo = FileVersionInfo.GetVersionInfo(assemblyPath)
+                orderby myFileVersionInfo.FileVersion
+                select myFileVersionInfo.FileVersion;
+
             using (var md5Hash = MD5.Create())
             {
-                return GetMd5Hash(md5Hash, content);
+                return GetMd5Hash(md5Hash, content + string.Join(",", versions));
             }
         }
 
@@ -117,7 +123,7 @@ namespace Xania.AspNet.Razor
                 throw new Exception("Errors in razor file \r\n" + writer);
             }
 
-            if (!compilerParameters.GenerateInMemory)
+            if (!compilerParameters.GenerateInMemory && _cacheEnabled)
             {
                 File.Copy(compilerResults.PathToAssembly, file.FullName, true);
             }
@@ -144,7 +150,7 @@ namespace Xania.AspNet.Razor
         {
             var parameters = new CompilerParameters
             {
-                GenerateInMemory = true,
+                GenerateInMemory = !_cacheEnabled,
                 GenerateExecutable = false,
                 IncludeDebugInformation = false,
                 CompilerOptions = "/target:library",

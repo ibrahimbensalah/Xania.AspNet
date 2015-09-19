@@ -9,3 +9,4 @@ nupack.cmd
 *.coverage
 Xania.AspNet.sln.DotSettings
 *.DotSettings
+*ncrunch*
