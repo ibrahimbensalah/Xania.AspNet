@@ -82,6 +82,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssemblyLoader.cs" />
     <Compile Include="BundlesBase.cs" />
     <Compile Include="Html\FormExtensions.cs" />
     <Compile Include="Html\InputExtensions.cs" />

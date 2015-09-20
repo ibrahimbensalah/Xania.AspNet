@@ -45,7 +45,7 @@ namespace Xania.AspNet.Razor
 
             return from bundle in _mvcApplication.Bundles
                 where bundle.Path == path
-                from BundleFile f in bundle.EnumerateFiles(bundleContext)
+                from f in bundle.EnumerateFiles(bundleContext)
                 let virtualFile = f.VirtualFile
                 select _mvcApplication.ToAbsoluteUrl(virtualFile.VirtualPath);
         }
@@ -76,7 +76,7 @@ namespace Xania.AspNet.Razor
 
         public IHtmlString Url(string virtualPath)
         {
-            return MvcHtmlString.Create("http://www.google.nl");
+            return MvcHtmlString.Create(_mvcApplication.ToAbsoluteUrl(virtualPath));
         }
     }
 

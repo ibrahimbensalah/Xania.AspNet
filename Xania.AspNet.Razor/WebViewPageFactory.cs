@@ -17,13 +17,13 @@ namespace Xania.AspNet.Razor
 {
     public class WebViewPageFactory: IWebViewPageFactory
     {
-        private readonly IEnumerable<string> _assemblies;
+        private readonly IEnumerable<string> _assemblyFiles;
         private readonly IEnumerable<string> _namespaces;
         private readonly bool _cacheEnabled;
 
-        public WebViewPageFactory(IEnumerable<string> assemblies, IEnumerable<string> namespaces)
+        public WebViewPageFactory(IEnumerable<string> assemblyFiles, IEnumerable<string> namespaces)
         {
-            _assemblies = assemblies;
+            _assemblyFiles = assemblyFiles;
             _namespaces = namespaces;
             _cacheEnabled = true;
         }
@@ -36,7 +36,7 @@ namespace Xania.AspNet.Razor
             Assembly assembly;
             if (_cacheEnabled && cacheFile.Exists && cacheFile.LastWriteTime > modifiedDateTime)
             {
-                assembly = Assembly.LoadFrom(cacheFile.FullName);
+                assembly = AssemblyLoader.GetAssembly(cacheFile.FullName);
             }
             else
             {
@@ -56,7 +56,7 @@ namespace Xania.AspNet.Razor
 
         private string GetCacheKey(string content)
         {
-            var versions = from assemblyPath in _assemblies
+            var versions = from assemblyPath in _assemblyFiles
                 let myFileVersionInfo = FileVersionInfo.GetVersionInfo(assemblyPath)
                 orderby myFileVersionInfo.FileVersion
                 select myFileVersionInfo.FileVersion;
@@ -156,7 +156,7 @@ namespace Xania.AspNet.Razor
                 CompilerOptions = "/target:library",
             };
 
-            parameters.ReferencedAssemblies.AddRange(_assemblies.ToArray());
+            parameters.ReferencedAssemblies.AddRange(_assemblyFiles.ToArray());
 
             return parameters;
         }
