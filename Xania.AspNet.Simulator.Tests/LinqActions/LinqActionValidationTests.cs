@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
 using FluentAssertions;
@@ -14,8 +15,14 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
         public void ModelStateTest(string newPassword, string confirmPassword, bool newPasswordValid, bool confirmPasswordValid)
         {
             // arrange
-            var model = new ChangePasswordModel { NewPassword = newPassword, ConfirmPassword = confirmPassword };
-            var controllerAction = new AccountController().Action(c => c.ChangePassword(model));
+            // var model = new ChangePasswordModel { NewPassword = newPassword, ConfirmPassword = confirmPassword };
+            var controllerAction = new AccountController()
+                .Action("ChangePassword")
+                .RequestData(new Dictionary<string, object>()
+                {
+                    {"newpassword", newPassword},
+                    {"confirmPassword", confirmPassword}
+                });
 
             // act
             var modelState = controllerAction.ValidateRequest();
@@ -56,7 +63,10 @@ namespace Xania.AspNet.Simulator.Tests.LinqActions
             // arrange
             var controllerAction = new AccountController()
                 .Action(e => e.DeleteUser(0))
-                .RequestData(new { userId = 1 });
+                .RequestData(new Dictionary<string, object>
+                {
+                    {"userId", 1 }
+                });
             // act
             var result = (ContentResult)controllerAction.GetActionResult();
             //assert

@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Security.Principal;
 using System.Web.Mvc;
 
@@ -35,6 +36,16 @@ namespace Xania.AspNet.Simulator
         {
             {
                 actionRequest.MvcApplication.ValueProvider = new DictionaryValueProvider<object>(values.ToDictionary(),
+                    CultureInfo.CurrentCulture);
+                return actionRequest;
+            }
+        }
+
+        public static TActionRequest RequestData<TActionRequest>(this TActionRequest actionRequest, IDictionary<string, object> values)
+            where TActionRequest : ControllerAction
+        {
+            {
+                actionRequest.MvcApplication.ValueProvider = new DictionaryValueProvider<object>(values,
                     CultureInfo.CurrentCulture);
                 return actionRequest;
             }
