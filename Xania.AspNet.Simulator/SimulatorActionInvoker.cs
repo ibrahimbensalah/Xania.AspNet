@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Security.Claims;
 using System.Web.Mvc;
 using System.Web.Routing;
 using Xania.AspNet.Core;
@@ -17,11 +18,8 @@ namespace Xania.AspNet.Simulator
 
         public SimulatorActionInvoker(IMvcApplication mvcApplication, ActionExecutionContext actionExecutionContext)
         {
-            var filters = mvcApplication.FilterProviders.GetFilters(actionExecutionContext.ControllerContext, actionExecutionContext.ActionDescriptor);
-
-            var enumerable = filters as Filter[] ?? filters.ToArray();
-            SimulatorHelper.InitializeFilters(enumerable);
-            _filterInfo = new FilterInfo(enumerable);
+            _filterInfo = mvcApplication.GetFilterInfo(actionExecutionContext.ControllerContext,
+                actionExecutionContext.ActionDescriptor);
 
             _mvcApplication = mvcApplication;
             _actionExecutionContext = actionExecutionContext;
@@ -38,9 +36,19 @@ namespace Xania.AspNet.Simulator
         protected override AuthorizationContext InvokeAuthorizationFilters(ControllerContext controllerContext, IList<IAuthorizationFilter> filters,
             ActionDescriptor actionDescriptor)
         {
-            var authorizationContext = base.InvokeAuthorizationFilters(controllerContext, filters, actionDescriptor);
-            SimulatorHelper.InitizializeActionResults(authorizationContext.Result, _mvcApplication.Routes);
-            return authorizationContext;
+            var context = new AuthorizationContext(controllerContext, actionDescriptor);
+            foreach (var filter in filters)
+            {
+                filter.OnAuthorization(context);
+                // short-circuit evaluation when an error occurs
+                if (context.Result == null) 
+                    continue;
+
+                SimulatorHelper.InitizializeActionResults(context.Result, _mvcApplication.Routes);
+                break;
+            }
+
+            return context;
         }
 
         public virtual ActionResult GetActionResult()

@@ -16,7 +16,6 @@ namespace Xania.AspNet.Simulator
             where TController: ControllerBase
         {
             var methodCallExpression = GetMethodCallExpression(actionExpression.Body);
-
             return new LinqActionDescriptor(methodCallExpression, new ReflectedControllerDescriptor(typeof(TController)));
         }
 

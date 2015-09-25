@@ -31,6 +31,8 @@ namespace Xania.AspNet.Core
 
         IValueProvider ValueProvider { get; set; }
 
+        ModelBinderDictionary Binders { get; }
+
         string MapUrl(string filePath);
 
         bool FileExists(string virtualPath);

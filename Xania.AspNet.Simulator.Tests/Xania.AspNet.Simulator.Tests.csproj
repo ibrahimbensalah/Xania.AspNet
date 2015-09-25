@@ -184,6 +184,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\TestController.cs" />
+    <Compile Include="FilterAttributeTests.cs" />
     <Compile Include="LinqActions\LinqActionFilterProvidersTests.cs" />
     <Compile Include="LinqActions\LinqActionValidationTests.cs" />
     <Compile Include="LinqActions\LinqActionValueProviderTests.cs" />

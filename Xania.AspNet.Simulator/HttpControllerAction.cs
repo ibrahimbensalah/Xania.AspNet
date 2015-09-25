@@ -42,7 +42,7 @@ namespace Xania.AspNet.Simulator
 
             Initialize(controllerContext);
 
-            return new ActionExecutionContext
+            return new ActionExecutionContext(MvcApplication.Binders)
             {
                 ControllerContext = controllerContext,
                 ActionDescriptor = GetActionDescriptor(controller, routeData)

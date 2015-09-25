@@ -31,7 +31,7 @@ namespace Xania.AspNet.Simulator
         {
             var controllerContext = CreateControllerContext();
 
-            return new ActionExecutionContext
+            return new ActionExecutionContext(MvcApplication.Binders)
             {
                 ControllerContext = controllerContext,
                 ActionDescriptor = ActionDescriptor

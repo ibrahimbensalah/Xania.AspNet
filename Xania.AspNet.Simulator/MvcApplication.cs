@@ -52,7 +52,13 @@ namespace Xania.AspNet.Simulator
 
             ModelMetadataProvider = ModelMetadataProviders.Current;
             WebViewPageFactory = new WebViewPageFactory(Assemblies, GetNamespaces(this));
+
+            Binders = new ModelBinderDictionary();
+            foreach (var b in ModelBinders.Binders)
+                Binders.Add(b);
         }
+
+        public ModelBinderDictionary Binders { get; private set; }
 
         public ModelMetadataProvider ModelMetadataProvider { get; set; }
 

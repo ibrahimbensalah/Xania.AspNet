@@ -216,6 +216,36 @@ namespace Xania.AspNet.Simulator
             viewResult.ExecuteResult(controllerContext);
         }
 
+        public static AuthorizationContext GetAuthorizationContext(this ControllerAction controllerAction)
+        {
+            return controllerAction.GetExecutionContext().GetAuthorizationContext();
+        }
+
+        public static ActionExecutingContext GetActionExecutingContext(this ControllerAction controllerAction)
+        {
+            return controllerAction.GetExecutionContext().GetActionExecutingContext();
+        }
+
+        public static ActionExecutedContext GetActionExecutedContext(this ControllerAction controllerAction)
+        {
+            return controllerAction.GetExecutionContext().GetActionExecutedContext();
+        }
+
+        public static ResultExecutingContext GetResultExecutingContext(this ControllerAction controllerAction, ActionResult actionResult)
+        {
+            return controllerAction.GetExecutionContext().GetResultExecutingContext(actionResult);
+        }
+
+        public static ResultExecutedContext GetResultExecutedContext(this ControllerAction controllerAction, ActionResult actionResult, bool cancelled, Exception exception)
+        {
+            return controllerAction.GetExecutionContext().GetResultExecutedContext(actionResult, cancelled, exception);
+        }
+
+        public static ExceptionContext GetExceptionContext(this ControllerAction controllerAction, Exception exception)
+        {
+            return controllerAction.GetExecutionContext().GetExceptionContext(exception);
+        }
+
         private static IEnumerable<Type> ScanTypes(params Assembly[] assemblies)
         {
             return assemblies.SelectMany(a => a.GetLoadedModules()).SelectMany(m => m.GetTypes())
