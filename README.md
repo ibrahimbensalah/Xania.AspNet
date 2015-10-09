@@ -5,6 +5,8 @@ AspNet Mvc Simulator
 
 [![Build status](https://ci.appveyor.com/api/projects/status/jbiej3ka1n9096nv?svg=true)](https://ci.appveyor.com/project/ibrahimbensalah/xania-aspnet)
 
+[![stable](http://badges.github.io/stability-badges/dist/stable.svg)](http://github.com/badges/stability-badges)
+
     ...
     using Xania.AspNet.Simulator;
     public class HomeControllerTests
