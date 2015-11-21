@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.PhantomJS;
 
 namespace Xania.AspNet.Simulator.Tests.MvcApplication1
 {
@@ -28,7 +29,7 @@ namespace Xania.AspNet.Simulator.Tests.MvcApplication1
             {
                 if (_driver == null)
                 {
-                    _driver = new ChromeDriver();
+                    _driver = new PhantomJSDriver();
                     _driver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(1));
                 }
                 return _driver;
