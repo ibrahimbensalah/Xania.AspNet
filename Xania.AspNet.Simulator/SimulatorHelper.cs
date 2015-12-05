@@ -19,10 +19,12 @@ namespace Xania.AspNet.Simulator
                 var validateActionProperty = typeof (ValidateAntiForgeryTokenAttribute).GetProperty("ValidateAction",
                     BindingFlags.Instance | BindingFlags.NonPublic);
 
-                validateActionProperty.SetValue(attr, new Action(() =>
+                var noop = new Action(() =>
                 {
                     /*NOOP*/
-                }));
+                });
+
+                validateActionProperty.SetValue(attr, noop, null);
             }
         }
 
@@ -34,7 +36,7 @@ namespace Xania.AspNet.Simulator
                 var routesProperty = typeof(RedirectToRouteResult).GetProperty("Routes",
                     BindingFlags.Instance | BindingFlags.NonPublic);
 
-                routesProperty.SetValue(redirectResult, routes);
+                routesProperty.SetValue(redirectResult, routes, null);
             }
         }
 

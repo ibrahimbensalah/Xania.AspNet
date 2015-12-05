@@ -1,10 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Security.Claims;
 using System.Web.Mvc;
-using System.Web.Routing;
 using Xania.AspNet.Core;
 
 namespace Xania.AspNet.Simulator
@@ -78,7 +75,7 @@ namespace Xania.AspNet.Simulator
             {
                 var parameterName = parameterDescriptor.ParameterName;
                 var parameterType = parameterDescriptor.ParameterType;
-                var value = base.GetParameterValue(controllerContext, parameterDescriptor);
+                var value = GetParameterValue(controllerContext, parameterDescriptor);
 
                 _parameters[parameterName] = value;
 

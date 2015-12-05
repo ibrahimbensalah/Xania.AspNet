@@ -116,11 +116,6 @@ namespace Xania.AspNet.Simulator.Http
             _response.AppendToLog(param);
         }
 
-        public override IAsyncResult BeginFlush(AsyncCallback callback, object state)
-        {
-            return _response.BeginFlush(callback, state);
-        }
-
         public override void BinaryWrite(byte[] buffer)
         {
             _response.BinaryWrite(buffer);
@@ -165,11 +160,6 @@ namespace Xania.AspNet.Simulator.Http
             _response.ClearHeaders();
         }
 
-        public override CancellationToken ClientDisconnectedToken
-        {
-            get { return _response.ClientDisconnectedToken; }
-        }
-
         public override void Close()
         {
             _response.Close();
@@ -192,19 +182,9 @@ namespace Xania.AspNet.Simulator.Http
             _response.DisableKernelCache();
         }
 
-        public override void DisableUserCache()
-        {
-            _response.DisableUserCache();
-        }
-
         public override void End()
         {
             _response.End();
-        }
-
-        public override void EndFlush(IAsyncResult asyncResult)
-        {
-            _response.EndFlush(asyncResult);
         }
 
         public override int Expires
@@ -376,21 +356,10 @@ namespace Xania.AspNet.Simulator.Http
             set { _response.SubStatusCode = value; }
         }
 
-        public override bool SupportsAsyncFlush
-        {
-            get { return _response.SupportsAsyncFlush; }
-        }
-
         public override bool SuppressContent
         {
             get { return _response.SuppressContent; }
             set { _response.SuppressContent = value; }
-        }
-
-        public override bool SuppressFormsAuthenticationRedirect
-        {
-            get { return _response.SuppressFormsAuthenticationRedirect; }
-            set { _response.SuppressFormsAuthenticationRedirect = value; }
         }
 
         public override void TransmitFile(string filename)
@@ -448,5 +417,40 @@ namespace Xania.AspNet.Simulator.Http
         {
             _response.WriteSubstitution(callback);
         }
+
+#if NET45
+        
+        public override IAsyncResult BeginFlush(AsyncCallback callback, object state)
+        {
+            return _response.BeginFlush(callback, state);
+        }
+
+        public override CancellationToken ClientDisconnectedToken
+        {
+            get { return _response.ClientDisconnectedToken; }
+        }
+
+        public override void DisableUserCache()
+        {
+            _response.DisableUserCache();
+        }
+
+        public override void EndFlush(IAsyncResult asyncResult)
+        {
+            _response.EndFlush(asyncResult);
+        }
+
+        public override bool SupportsAsyncFlush
+        {
+            get { return _response.SupportsAsyncFlush; }
+        }
+
+        public override bool SuppressFormsAuthenticationRedirect
+        {
+            get { return _response.SuppressFormsAuthenticationRedirect; }
+            set { _response.SuppressFormsAuthenticationRedirect = value; }
+        }
+#endif
+
     }
 }

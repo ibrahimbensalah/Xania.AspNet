@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -58,30 +57,26 @@ namespace Xania.AspNet.Simulator
 
         public Task<HttpContextBase> GetContextAsync()
         {
-            return
-                _listener.GetContextAsync()
-                    .ContinueWith(task =>
-                    {
-                        if (task.IsFaulted)
-                            return null;
+            return Task.Factory.StartNew(() =>
+            {
+                var listenerContext = _listener.GetContext();
 
-                        var listenerContext = task.Result;
-                        listenerContext.Response.AppendHeader("Server", "Xania");
+                listenerContext.Response.AppendHeader("Server", "Xania");
 
-                        HttpSessionStateBase session = null;
-                        var sessionCookie = listenerContext.Request.Cookies["ASP.NET_SessionId"];
-                        if (sessionCookie == null)
-                        {
-                            session = new HttpSessionStateSimulator();
-                        }
-                        else if(!Sessions.TryGetValue(sessionCookie.Value, out session))
-                        {
-                            session = new HttpSessionStateSimulator(sessionCookie.Value);
-                            Sessions.Add(sessionCookie.Value, session);
-                        }
+                HttpSessionStateBase session = null;
+                var sessionCookie = listenerContext.Request.Cookies["ASP.NET_SessionId"];
+                if (sessionCookie == null)
+                {
+                    session = new HttpSessionStateSimulator();
+                }
+                else if (!Sessions.TryGetValue(sessionCookie.Value, out session))
+                {
+                    session = new HttpSessionStateSimulator(sessionCookie.Value);
+                    Sessions.Add(sessionCookie.Value, session);
+                }
 
-                        return (HttpContextBase)new HttpListenerContextSimulator(listenerContext, session);
-                    });
+                return (HttpContextBase) new HttpListenerContextSimulator(listenerContext, session);
+            });
         }
 
         public void Dispose()
@@ -110,62 +105,70 @@ namespace Xania.AspNet.Simulator
             EnsureStarted();
         }
 
-        private async void EnsureStarted()
+        private void EnsureStarted()
         {
             if (_running)
                 return;
             _running = true;
 
-            while (_running)
+            Task.Factory.StartNew(() =>
             {
-                _running = await GetContextAsync().ContinueWith(task =>
+                while (_running)
                 {
-                    var context = task.Result;
-                    if (context == null)
-                        return false;
-
-                    try
+                    var getContext = GetContextAsync().ContinueWith(task =>
                     {
-                        OnEnter(context);
+                        if (task.IsFaulted)
+                            return false;
 
-                        if (!_handlers.Any(h => h(context)))
+                        var context = task.Result;
+                        if (context == null)
+                            return false;
+
+                        try
                         {
-                            // not served
-                            context.Response.StatusCode = (int) HttpStatusCode.NotFound;
-                            context.Response.StatusDescription = "Resource not found";
+                            OnEnter(context);
+
+                            if (!_handlers.Any(h => h(context)))
+                            {
+                                // not served
+                                context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                                context.Response.StatusDescription = "Resource not found";
+                            }
+
+                            OnExit(context);
                         }
-
-                        OnExit(context);
-                    }
-                    catch (HttpException ex)
-                    {
-                        context.Response.StatusCode = ex.GetHttpCode();
-                        context.Response.StatusDescription = ex.Message;
-                        context.Response.Write(ex.Message);
-                        var htmlErrorMessage = ex.GetHtmlErrorMessage();
-
-                        if (htmlErrorMessage != null)
+                        catch (HttpException ex)
                         {
+                            context.Response.StatusCode = ex.GetHttpCode();
+                            context.Response.StatusDescription = ex.Message;
+                            context.Response.Write(ex.Message);
+                            var htmlErrorMessage = ex.GetHtmlErrorMessage();
+
+                            if (htmlErrorMessage != null)
+                            {
+                                context.Response.Write("\n");
+                                context.Response.Write(htmlErrorMessage);
+                            }
+                            PrintToHtml(ex, context.Response.Output);
+                        }
+                        catch (Exception ex)
+                        {
+                            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                            context.Response.StatusDescription = "Internal Server Error";
+                            PrintToHtml(ex, context.Response.Output);
                             context.Response.Write("\n");
-                            context.Response.Write(htmlErrorMessage);
+                            // context.Response.Write(ex.StackTrace);
                         }
-                        PrintToHtml(ex, context.Response.Output);
-                    }
-                    catch (Exception ex)
-                    {
-                        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                        context.Response.StatusDescription = "Internal Server Error";
-                        PrintToHtml(ex, context.Response.Output);
-                        context.Response.Write("\n");
-                        // context.Response.Write(ex.StackTrace);
-                    }
-                    finally
-                    {
-                        context.Response.Close();
-                    }
-                    return true;
-                });
-            }
+                        finally
+                        {
+                            context.Response.Close();
+                        }
+                        return true;
+                    });
+
+                    _running = getContext.Result;
+                }
+            });
         }
 
         private static void PrintToHtml(Exception ex, TextWriter output)

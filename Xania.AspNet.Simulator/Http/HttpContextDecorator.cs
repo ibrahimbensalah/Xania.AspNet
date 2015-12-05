@@ -9,10 +9,13 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Caching;
 using System.Web.Configuration;
-using System.Web.Instrumentation;
 using System.Web.Profile;
 using System.Web.SessionState;
+
+#if NET45
+using System.Web.Instrumentation;
 using System.Web.WebSockets;
+#endif
 
 namespace Xania.AspNet.Simulator.Http
 {
@@ -58,16 +61,6 @@ namespace Xania.AspNet.Simulator.Http
             get { return _inner.Cache; }
         }
 
-        public override PageInstrumentationService PageInstrumentation
-        {
-            get { return _inner.PageInstrumentation; }
-        }
-
-        public override void AcceptWebSocketRequest(Func<AspNetWebSocketContext, Task> userFunc)
-        {
-            _inner.AcceptWebSocketRequest(userFunc);
-        }
-
         public override bool Equals(object obj)
         {
             return _inner.Equals(obj);
@@ -78,33 +71,15 @@ namespace Xania.AspNet.Simulator.Http
             return _inner.GetHashCode();
         }
 
-        public override void AcceptWebSocketRequest(Func<AspNetWebSocketContext, Task> userFunc,
-            AspNetWebSocketOptions options)
-        {
-            _inner.AcceptWebSocketRequest(userFunc, options);
-        }
-
         public override void AddError(Exception errorInfo)
         {
             _inner.AddError(errorInfo);
-        }
-
-        public override ISubscriptionToken AddOnRequestCompleted(Action<HttpContextBase> callback)
-        {
-            return _inner.AddOnRequestCompleted(callback);
         }
 
         public override Exception[] AllErrors
         {
             get { return _inner.AllErrors; }
         }
-
-        public override bool AllowAsyncDuringSyncStages
-        {
-            get { return _inner.AllowAsyncDuringSyncStages; }
-            set { _inner.AllowAsyncDuringSyncStages = value; }
-        }
-
         public override HttpApplicationStateBase Application
         {
             get { return _inner.Application; }
@@ -114,17 +89,6 @@ namespace Xania.AspNet.Simulator.Http
         {
             get { return _inner.ApplicationInstance; }
             set { _inner.ApplicationInstance = value; }
-        }
-
-        public override AsyncPreloadModeFlags AsyncPreloadMode
-        {
-            get { return _inner.AsyncPreloadMode; }
-            set { _inner.AsyncPreloadMode = value; }
-        }
-
-        public override void ClearError()
-        {
-            _inner.ClearError();
         }
 
         public override IHttpHandler CurrentHandler
@@ -137,9 +101,9 @@ namespace Xania.AspNet.Simulator.Http
             get { return _inner.CurrentNotification; }
         }
 
-        public override ISubscriptionToken DisposeOnPipelineCompleted(IDisposable target)
+        public override void ClearError()
         {
-            return _inner.DisposeOnPipelineCompleted(target);
+            _inner.ClearError();
         }
 
         public override Exception Error
@@ -198,16 +162,6 @@ namespace Xania.AspNet.Simulator.Http
             get { return _inner.IsPostNotification; }
         }
 
-        public override bool IsWebSocketRequest
-        {
-            get { return _inner.IsWebSocketRequest; }
-        }
-
-        public override bool IsWebSocketRequestUpgrading
-        {
-            get { return _inner.IsWebSocketRequestUpgrading; }
-        }
-
         public override IHttpHandler PreviousHandler
         {
             get { return _inner.PreviousHandler; }
@@ -259,12 +213,6 @@ namespace Xania.AspNet.Simulator.Http
             set { _inner.SkipAuthorization = value; }
         }
 
-        public override bool ThreadAbortOnTimeout
-        {
-            get { return _inner.ThreadAbortOnTimeout; }
-            set { _inner.ThreadAbortOnTimeout = value; }
-        }
-
         public override DateTime Timestamp
         {
             get { return _inner.Timestamp; }
@@ -275,9 +223,65 @@ namespace Xania.AspNet.Simulator.Http
             return _inner.ToString();
         }
 
+#if NET45
+
         public override TraceContext Trace
         {
             get { return _inner.Trace; }
+        }
+
+        public override PageInstrumentationService PageInstrumentation
+        {
+            get { return _inner.PageInstrumentation; }
+        }
+
+        public override void AcceptWebSocketRequest(Func<AspNetWebSocketContext, Task> userFunc)
+        {
+            _inner.AcceptWebSocketRequest(userFunc);
+        }
+
+        public override void AcceptWebSocketRequest(Func<AspNetWebSocketContext, Task> userFunc,
+            AspNetWebSocketOptions options)
+        {
+            _inner.AcceptWebSocketRequest(userFunc, options);
+        }
+
+        public override ISubscriptionToken AddOnRequestCompleted(Action<HttpContextBase> callback)
+        {
+            return _inner.AddOnRequestCompleted(callback);
+        }
+
+        public override bool AllowAsyncDuringSyncStages
+        {
+            get { return _inner.AllowAsyncDuringSyncStages; }
+            set { _inner.AllowAsyncDuringSyncStages = value; }
+        }
+
+        public override AsyncPreloadModeFlags AsyncPreloadMode
+        {
+            get { return _inner.AsyncPreloadMode; }
+            set { _inner.AsyncPreloadMode = value; }
+        }
+
+        public override ISubscriptionToken DisposeOnPipelineCompleted(IDisposable target)
+        {
+            return _inner.DisposeOnPipelineCompleted(target);
+        }
+
+        public override bool IsWebSocketRequest
+        {
+            get { return _inner.IsWebSocketRequest; }
+        }
+
+        public override bool IsWebSocketRequestUpgrading
+        {
+            get { return _inner.IsWebSocketRequestUpgrading; }
+        }
+
+        public override bool ThreadAbortOnTimeout
+        {
+            get { return _inner.ThreadAbortOnTimeout; }
+            set { _inner.ThreadAbortOnTimeout = value; }
         }
 
         public override string WebSocketNegotiatedProtocol
@@ -289,5 +293,7 @@ namespace Xania.AspNet.Simulator.Http
         {
             get { return _inner.WebSocketRequestedProtocols; }
         }
+#endif
+
     }
 }
