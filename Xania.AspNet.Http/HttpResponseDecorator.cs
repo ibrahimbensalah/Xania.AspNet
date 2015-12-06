@@ -8,7 +8,7 @@ using System.Web;
 using System.Web.Caching;
 using System.Web.Routing;
 
-namespace Xania.AspNet.Simulator.Http
+namespace Xania.AspNet.Http
 {
     internal class HttpResponseDecorator: HttpResponseBase
     {

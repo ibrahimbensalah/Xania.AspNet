@@ -6,7 +6,7 @@ using System.Net;
 using System.Security.Principal;
 using System.Web;
 
-namespace Xania.AspNet.Simulator.Http
+namespace Xania.AspNet.Http
 {
     internal class HttpListenerRequestWrapper: HttpRequestBase
     {

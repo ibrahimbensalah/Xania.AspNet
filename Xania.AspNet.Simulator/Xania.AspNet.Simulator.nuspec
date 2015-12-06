@@ -19,4 +19,7 @@
       <dependency id="Microsoft.AspNet.Mvc" version="[4.0, 6)" />
     </dependencies>
   </metadata>
+  <files>
+    <file src="..\Xania.AspNet.Http\bin\DebugNet45\Xania.AspNet.Http.dll" target="lib\net45" />
+  </files>
 </package>

@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Security.Principal;
 using System.Web;
-using Xania.AspNet.Simulator.Http;
+using Xania.AspNet.Http;
 
 namespace Xania.AspNet.Simulator
 {

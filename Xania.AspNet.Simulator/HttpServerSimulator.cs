@@ -6,7 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web;
-using Xania.AspNet.Simulator.Http;
+using Xania.AspNet.Http;
 
 namespace Xania.AspNet.Simulator
 {

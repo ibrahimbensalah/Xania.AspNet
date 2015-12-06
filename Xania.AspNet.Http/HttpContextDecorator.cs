@@ -1,23 +1,21 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web;
 using System.Web.Caching;
-using System.Web.Configuration;
 using System.Web.Profile;
 using System.Web.SessionState;
 
 #if NET45
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Web.Instrumentation;
 using System.Web.WebSockets;
+using System.Web.Configuration;
 #endif
 
-namespace Xania.AspNet.Simulator.Http
+namespace Xania.AspNet.Http
 {
     internal class HttpContextDecorator : HttpContextBase
     {

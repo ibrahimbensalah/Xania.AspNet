@@ -5,7 +5,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 using Xania.AspNet.Core;
-using Xania.AspNet.Simulator.Http;
+using Xania.AspNet.Http;
 
 namespace Xania.AspNet.Simulator
 {

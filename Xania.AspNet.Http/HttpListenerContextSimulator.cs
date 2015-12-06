@@ -6,7 +6,7 @@ using System.Security.Principal;
 using System.Web;
 using System.Web.Caching;
 
-namespace Xania.AspNet.Simulator.Http
+namespace Xania.AspNet.Http
 {
     internal class HttpListenerContextSimulator : HttpContextBase, IDisposable
     {

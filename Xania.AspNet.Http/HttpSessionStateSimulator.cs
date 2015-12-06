@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Web;
 
-namespace Xania.AspNet.Simulator.Http
+namespace Xania.AspNet.Http
 {
     internal class HttpSessionStateSimulator : HttpSessionStateBase
     {

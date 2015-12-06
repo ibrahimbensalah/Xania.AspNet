@@ -1,6 +1,6 @@
 using System.Web;
 
-namespace Xania.AspNet.Simulator.Http
+namespace Xania.AspNet.Http
 {
     internal class HttpContextSimulator : HttpContextWrapper
     {

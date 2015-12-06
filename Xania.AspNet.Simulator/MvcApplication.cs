@@ -11,7 +11,7 @@ using System.Web.Security;
 using System.Xml;
 using Xania.AspNet.Core;
 using Xania.AspNet.Razor;
-using Xania.AspNet.Simulator.Http;
+using Xania.AspNet.Http;
 using IControllerFactory = Xania.AspNet.Core.IControllerFactory;
 
 namespace Xania.AspNet.Simulator
