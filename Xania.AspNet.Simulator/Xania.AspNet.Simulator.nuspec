@@ -20,6 +20,7 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="..\Xania.AspNet.Http\bin\DebugNet45\Xania.AspNet.Http.dll" target="lib\net45" />
+    <file src="bin\Debug\Xania.AspNet.*.pdb" target="lib\net40" />
+    <file src="bin\DebugNet45\Xania.AspNet.*" target="lib\net45" />
   </files>
 </package>

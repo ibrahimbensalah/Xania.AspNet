@@ -30,10 +30,6 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(TargetFrameworkVersion)' == 'v4.5' ">
-    <DefineConstants>NET45;TRACE</DefineConstants>
-    <OutputPath>bin\$(Configuration)NET45\</OutputPath>
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />

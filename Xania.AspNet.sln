@@ -19,6 +19,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xania.AspNet.Core", "Xania.AspNet.Core\Xania.AspNet.Core.csproj", "{F8ADA7A5-775A-4567-9587-D205119BA383}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{E16EB8BD-568B-42ED-A82D-B59F46109CE0}"
+	ProjectSection(SolutionItems) = preProject
+		Xania.AspNet.Simulator\nupack.cmd = Xania.AspNet.Simulator\nupack.cmd
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xania.AspNet.Razor", "Xania.AspNet.Razor\Xania.AspNet.Razor.csproj", "{13966CE2-4FE0-432D-935D-6DFDA4964B74}"
 EndProject
