@@ -4,18 +4,23 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
+using Xania.AspNet.Core;
 
 namespace Xania.AspNet.Simulator
 {
     public class ActionExecutionContext
     {
-        private readonly ModelBinderDictionary _modelBinders;
         public virtual ControllerContext ControllerContext { get; set; }
         public virtual ActionDescriptor ActionDescriptor { get; set; }
 
-        public ActionExecutionContext(ModelBinderDictionary modelBinders)
+        public ActionExecutionContext(IMvcApplication mvcApplication)
         {
-            _modelBinders = modelBinders;
+            MvcApplication = mvcApplication;
+        }
+
+        public virtual ModelBinderDictionary ModelBinders
+        {
+            get { return MvcApplication.Binders; }
         }
 
         public virtual ControllerBase Controller
@@ -54,6 +59,13 @@ namespace Xania.AspNet.Simulator
         {
             get { return ControllerContext.RequestContext.RouteData; }
         }
+
+        public ViewEngineCollection ViewEngines
+        {
+            get { return MvcApplication.ViewEngines; }
+        }
+
+        public IMvcApplication MvcApplication { get; private set; }
 
         public virtual AuthorizationContext GetAuthorizationContext()
         {
@@ -120,7 +132,7 @@ namespace Xania.AspNet.Simulator
 
         public virtual IModelBinder GetModelBinder(ParameterDescriptor parameterDescriptor)
         {
-            return parameterDescriptor.BindingInfo.Binder ?? _modelBinders.GetBinder(parameterDescriptor.ParameterType);
+            return parameterDescriptor.BindingInfo.Binder ?? ModelBinders.GetBinder(parameterDescriptor.ParameterType);
         }
 
         private static Predicate<string> GetPropertyFilter(ParameterDescriptor parameterDescriptor)

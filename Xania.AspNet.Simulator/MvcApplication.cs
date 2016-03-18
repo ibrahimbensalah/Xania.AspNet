@@ -85,6 +85,11 @@ namespace Xania.AspNet.Simulator
                 valueProviders.Add(ValueProvider);
             valueProviders.Add(new SimulatorValueProvider(controllerContext, new CultureInfo("nl-NL")));
 
+            var factory = new JsonValueProviderFactory();
+            var jsonValueProvider = factory.GetValueProvider(controllerContext);
+            if (jsonValueProvider != null)
+                valueProviders.Add(jsonValueProvider);
+
             return valueProviders;
         }
 

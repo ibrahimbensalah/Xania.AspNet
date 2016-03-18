@@ -1,14 +1,10 @@
 using System;
 using System.IO;
-using System.Linq;
 using System.Web.Mvc;
-using System.Web.Mvc.Razor;
 using FluentAssertions;
 using MvcApplication1.Controllers;
-using NSubstitute;
 using NUnit.Framework;
 using Xania.AspNet.Core;
-using Xania.AspNet.Razor;
 
 namespace Xania.AspNet.Simulator.Tests.ViewTests
 {
@@ -69,11 +65,26 @@ namespace Xania.AspNet.Simulator.Tests.ViewTests
             output.Should().Contain("<h3>We suggest the following:</h3>", "index content should be included");
         }
 
+        [Test]
+        public void ExecuteResultShouldTriggerControllerResultEvents()
+        {
+            var action = new TestController().Action(c => c.Index());
+            var view = action.View(new StringVirtualContent("~/Views/Test/Index.cshtml", "<h1>Hello @ViewBag.dummy</h1>"));
+
+            view.ExecuteResult().Should().Be("<h1>Hello true</h1>");
+        }
+
+        [OutputCacheAttribute(VaryByParam = "*", Duration = 0, NoStore = true)]
         class TestController : Controller
         {
             public ActionResult Index()
             {
                 throw new InvalidOperationException("this action is intended to provide the context for rendering the view but should not be invoked.");
+            }
+
+            protected override void OnResultExecuting(ResultExecutingContext filterContext)
+            {
+                ViewData.Add("dummy", "true");
             }
         }
     }

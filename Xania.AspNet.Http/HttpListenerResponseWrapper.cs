@@ -105,7 +105,7 @@ namespace Xania.AspNet.Http
 
         public override void Write(string s)
         {
-            Output.Write(s, 0, s.Length);
+            Output.Write(s);
         }
 
         public override void Redirect(string url)

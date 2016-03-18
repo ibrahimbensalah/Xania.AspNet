@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.40629.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{A2378CA4-AD36-479D-8DD9-A527886BBEC1}"
 	ProjectSection(SolutionItems) = preProject
@@ -10,22 +10,22 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{A2378C
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xania.AspNet.Simulator", "Xania.AspNet.Simulator\Xania.AspNet.Simulator.csproj", "{5C5BA4C8-3656-4159-8A0A-C3E6C60AB390}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xania.AspNet.Simulator.Tests", "Xania.AspNet.Simulator.Tests\Xania.AspNet.Simulator.Tests.csproj", "{A61AF6C1-DDE2-4B1F-83DF-C1D7666C457E}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{3FC8FA3B-0EE8-413C-9840-7F2108306AAB}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xania.AspNet.Core", "Xania.AspNet.Core\Xania.AspNet.Core.csproj", "{F8ADA7A5-775A-4567-9587-D205119BA383}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{E16EB8BD-568B-42ED-A82D-B59F46109CE0}"
 	ProjectSection(SolutionItems) = preProject
 		Xania.AspNet.Simulator\nupack.cmd = Xania.AspNet.Simulator\nupack.cmd
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xania.AspNet.Razor", "Xania.AspNet.Razor\Xania.AspNet.Razor.csproj", "{13966CE2-4FE0-432D-935D-6DFDA4964B74}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sut", "sut", "{5262A649-FD4B-4D97-9FA6-A19E11A4D0D1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xania.AspNet.Simulator", "Xania.AspNet.Simulator\Xania.AspNet.Simulator.csproj", "{5C5BA4C8-3656-4159-8A0A-C3E6C60AB390}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xania.AspNet.Simulator.Tests", "Xania.AspNet.Simulator.Tests\Xania.AspNet.Simulator.Tests.csproj", "{A61AF6C1-DDE2-4B1F-83DF-C1D7666C457E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xania.AspNet.Core", "Xania.AspNet.Core\Xania.AspNet.Core.csproj", "{F8ADA7A5-775A-4567-9587-D205119BA383}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xania.AspNet.Razor", "Xania.AspNet.Razor\Xania.AspNet.Razor.csproj", "{13966CE2-4FE0-432D-935D-6DFDA4964B74}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MvcApplication1", "MvcApplication1\MvcApplication1.csproj", "{09C78635-A5EA-4B8B-B383-0C975BFB79AD}"
 EndProject

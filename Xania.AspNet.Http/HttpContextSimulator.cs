@@ -33,9 +33,18 @@ namespace Xania.AspNet.Http
 
     internal class HttpRequestSimulator : HttpRequestWrapper
     {
+        private readonly HttpRequest _httpRequest;
+
         public HttpRequestSimulator(HttpRequest httpRequest)
             : base(httpRequest)
         {
+            _httpRequest = httpRequest;
+        }
+
+        public override string ContentType
+        {
+            get { return _httpRequest.ContentType; }
+            set { _httpRequest.ContentType = value; }
         }
 
         public override HttpBrowserCapabilitiesBase Browser

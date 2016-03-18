@@ -62,4 +62,36 @@ namespace Xania.AspNet.Core
         public string VirtualPath { get; private set; }
         public bool Exists { get; private set; }
     }
+
+    public class StringVirtualContent : IVirtualContent
+    {
+        private readonly string _content;
+
+        public DateTime ModifiedDateTime { get; private set; }
+
+        public StringVirtualContent(string virtualPath, string content)
+        {
+            _content = content;
+            ModifiedDateTime = DateTime.Now;
+            VirtualPath = virtualPath;
+        }
+
+        public Stream Open()
+        {
+            return GenerateStreamFromString(_content);
+        }
+
+        public string VirtualPath { get; private set; }
+        public bool Exists { get { return true; } }
+
+        public Stream GenerateStreamFromString(string s)
+        {
+            MemoryStream stream = new MemoryStream();
+            StreamWriter writer = new StreamWriter(stream);
+            writer.Write(s);
+            writer.Flush();
+            stream.Position = 0;
+            return stream;
+        }
+    }
 }

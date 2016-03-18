@@ -90,7 +90,7 @@
     <Compile Include="SimulatorValueProvider.cs" />
     <Compile Include="RouterExtensions.cs" />
     <Compile Include="ActionRequestWrapper.cs" />
-    <Compile Include="SimulatorActionInvoker.cs" />
+    <Compile Include="ControllerActionInvokerSimulator.cs" />
     <Compile Include="ControllerContainer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SimpleHttpRequest.cs" />

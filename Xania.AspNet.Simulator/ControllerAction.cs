@@ -80,9 +80,9 @@ namespace Xania.AspNet.Simulator
             return invoker.GetActionResult();
         }
 
-        private SimulatorActionInvoker GetActionInvoker(ActionExecutionContext actionExecutionContext)
+        internal ControllerActionInvokerSimulator GetActionInvoker(ActionExecutionContext actionExecutionContext)
         {
-            return new SimulatorActionInvoker(MvcApplication, actionExecutionContext);
+            return new ControllerActionInvokerSimulator(MvcApplication, actionExecutionContext);
         }
 
         public ActionResult Authorize()

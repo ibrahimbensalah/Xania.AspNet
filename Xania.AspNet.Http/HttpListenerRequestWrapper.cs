@@ -40,6 +40,17 @@ namespace Xania.AspNet.Http
             get { return _request.Headers; }
         }
 
+        public override string ContentType
+        {
+            get { return _request.ContentType ?? string.Empty; }
+            set { throw new NotSupportedException(); }
+        }
+
+        public override Stream InputStream
+        {
+            get { return _request.InputStream; }
+        }
+
         public override NameValueCollection Form
         {
             get
@@ -96,7 +107,13 @@ namespace Xania.AspNet.Http
 
         public override string AppRelativeCurrentExecutionFilePath
         {
-            get { return "~" + _request.RawUrl; }
+            get
+            {
+                var lastIndex = _request.RawUrl.IndexOf('?');
+                if (lastIndex > 0)
+                    return "~" + _request.RawUrl.Substring(0, lastIndex);
+                return "~" + _request.RawUrl;
+            }
         }
 
         public override string PhysicalApplicationPath

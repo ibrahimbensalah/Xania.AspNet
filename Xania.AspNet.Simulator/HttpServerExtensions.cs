@@ -51,7 +51,7 @@ namespace Xania.AspNet.Simulator
                         actionResult = action.GetActionResult(executionContext);
                     }
 
-                    actionResult.ExecuteResult(executionContext.ControllerContext);
+                    actionResult.ExecuteResult(executionContext);
                     return true;
                 }
 

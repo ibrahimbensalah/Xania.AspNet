@@ -108,7 +108,8 @@ namespace Xania.AspNet.Razor
             if (compilerResults.Errors.HasErrors)
             {
                 var writer = new StringWriter();
-                new CSharpCodeProvider().GenerateCodeFromCompileUnit(generatedCode, writer, new CodeGeneratorOptions {});
+
+                new CSharpCodeProvider().GenerateCodeFromCompileUnit(generatedCode, writer, new CodeGeneratorOptions());
 
                 writer.WriteLine("Referenced assemblies: ");
                 var q = from string assembly in compilerParameters.ReferencedAssemblies

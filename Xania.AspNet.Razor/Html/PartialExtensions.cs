@@ -9,5 +9,10 @@ namespace Xania.AspNet.Razor.Html
         {
             return htmlHelper.Partial(partialName, null, htmlHelper.ViewData);
         }
+
+        public static IHtmlString Partial<T>(this HtmlHelperSimulator<T> htmlHelper, string partialName, object model)
+        {
+            return htmlHelper.Partial(partialName, model, htmlHelper.ViewData);
+        }
     }
 }

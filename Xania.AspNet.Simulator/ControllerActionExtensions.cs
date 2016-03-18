@@ -109,7 +109,7 @@ namespace Xania.AspNet.Simulator
             return controllerAction;
         }
 
-        public static TControllerAction AddSession<TControllerAction>(this TControllerAction controllerAction, string name, string value)
+        public static TControllerAction AddSession<TControllerAction>(this TControllerAction controllerAction, string name, object value)
             where TControllerAction : ControllerAction
         {
             controllerAction.Session[name] = value;
@@ -154,7 +154,8 @@ namespace Xania.AspNet.Simulator
 
         public static void ExecuteResult(this ActionResult actionResult, ActionExecutionContext executionContext)
         {
-            actionResult.ExecuteResult(executionContext.ControllerContext);
+            new ControllerActionInvokerSimulator(executionContext.MvcApplication, executionContext)
+                .InvokeActionResult(actionResult);
         }
 
         public static string RenderView(this DirectControllerAction controllerAction, Stream contentStream)
@@ -216,6 +217,21 @@ namespace Xania.AspNet.Simulator
             viewResult.ExecuteResult(controllerContext);
         }
 
+        public static ViewResultSimulator<object> View(this DirectControllerAction controllerAction, IVirtualContent virtualContent)
+        {
+            return new ViewResultSimulator<object>(controllerAction.GetExecutionContext(), virtualContent, null);
+        }
+
+        public static ViewResultSimulator<TModel> View<TModel>(this DirectControllerAction controllerAction, IVirtualContent virtualContent, TModel model)
+        {
+            return new ViewResultSimulator<TModel>(controllerAction.GetExecutionContext(), virtualContent, model);
+        }
+
+        public static ViewResultSimulator<TModel> View<TModel>(this DirectControllerAction controllerAction, ActionExecutionContext executionContext, IVirtualContent virtualContent, TModel model)
+        {
+            return new ViewResultSimulator<TModel>(executionContext, virtualContent, model);
+        }
+
         public static AuthorizationContext GetAuthorizationContext(this ControllerAction controllerAction)
         {
             return controllerAction.GetExecutionContext().GetAuthorizationContext();
@@ -259,6 +275,59 @@ namespace Xania.AspNet.Simulator
         public static IDictionary<string, object> ToDictionary(this object values)
         {
             return new RouteValueDictionary(values);
+        }
+    }
+
+    public class ViewResultSimulator<TModel>
+    {
+        private readonly ActionExecutionContext _executionContext;
+        private readonly IVirtualContent _virtualContent;
+        private readonly TModel _model;
+
+        public ViewResultSimulator(ActionExecutionContext executionContext, IVirtualContent virtualContent, TModel model)
+        {
+            _executionContext = executionContext;
+            _virtualContent = virtualContent;
+            _model = model;
+        }
+
+        public TModel Model
+        {
+            get { return _model; }
+        }
+
+        public string ExecuteResult()
+        {
+            var writer = new StringWriter();
+            ExecuteResult(writer);
+            return writer.ToString();
+        }
+
+        public void ExecuteResult(TextWriter writer)
+        {
+            var view = new RazorViewSimulator(_executionContext.MvcApplication, _virtualContent);
+            ExecuteResult(view, writer);
+        }
+
+        public virtual void ExecuteResult(IView view, TextWriter writer)
+        {
+            var viewData = _executionContext.Controller.ViewData;
+
+            if (_model != null)
+            {
+                viewData.Model = _model;
+            }
+
+            var viewResult = new ViewResult
+            {
+                View = view,
+                ViewData = _executionContext.ViewData,
+                TempData = _executionContext.TempData,
+                ViewEngineCollection = _executionContext.ViewEngines
+            };
+
+            new ControllerActionInvokerSimulator(_executionContext.MvcApplication, _executionContext)
+                .InvokeActionResult(viewResult, writer);
         }
     }
 }

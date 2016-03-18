@@ -40,14 +40,35 @@ namespace Xania.AspNet.Razor
         /// <param name="htmlHelper">The HTML helper instance that this method extends.</param><param name="partialViewName">The name of the partial view.</param><param name="model">The model for the partial view.</param><param name="viewData">The view data dictionary for the partial view.</param>
         public MvcHtmlString Partial(string partialViewName, object model, ViewDataDictionary viewData)
         {
-            using (StringWriter stringWriter = new StringWriter((IFormatProvider)CultureInfo.CurrentCulture))
+            using (StringWriter stringWriter = new StringWriter(CultureInfo.CurrentCulture))
             {
-                RenderPartialInternal2(partialViewName, viewData, model, (TextWriter)stringWriter, _mvcApplication.ViewEngines);
+                RenderPartialInternal(partialViewName, viewData, model, stringWriter, _mvcApplication.ViewEngines);
                 return MvcHtmlString.Create(stringWriter.ToString());
             }
         }
 
-        private void RenderPartialInternal2(string partialViewName, ViewDataDictionary viewData, object model, TextWriter writer, ViewEngineCollection engines)
+        public void RenderPartial(string partialViewName)
+        {
+            RenderPartialInternal(partialViewName, ViewData, null /* model */, ViewContext.Writer, _mvcApplication.ViewEngines);
+        }
+
+        public void RenderPartial(string partialViewName, ViewDataDictionary viewData)
+        {
+            RenderPartialInternal(partialViewName, viewData, null /* model */, ViewContext.Writer, _mvcApplication.ViewEngines);
+        }
+
+        public void RenderPartial(string partialViewName, object model)
+        {
+            RenderPartialInternal(partialViewName, ViewData, model, ViewContext.Writer, _mvcApplication.ViewEngines);
+        }
+
+        public void RenderPartial(string partialViewName, object model, ViewDataDictionary viewData)
+        {
+            RenderPartialInternal(partialViewName, viewData, model, ViewContext.Writer, _mvcApplication.ViewEngines);
+        }
+
+
+        private void RenderPartialInternal(string partialViewName, ViewDataDictionary viewData, object model, TextWriter writer, ViewEngineCollection engines)
         {
             if (string.IsNullOrEmpty(partialViewName))
                 throw new ArgumentException("partialViewName");

@@ -46,6 +46,16 @@ namespace Xania.AspNet.Simulator.Tests.Controllers
             return id;
         }
 
+        public string EchoJson(JsonInput input)
+        {
+            return input.Value;
+        }
+
+        public string Query(string q)
+        {
+            return q;
+        }
+
         public ViewResult ViewWithPartial()
         {
             return View();
@@ -70,5 +80,10 @@ namespace Xania.AspNet.Simulator.Tests.Controllers
         {
             return PartialView();
         }
+    }
+
+    public class JsonInput
+    {
+        public string Value { get; set; }
     }
 }

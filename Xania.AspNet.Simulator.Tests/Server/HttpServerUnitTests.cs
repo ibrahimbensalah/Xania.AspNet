@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using FluentAssertions;
@@ -16,6 +17,8 @@ namespace Xania.AspNet.Simulator.Tests.Server
     public class HttpServerUnitTests : HttpServerTestBase
     {
         [TestCase("test/echo/hello", "hello")]
+        [TestCase("test/query?q=a", "a")]
+        [TestCase("test/echo/hello?bla=ddd", "hello")]
         [TestCase("test/echo/simulator", "simulator")]
         [TestCase("test/actionusingurl", "/test")]
         [TestCase("test/razorview/1", "<h1>Hello Simulator!</h1>")]
@@ -47,6 +50,19 @@ namespace Xania.AspNet.Simulator.Tests.Server
 
                 // assert
                 result.Should().Be(content);
+            }
+        }
+
+        [Test]
+        public void JsonRequestTest()
+        {
+            var jsonValue = "{value:\"property value\"}";
+            Server.UseMvc(new TestController());
+
+            using (var client = new HttpClient())
+            {
+                var result = client.PostAsync(GetUrl("test/echoJson"), new StringContent(jsonValue, Encoding.UTF8, "application/json")).Result;
+                result.Content.ReadAsStringAsync().Result.Should().Be("property value");
             }
         }
 

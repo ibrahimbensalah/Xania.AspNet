@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Web;
 
 namespace Xania.AspNet.Http
@@ -38,6 +40,11 @@ namespace Xania.AspNet.Http
         public override string SessionID
         {
             get { return _sessionId; }
+        }
+
+        public override IEnumerator GetEnumerator()
+        {
+            return _values.GetEnumerator();
         }
     }
 }
