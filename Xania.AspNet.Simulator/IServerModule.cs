@@ -1,10 +1,10 @@
-using System.Web;
+using System.Net;
 
 namespace Xania.AspNet.Simulator
 {
     public interface IServerModule
     {
-        void Enter(HttpContextBase context);
-        void Exit(HttpContextBase context);
+        void Enter(HttpListenerContext context);
+        void Exit(HttpListenerContext context);
     }
 }

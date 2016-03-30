@@ -14,7 +14,7 @@ namespace Xania.AspNet.Simulator
     {
         private readonly HttpListener _listener;
         private readonly List<IServerModule> _modules = new List<IServerModule>();
-        private readonly List<Func<HttpContextBase, bool>> _handlers = new List<Func<HttpContextBase, bool>>();
+        private readonly List<Func<HttpListenerContext, bool>> _handlers = new List<Func<HttpListenerContext, bool>>();
         private bool _running;
 
         public HttpServerSimulator(params string[] prefixes)
@@ -55,27 +55,21 @@ namespace Xania.AspNet.Simulator
             session[paramName] = value;
         }
 
-        public Task<HttpContextBase> GetContextAsync()
+        public Task<HttpListenerContext> GetContextAsync()
         {
             return Task.Factory.StartNew(() =>
             {
-                var listenerContext = _listener.GetContext();
-
-                listenerContext.Response.AppendHeader("Server", "Xania");
-
-                HttpSessionStateBase session = null;
-                var sessionCookie = listenerContext.Request.Cookies["ASP.NET_SessionId"];
-                if (sessionCookie == null)
+                try
                 {
-                    session = new HttpSessionStateSimulator();
-                }
-                else if (!Sessions.TryGetValue(sessionCookie.Value, out session))
-                {
-                    session = new HttpSessionStateSimulator(sessionCookie.Value);
-                    Sessions.Add(sessionCookie.Value, session);
-                }
+                    var listenerContext = _listener.GetContext();
+                    listenerContext.Response.AppendHeader("Server", "Xania");
 
-                return (HttpContextBase) new HttpListenerContextSimulator(listenerContext, session);
+                    return listenerContext;
+                }
+                catch(HttpListenerException)
+                {
+                    return null;
+                }
             });
         }
 
@@ -99,7 +93,7 @@ namespace Xania.AspNet.Simulator
             _modules.Add(module);
         }
 
-        public void Use(Func<HttpContextBase, bool> handler)
+        public void Use(Func<HttpListenerContext, bool> handler)
         {
             _handlers.Add(handler);
             EnsureStarted();
@@ -121,6 +115,7 @@ namespace Xania.AspNet.Simulator
                             return false;
 
                         var context = task.Result;
+
                         if (context == null)
                             return false;
 
@@ -141,22 +136,22 @@ namespace Xania.AspNet.Simulator
                         {
                             context.Response.StatusCode = ex.GetHttpCode();
                             context.Response.StatusDescription = ex.Message;
-                            context.Response.Write(ex.Message);
+                            // text.Response.OutputStream
                             var htmlErrorMessage = ex.GetHtmlErrorMessage();
 
-                            if (htmlErrorMessage != null)
-                            {
-                                context.Response.Write("\n");
-                                context.Response.Write(htmlErrorMessage);
-                            }
-                            PrintToHtml(ex, context.Response.Output);
+                            //if (htmlErrorMessage != null)
+                            //{
+                            //    context.Response.Write("\n");
+                            //    context.Response.Write(htmlErrorMessage);
+                            //}
+                            // PrintToHtml(ex, context.Response.Output);
                         }
                         catch (Exception ex)
                         {
                             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                             context.Response.StatusDescription = "Internal Server Error";
-                            PrintToHtml(ex, context.Response.Output);
-                            context.Response.Write("\n");
+                            // PrintToHtml(ex, context.Response.Output);
+                            // context.Response.Write("\n");
                             // context.Response.Write(ex.StackTrace);
                         }
                         finally
@@ -186,7 +181,7 @@ namespace Xania.AspNet.Simulator
             }
         }
 
-        protected virtual void OnEnter(HttpContextBase context)
+        protected virtual void OnEnter(HttpListenerContext context)
         {
             foreach (var mod in _modules)
             {
@@ -194,7 +189,7 @@ namespace Xania.AspNet.Simulator
             }
         }
 
-        protected virtual void OnExit(HttpContextBase context)
+        protected virtual void OnExit(HttpListenerContext context)
         {
             foreach (var mod in _modules)
             {

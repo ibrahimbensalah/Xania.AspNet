@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Web;
 using System.Web.Mvc;
 using Xania.AspNet.Core;
+using Xania.AspNet.Http;
 
 namespace Xania.AspNet.Simulator
 {
@@ -32,13 +36,14 @@ namespace Xania.AspNet.Simulator
             return mvcApplication;
         }
 
-        private static void UseMvc(HttpServerSimulator server, IMvcApplication mvcApplication)
+        public static void UseMvc(this HttpServerSimulator server, IMvcApplication mvcApplication)
         {
             SimulatorHelper.InitializeMembership();
 
             server.Use(httpContext =>
             {
-                var action = new HttpControllerAction(mvcApplication, httpContext);
+                var httpContextBase = Wrap(httpContext, server.Sessions);
+                var action = new HttpControllerAction(mvcApplication, httpContextBase);
                 var executionContext = action.GetExecutionContext();
 
                 if (executionContext != null)
@@ -59,6 +64,23 @@ namespace Xania.AspNet.Simulator
             });
         }
 
+        private static HttpListenerContextSimulator Wrap(HttpListenerContext listenerContext, IDictionary<string, HttpSessionStateBase> sessions)
+        {
+            HttpSessionStateBase session;
+            var sessionCookie = listenerContext.Request.Cookies["ASP.NET_SessionId"];
+            if (sessionCookie == null)
+            {
+                session = new HttpSessionStateSimulator();
+            }
+            else if (!sessions.TryGetValue(sessionCookie.Value, out session))
+            {
+                session = new HttpSessionStateSimulator(sessionCookie.Value);
+                sessions.Add(sessionCookie.Value, session);
+            }
+
+            return new HttpListenerContextSimulator(listenerContext, session);
+        }
+
         public static void UseStatic(this HttpServerSimulator server, string path)
         {
             UseStatic(server, new DirectoryContentProvider(path));
@@ -71,7 +93,7 @@ namespace Xania.AspNet.Simulator
 
             server.Use(context =>
             {
-                var filePath = context.Request.FilePath.Substring(1);
+                var filePath = context.Request.Url.AbsolutePath.Substring(1);
                 if (contentProvider.FileExists(filePath))
                 {
                     contentProvider.Open(filePath).CopyTo(context.Response.OutputStream);

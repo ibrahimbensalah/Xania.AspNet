@@ -5,6 +5,7 @@ using System.IO;
 using System.Net;
 using System.Security.Principal;
 using System.Web;
+using System.Web.Routing;
 
 namespace Xania.AspNet.Http
 {
@@ -13,17 +14,20 @@ namespace Xania.AspNet.Http
         private readonly HttpListenerRequest _request;
         private readonly Func<IPrincipal> _principalFunc;
         private readonly string _physicalApplicationPath;
+        private readonly HttpCookieCollection _cookies;
+        private readonly RequestContext _requestContext;
+
         private NameValueCollection _params;
         private NameValueCollection _serverVariables;
-        private readonly HttpCookieCollection _cookies;
         private NameValueCollection _form;
 
-        public HttpListenerRequestWrapper(HttpListenerRequest request, Func<IPrincipal> principalFunc)
+        public HttpListenerRequestWrapper(HttpListenerRequest request, RequestContext requestContext, Func<IPrincipal> principalFunc)
         {
             _request = request;
             _principalFunc = principalFunc;
             _physicalApplicationPath = null;
             _cookies = new HttpCookieCollection();
+            _requestContext = requestContext;
             foreach (Cookie cookie in _request.Cookies)
             {
                 Debug.Assert(cookie != null, "cookie != null");
@@ -180,6 +184,8 @@ namespace Xania.AspNet.Http
         {
             get { return new HttpBrowserCapabilitiesSimulator(); }
         }
+
+        public override RequestContext RequestContext { get { return _requestContext; } }
     }
 
     internal class HttpBrowserCapabilitiesSimulator : HttpBrowserCapabilitiesBase

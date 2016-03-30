@@ -195,6 +195,7 @@
     <Compile Include="MvcApplication1\MvcApplication1TestBase.cs" />
     <Compile Include="MvcApplication1\WebDriverFixture.cs" />
     <Compile Include="ControllerActionBaseTests.cs" />
+    <Compile Include="NamedActions\AreaNamedActionTests.cs" />
     <Compile Include="NamedActions\NamedActionTests.cs" />
     <Compile Include="PropertiesFile.cs" />
     <Compile Include="Properties\Annotations.cs" />
@@ -218,6 +219,7 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Areas\MyArea\Views\Test\ViewWithDataToken.cshtml" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>

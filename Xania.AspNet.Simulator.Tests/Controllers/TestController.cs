@@ -75,6 +75,11 @@ namespace Xania.AspNet.Simulator.Tests.Controllers
             return View(model: id);
         }
 
+        public ViewResult ViewWithDataToken()
+        {
+            return View();
+        }
+
         [ChildActionOnly]
         public ActionResult ChildPartialViewAction()
         {

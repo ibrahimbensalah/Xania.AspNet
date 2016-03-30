@@ -54,6 +54,7 @@ namespace Xania.AspNet.Simulator
             var requestContext = GetRequestContext(httpContext, actionDescriptor);
             var controllerContext = new ControllerContext(requestContext, controller);
             controller.ControllerContext = controllerContext;
+            controllerContext.RequestContext = requestContext;
 
             if (actionDescriptor.GetSelectors().Any(selector => !selector.Invoke(controllerContext)))
             {
@@ -69,8 +70,8 @@ namespace Xania.AspNet.Simulator
         {
             var controllerName = actionDescriptor.ControllerDescriptor.ControllerName;
             var actionName = actionDescriptor.ActionName;
-            var routeData = new RouteData { Values = { { "controller", controllerName }, { "action", actionName } } };
-
+            var routeData = new RouteData {Values = {{"controller", controllerName}, {"action", actionName}}};
+            
             var requestContext = new RequestContext(httpContext, routeData);
 
             foreach (var cookie in Cookies)

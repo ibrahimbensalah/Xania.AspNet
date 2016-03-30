@@ -29,7 +29,12 @@ namespace Xania.AspNet.Simulator
         }
 
         public MvcApplication(IControllerFactory controllerFactory, IContentProvider contentProvider)
+            : this(controllerFactory, contentProvider, GetRoutes())
         {
+        }
+        
+        public MvcApplication(IControllerFactory controllerFactory, IContentProvider contentProvider, RouteCollection routes)
+{
             if (controllerFactory == null)
                 throw new ArgumentNullException("controllerFactory");
             if (contentProvider == null)
@@ -38,7 +43,7 @@ namespace Xania.AspNet.Simulator
             ControllerFactory = controllerFactory;
             ContentProvider = contentProvider;
 
-            Routes = GetRoutes();
+            Routes = routes;
             ViewEngines = new ViewEngineCollection()
             {
                 new RazorViewEngineSimulator(this)

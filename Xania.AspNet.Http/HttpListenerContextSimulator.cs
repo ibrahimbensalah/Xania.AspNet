@@ -5,12 +5,12 @@ using System.Net;
 using System.Security.Principal;
 using System.Web;
 using System.Web.Caching;
+using System.Web.Routing;
 
 namespace Xania.AspNet.Http
 {
     internal class HttpListenerContextSimulator : HttpContextBase, IDisposable
     {
-        private readonly HttpListenerContext _listenerContext;
         private readonly HttpSessionStateBase _session;
         private readonly HttpListenerResponseWrapper _response;
         private readonly HttpListenerRequestWrapper _request;
@@ -20,10 +20,9 @@ namespace Xania.AspNet.Http
 
         public HttpListenerContextSimulator(HttpListenerContext listenerContext, HttpSessionStateBase session)
         {
-            _listenerContext = listenerContext;
             _session = session;
             _response = new HttpListenerResponseWrapper(listenerContext.Response, this);
-            _request = new HttpListenerRequestWrapper(listenerContext.Request, () => this.User);
+            _request = new HttpListenerRequestWrapper(listenerContext.Request, new RequestContext(this, new RouteData()), () => User);
             _items = new Dictionary<object, object>();
             _cache = null;
             _applicationInstance = null;

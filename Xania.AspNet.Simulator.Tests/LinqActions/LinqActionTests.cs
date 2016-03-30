@@ -1,8 +1,5 @@
-﻿using System.IO;
-using System.Web;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
 using FluentAssertions;
-using NSubstitute;
 using NUnit.Framework;
 using Xania.AspNet.Simulator.Tests.Controllers;
 

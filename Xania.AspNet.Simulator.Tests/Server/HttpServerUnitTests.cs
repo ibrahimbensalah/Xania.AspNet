@@ -6,6 +6,8 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using System.Web.Mvc;
+using System.Web.Routing;
 using FluentAssertions;
 using NUnit.Framework;
 using Xania.AspNet.Razor;
@@ -16,6 +18,26 @@ namespace Xania.AspNet.Simulator.Tests.Server
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1001:TypesThatOwnDisposableFieldsShouldBeDisposable")]
     public class HttpServerUnitTests : HttpServerTestBase
     {
+        public RouteCollection GetRoutes()
+        {
+            RouteCollection routes = new RouteCollection();
+
+            var route = routes.MapRoute(
+                "MyArea_default",
+                "MyArea/{controller}/{action}/{id}",
+                new { controller = "Home", action = "Index", id = UrlParameter.Optional }
+            );
+            route.DataTokens["area"] = "MyArea";
+
+            routes.MapRoute(
+                "Default",
+                "{controller}/{action}/{id}",
+                new {controller = "Home", action = "Index", id = UrlParameter.Optional}
+                );
+
+            return routes;
+        }
+
         [TestCase("test/echo/hello", "hello")]
         [TestCase("test/query?q=a", "a")]
         [TestCase("test/echo/hello?bla=ddd", "hello")]
@@ -32,13 +54,21 @@ namespace Xania.AspNet.Simulator.Tests.Server
         [TestCase("test/ViewWithChildAction", "<h1>Hello ChildAction!</h1>")]
         [TestCase("test/ViewWithLayout", "<h1>Hello ViewWithLayout!</h1>")]
         [TestCase("test/ViewWithModel/model", "<h1>Hello model!</h1>")]
+        [TestCase("myarea/test/ViewWithDataToken", "<h1>Hello !</h1>")]
         public void MvcModuleTest(string path, string content)
         {
             // arrange
             var contentProvider = SystemUnderTest.GetSimulatorTestsContentProvider();
 
             Server.UseStatic(contentProvider);
-            Server.UseMvc(new TestController(), contentProvider);
+
+            var controllerContainer = new ControllerContainer()
+                .RegisterController("test", () => new TestController())
+                .RegisterController("test", "myarea", () => new TestController());
+
+            var mvcApplication = new MvcApplication(controllerContainer, contentProvider, GetRoutes());
+
+            Server.UseMvc(mvcApplication);
 
             using (var client = new HttpClient())
             {
@@ -130,10 +160,14 @@ namespace Xania.AspNet.Simulator.Tests.Server
             }
         }
 
-        bool Echo(HttpContextBase contextBase)
+        bool Echo(HttpListenerContext contextBase)
         {
-            var message = contextBase.Request.Params["message"];
-            contextBase.Response.Output.Write(message);
+            var message = contextBase.Request.QueryString["message"];
+
+            using (var writer = new StreamWriter(contextBase.Response.OutputStream, Encoding.Default))
+            {
+                writer.Write(message);
+            }
 
             return true;
         }
