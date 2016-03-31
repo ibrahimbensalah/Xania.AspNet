@@ -14,7 +14,7 @@ namespace Xania.AspNet.Simulator
     {
         private readonly HttpListener _listener;
         private readonly List<IServerModule> _modules = new List<IServerModule>();
-        private readonly List<Func<HttpListenerContext, bool>> _handlers = new List<Func<HttpListenerContext, bool>>();
+        private readonly List<IHttpServerHandler> _handlers = new List<IHttpServerHandler>();
         private bool _running;
 
         public HttpServerSimulator(params string[] prefixes)
@@ -95,6 +95,11 @@ namespace Xania.AspNet.Simulator
 
         public void Use(Func<HttpListenerContext, bool> handler)
         {
+            Use(new FuncServerHandler(handler));
+        }
+
+        public void Use(IHttpServerHandler handler)
+        {
             _handlers.Add(handler);
             EnsureStarted();
         }
@@ -121,38 +126,40 @@ namespace Xania.AspNet.Simulator
 
                         try
                         {
-                            OnEnter(context);
-
-                            if (!_handlers.Any(h => h(context)))
+                            if (!_handlers.Any(h => h.Handle(context)))
                             {
                                 // not served
                                 context.Response.StatusCode = (int)HttpStatusCode.NotFound;
                                 context.Response.StatusDescription = "Resource not found";
                             }
-
-                            OnExit(context);
                         }
                         catch (HttpException ex)
                         {
+                            var writer = new StreamWriter(context.Response.OutputStream, context.Response.ContentEncoding);
+
                             context.Response.StatusCode = ex.GetHttpCode();
                             context.Response.StatusDescription = ex.Message;
-                            // text.Response.OutputStream
+
                             var htmlErrorMessage = ex.GetHtmlErrorMessage();
 
-                            //if (htmlErrorMessage != null)
-                            //{
-                            //    context.Response.Write("\n");
-                            //    context.Response.Write(htmlErrorMessage);
-                            //}
-                            // PrintToHtml(ex, context.Response.Output);
+                            if (htmlErrorMessage != null)
+                            {
+                                writer.Write("\n");
+                                writer.Write(htmlErrorMessage);
+                            }
+                            PrintToHtml(ex, writer);
+                            writer.Flush();
                         }
                         catch (Exception ex)
                         {
+                            var writer = new StreamWriter(context.Response.OutputStream, context.Response.ContentEncoding);
+
                             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                             context.Response.StatusDescription = "Internal Server Error";
-                            // PrintToHtml(ex, context.Response.Output);
-                            // context.Response.Write("\n");
-                            // context.Response.Write(ex.StackTrace);
+                            PrintToHtml(ex, writer);
+                            writer.Write("\n");
+                            writer.Write(ex.StackTrace);
+                            writer.Flush();
                         }
                         finally
                         {
@@ -181,7 +188,7 @@ namespace Xania.AspNet.Simulator
             }
         }
 
-        protected virtual void OnEnter(HttpListenerContext context)
+        internal virtual void OnEnter(HttpContextBase context)
         {
             foreach (var mod in _modules)
             {
@@ -189,12 +196,32 @@ namespace Xania.AspNet.Simulator
             }
         }
 
-        protected virtual void OnExit(HttpListenerContext context)
+        internal virtual void OnExit(HttpContextBase context)
         {
             foreach (var mod in _modules)
             {
                 mod.Exit(context);
             }
+        }
+    }
+
+    public interface IHttpServerHandler
+    {
+        bool Handle(HttpListenerContext context);
+    }
+
+    public class FuncServerHandler : IHttpServerHandler
+    {
+        private readonly Func<HttpListenerContext, bool> _handler;
+
+        public FuncServerHandler(Func<HttpListenerContext, bool> handler)
+        {
+            _handler = handler;
+        }
+
+        public bool Handle(HttpListenerContext context)
+        {
+            return _handler(context);
         }
     }
 }

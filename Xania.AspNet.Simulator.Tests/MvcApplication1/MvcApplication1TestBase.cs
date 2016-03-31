@@ -29,8 +29,7 @@ namespace Xania.AspNet.Simulator.Tests.MvcApplication1
             Server.UseStatic(contentProvider);
 
             _webSecurity = new FakeWebSecurity(Users);
-            Server.AddModule(new AuthenticationModule(ctx => _webSecurity.CurrentUser));
-
+            Server.AddModule(new AuthenticationModule(() => _webSecurity.CurrentUser));
 
             var controllers = new ControllerContainer()
                 .RegisterController("home", ctx => new HomeController())

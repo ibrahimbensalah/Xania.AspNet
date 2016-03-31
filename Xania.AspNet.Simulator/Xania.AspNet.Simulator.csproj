@@ -84,6 +84,7 @@
     <Compile Include="LinqActionDescriptor.cs" />
     <Compile Include="ActionRouterPathProvider.cs" />
     <Compile Include="HttpServerExtensions.cs" />
+    <Compile Include="MvcServerHandler.cs" />
     <Compile Include="SimulatorHelper.cs" />
     <Compile Include="MvcApplication.cs" />
     <Compile Include="MvcApplicationExtensions.cs" />

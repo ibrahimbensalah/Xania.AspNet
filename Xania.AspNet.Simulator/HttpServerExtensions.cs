@@ -1,16 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Web;
 using System.Web.Mvc;
 using Xania.AspNet.Core;
-using Xania.AspNet.Http;
 
 namespace Xania.AspNet.Simulator
 {
     public static class HttpServerExtensions
     {
-
         public static IMvcApplication UseMvc(this HttpServerSimulator server, ControllerContainer controllerContainer)
         {
             return UseMvc(server, controllerContainer, new EmptyContentProvider());
@@ -39,50 +34,7 @@ namespace Xania.AspNet.Simulator
         public static void UseMvc(this HttpServerSimulator server, IMvcApplication mvcApplication)
         {
             SimulatorHelper.InitializeMembership();
-
-            server.Use(httpContext =>
-            {
-                var httpContextBase = Wrap(httpContext, server.Sessions);
-                var action = new HttpControllerAction(mvcApplication, httpContextBase);
-                var executionContext = action.GetExecutionContext();
-
-                if (executionContext != null)
-                {
-                    var actionResult = action.GetAuthorizationResult(executionContext);
-
-                    if (actionResult == null)
-                    {
-                        action.ValidateRequest(executionContext);
-                        actionResult = action.GetActionResult(executionContext);
-                    }
-
-                    actionResult.ExecuteResult(executionContext);
-
-                    // close the response to enforce flush of the content
-                    httpContextBase.Response.Close();
-
-                    return true;
-                }
-
-                return false;
-            });
-        }
-
-        private static HttpListenerContextSimulator Wrap(HttpListenerContext listenerContext, IDictionary<string, HttpSessionStateBase> sessions)
-        {
-            HttpSessionStateBase session;
-            var sessionCookie = listenerContext.Request.Cookies["ASP.NET_SessionId"];
-            if (sessionCookie == null)
-            {
-                session = new HttpSessionStateSimulator();
-            }
-            else if (!sessions.TryGetValue(sessionCookie.Value, out session))
-            {
-                session = new HttpSessionStateSimulator(sessionCookie.Value);
-                sessions.Add(sessionCookie.Value, session);
-            }
-
-            return new HttpListenerContextSimulator(listenerContext, session);
+            server.Use(new MvcServerHandler(server, mvcApplication));
         }
 
         public static void UseStatic(this HttpServerSimulator server, string path)

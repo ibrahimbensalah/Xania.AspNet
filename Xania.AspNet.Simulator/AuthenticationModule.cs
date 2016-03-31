@@ -2,24 +2,25 @@ using System;
 using System.Net;
 using System.Security.Principal;
 using System.Threading;
+using System.Web;
 
 namespace Xania.AspNet.Simulator
 {
     public class AuthenticationModule: IServerModule
     {
-        private readonly Func<HttpListenerContext, IPrincipal> _userProvider;
+        private readonly Func<IPrincipal> _userProvider;
 
-        public AuthenticationModule(Func<HttpListenerContext, IPrincipal> userProvider)
+        public AuthenticationModule(Func<IPrincipal> userProvider)
         {
             _userProvider = userProvider;
         }
 
-        void IServerModule.Enter(HttpListenerContext context)
+        void IServerModule.Enter(HttpContextBase context)
         {
-            Thread.CurrentPrincipal = _userProvider(context); 
+            context.User = _userProvider(); 
         }
 
-        void IServerModule.Exit(HttpListenerContext context)
+        void IServerModule.Exit(HttpContextBase context)
         {
         }
     }
