@@ -1,12 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using MvcApplication1;
 using MvcApplication1.Controllers;
 using MvcApplication1.Data;
-using NUnit.Framework;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
-using SimpleBrowser.WebDriver;
 using Xania.AspNet.Razor;
 using Xania.AspNet.Simulator.Tests.Server;
 

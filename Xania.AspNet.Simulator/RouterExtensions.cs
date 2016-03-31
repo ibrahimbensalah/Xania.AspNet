@@ -63,5 +63,10 @@ namespace Xania.AspNet.Simulator
         {
             throw new NotImplementedException();
         }
+
+        public IEnumerable<string> GetDirectories(string areas)
+        {
+            yield break;
+        }
     }
 }

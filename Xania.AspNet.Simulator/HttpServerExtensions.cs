@@ -57,6 +57,10 @@ namespace Xania.AspNet.Simulator
                     }
 
                     actionResult.ExecuteResult(executionContext);
+
+                    // close the response to enforce flush of the content
+                    httpContextBase.Response.Close();
+
                     return true;
                 }
 

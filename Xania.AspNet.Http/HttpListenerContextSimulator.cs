@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using System.Security.Principal;
+using System.Threading;
 using System.Web;
 using System.Web.Caching;
 using System.Web.Routing;
@@ -17,9 +18,11 @@ namespace Xania.AspNet.Http
         private readonly Dictionary<object, object> _items;
         private readonly Cache _cache;
         private HttpApplication _applicationInstance;
+        private IPrincipal _user;
 
         public HttpListenerContextSimulator(HttpListenerContext listenerContext, HttpSessionStateBase session)
         {
+            _user = Thread.CurrentPrincipal;
             _session = session;
             _response = new HttpListenerResponseWrapper(listenerContext.Response, this);
             _request = new HttpListenerRequestWrapper(listenerContext.Request, new RequestContext(this, new RouteData()), () => User);
@@ -48,7 +51,11 @@ namespace Xania.AspNet.Http
             get { return _items; }
         }
 
-        public override IPrincipal User { get; set; }
+        public override IPrincipal User
+        {
+            get { return _user; }
+            set { _user = value; }
+        }
 
         public override Cache Cache
         {

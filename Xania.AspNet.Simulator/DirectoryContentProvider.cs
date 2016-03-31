@@ -77,6 +77,12 @@ namespace Xania.AspNet.Simulator
             return String.Join("/", fileDirs.Skip(baseDirs.Length)) + "/" + fileInfo.Name;
         }
 
+        public IEnumerable<string> GetDirectories(string searchPattern)
+        {
+            return _baseDirectories.SelectMany(baseDirectory => Directory.EnumerateDirectories(baseDirectory, searchPattern))
+                .Where(Directory.Exists);
+        }
+
         private IEnumerable<string> GetDirectories(DirectoryInfo dir)
         {
             while (dir != null)

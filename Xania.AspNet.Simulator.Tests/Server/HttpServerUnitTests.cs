@@ -5,12 +5,8 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web;
-using System.Web.Mvc;
-using System.Web.Routing;
 using FluentAssertions;
 using NUnit.Framework;
-using Xania.AspNet.Razor;
 using Xania.AspNet.Simulator.Tests.Controllers;
 
 namespace Xania.AspNet.Simulator.Tests.Server
@@ -18,26 +14,6 @@ namespace Xania.AspNet.Simulator.Tests.Server
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1001:TypesThatOwnDisposableFieldsShouldBeDisposable")]
     public class HttpServerUnitTests : HttpServerTestBase
     {
-        public RouteCollection GetRoutes()
-        {
-            RouteCollection routes = new RouteCollection();
-
-            var route = routes.MapRoute(
-                "MyArea_default",
-                "MyArea/{controller}/{action}/{id}",
-                new { controller = "Home", action = "Index", id = UrlParameter.Optional }
-            );
-            route.DataTokens["area"] = "MyArea";
-
-            routes.MapRoute(
-                "Default",
-                "{controller}/{action}/{id}",
-                new {controller = "Home", action = "Index", id = UrlParameter.Optional}
-                );
-
-            return routes;
-        }
-
         [TestCase("test/echo/hello", "hello")]
         [TestCase("test/query?q=a", "a")]
         [TestCase("test/echo/hello?bla=ddd", "hello")]
@@ -66,7 +42,7 @@ namespace Xania.AspNet.Simulator.Tests.Server
                 .RegisterController("test", () => new TestController())
                 .RegisterController("test", "myarea", () => new TestController());
 
-            var mvcApplication = new MvcApplication(controllerContainer, contentProvider, GetRoutes());
+            var mvcApplication = new MvcApplication(controllerContainer, contentProvider);
 
             Server.UseMvc(mvcApplication);
 

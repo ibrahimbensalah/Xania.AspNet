@@ -29,7 +29,7 @@ namespace Xania.AspNet.Simulator
         }
 
         public MvcApplication(IControllerFactory controllerFactory, IContentProvider contentProvider)
-            : this(controllerFactory, contentProvider, GetRoutes())
+            : this(controllerFactory, contentProvider, GetRoutes(contentProvider))
         {
         }
         
@@ -158,7 +158,7 @@ namespace Xania.AspNet.Simulator
 
         public IControllerFactory ControllerFactory { get; private set; }
 
-        public static RouteCollection GetRoutes()
+        public static RouteCollection GetRoutes(IContentProvider contentProvider)
         {
             var routes = new RouteCollection(new ActionRouterPathProvider());
 
@@ -166,11 +166,27 @@ namespace Xania.AspNet.Simulator
                 foreach (var r in RouteTable.Routes)
                     routes.Add(r);
             else
+            {
+                if (contentProvider.DirectoryExists("Areas"))
+                {
+                    foreach (var dir in contentProvider.GetDirectories("Areas/*"))
+                    {
+                        var areaName = new DirectoryInfo(dir).Name;
+                        var route = routes.MapRoute(
+                            areaName + "_default",
+                            areaName + "/{controller}/{action}/{id}",
+                            new {controller = "Home", action = "Index", id = UrlParameter.Optional}
+                            );
+                        route.DataTokens["area"] = areaName;
+                    }
+                }
+
                 routes.MapRoute(
                     "Default",
                     "{controller}/{action}/{id}",
                     new { controller = "Home", action = "Index", id = UrlParameter.Optional }
                     );
+            }
 
             return routes;
         }
