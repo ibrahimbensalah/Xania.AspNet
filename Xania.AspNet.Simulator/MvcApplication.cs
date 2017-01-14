@@ -142,7 +142,10 @@ namespace Xania.AspNet.Simulator
 
                 foreach (var assembly in runtimeAssemblies)
                 {
-                    result.Add(assembly.Name, assembly.Location);
+                    if (!result.ContainsKey(assembly.Name))
+                    {
+                        result.Add(assembly.Name, assembly.Location);
+                    }
                 }
 
                 return result.Values;
