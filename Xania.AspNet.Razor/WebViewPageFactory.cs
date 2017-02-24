@@ -15,7 +15,7 @@ using Xania.AspNet.Core;
 
 namespace Xania.AspNet.Razor
 {
-    public class WebViewPageFactory: IWebViewPageFactory
+    public class WebViewPageFactory : IWebViewPageFactory
     {
         private readonly IEnumerable<string> _assemblyFiles;
         private readonly IEnumerable<string> _namespaces;
@@ -57,9 +57,9 @@ namespace Xania.AspNet.Razor
         private string GetCacheKey(string content)
         {
             var versions = from assemblyPath in _assemblyFiles
-                let myFileVersionInfo = FileVersionInfo.GetVersionInfo(assemblyPath)
-                orderby myFileVersionInfo.FileVersion
-                select myFileVersionInfo.FileVersion;
+                           let myFileVersionInfo = FileVersionInfo.GetVersionInfo(assemblyPath)
+                           orderby myFileVersionInfo.FileVersion
+                           select myFileVersionInfo.FileVersion;
 
             using (var md5Hash = MD5.Create())
             {
@@ -91,7 +91,7 @@ namespace Xania.AspNet.Razor
         protected virtual Type GetPageType(Assembly assembly)
         {
             var compiledTemplateType = assembly.GetTypes()
-                .Single(t => typeof (IWebViewPage).IsAssignableFrom(t));
+                .Single(t => typeof(IWebViewPage).IsAssignableFrom(t));
 
             return compiledTemplateType;
         }
@@ -100,28 +100,16 @@ namespace Xania.AspNet.Razor
         {
             var compilerResults = new CSharpCodeProvider().CompileAssemblyFromDom(compilerParameters, generatedCode);
 
-            foreach (CompilerError err in compilerResults.Errors)
-            {
-                Console.WriteLine(err);
-            }
-
             if (compilerResults.Errors.HasErrors)
             {
                 var writer = new StringWriter();
-
                 new CSharpCodeProvider().GenerateCodeFromCompileUnit(generatedCode, writer, new CodeGeneratorOptions());
 
-                writer.WriteLine("Referenced assemblies: ");
-                var q = from string assembly in compilerParameters.ReferencedAssemblies
-                    let i = assembly.LastIndexOf('\\') + 1
-                    select new {Name = assembly.Substring(i), Path = assembly};
-
-                foreach (var refas in q.OrderBy(e => e.Name))
+                throw new WebViewPageCompileException(compilerResults, writer.ToString())
                 {
-                    writer.WriteLine("{0} ({1})", refas.Name, refas.Path);
-                }
-
-                throw new Exception("Errors in razor file \r\n" + writer);
+                    CompileUnit = generatedCode,
+                    CompilerParameters = compilerParameters
+                };
             }
 
             if (!compilerParameters.GenerateInMemory && _cacheEnabled)
@@ -136,10 +124,10 @@ namespace Xania.AspNet.Razor
         {
             var host = new MvcWebPageRazorHost(virtualPath, string.Empty)
             {
-                DefaultBaseClass = typeof (WebViewPageSimulator).FullName
+                DefaultBaseClass = typeof(WebViewPageSimulator).FullName
             };
 
-            foreach(var ns in _namespaces)
+            foreach (var ns in _namespaces)
                 host.NamespaceImports.Add(ns);
 
             var generatedCode =

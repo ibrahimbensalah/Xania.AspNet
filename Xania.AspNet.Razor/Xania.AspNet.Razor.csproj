@@ -102,6 +102,7 @@
     <Compile Include="RazorViewSimulator.cs" />
     <Compile Include="StyleBundles.cs" />
     <Compile Include="VirtualPathFactorySimulator.cs" />
+    <Compile Include="WebViewPageCompileException.cs" />
     <Compile Include="WebViewPageFactory.cs" />
     <Compile Include="WebViewPageSimulator.cs" />
   </ItemGroup>
